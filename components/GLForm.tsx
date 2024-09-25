@@ -78,7 +78,7 @@ const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, className }) => {
                 />
                 {/* Show delete GL code item button starting from the second one */}
                 {GLIndex != 0 &&
-                    <div className='flex justify-center place-items-center mt-8'>
+                    <div className='flex justify-start mt-8'>
                         <Button
                         type="button"
                         variant="destructive"
