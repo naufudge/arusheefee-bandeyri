@@ -9,6 +9,7 @@ import { Form } from "@/components/ui/form"
 import { PvSchema } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
 import PvInputField from "@/components/PvInputField";
+import axios from "axios";
 
 const PvForm = () => {
   const form = useForm<z.infer<typeof PvSchema>>({
@@ -27,6 +28,7 @@ const PvForm = () => {
       invoiceDetails: [{
         comments: "",
         invoiceNumber: "",
+        invoiceDate: new Date(),
         invoiceTotal: 0,
         glDetails: [{
           code: 0,
@@ -49,8 +51,13 @@ const PvForm = () => {
     name: 'invoiceDetails',
   });
 
-  const onSubmit = (values: z.infer<typeof PvSchema>) => {
-    console.log(values)
+  const onSubmit = async (values: z.infer<typeof PvSchema>) => {
+    try {
+      const response = await axios.post("http://10.12.29.68:8000/pv/add", values)
+      console.log(response.data)
+    } catch (error: any) {
+      console.log(error.message)
+    }
   }
 
   return (
@@ -65,7 +72,7 @@ const PvForm = () => {
           
 
           {/* PV Number */}
-          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={true} />
+          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={false} />
           
         </div>
 

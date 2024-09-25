@@ -6,7 +6,7 @@ const userSchema = z.object({
 })
 
 export const PvSchema = z.object({
-    pvNum: z.number().gt(0),
+    pvNum: z.coerce.number().gt(0),
     businessArea: z.coerce.number().default(1506),
     agency: z.string().default("National Archives of Maldives"),
     vendor: z.string().min(1),
@@ -37,7 +37,7 @@ export const PvSchema = z.object({
     authorisedByTwo: z.object({
       name: z.string().optional(),
       designation: z.string().optional()
-    }),
+    })
   })
   
   export type PvValues = z.infer<typeof PvSchema>
