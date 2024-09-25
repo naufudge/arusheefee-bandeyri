@@ -1,7 +1,8 @@
 import React from 'react'
+import { PvValues } from '@/lib/PvSchema'
 
 
-const PrintView = () => {
+const PrintView: React.FC<PvValues> = (PvValues) => {
   return (
     <div className='mx-5 text-[13px]'>
         <div className="container m-10 pb-4 outline outline-1 mx-auto max-w-[950px]">
@@ -16,7 +17,7 @@ const PrintView = () => {
                 <div className="grid grid-rows-2 col-span-2">
                     <div className="grid grid-cols-4 custom-border-1 child:px-2 child:col-span-2">
                         <div className='font-bold'>Acct. No. / <span className='dhivehi'>އެކައުންޓް</span></div>
-                        <div className="text-center">1506</div>
+                        <div className="text-center">{PvValues.businessArea}</div>
                     </div>
                     <div className="grid grid-cols-4 custom-border-1 child:px-2 child:col-span-2">
                         <div className='font-bold'>Type / <span className='dhivehi'>ބާވަތް</span></div>
@@ -30,17 +31,17 @@ const PrintView = () => {
                     {/* Agency */}
                     <div className='grid grid-cols-3'>
                         <div>Agency / <span className='dhivehi'>އޮފީސް</span></div>
-                        <div className='col-span-2'>National Archives of Maldives</div>
+                        <div className='col-span-2'>{PvValues.agency}</div>
                     </div>
                     {/* Business Area */}
                     <div className='grid grid-cols-3'>
                         <div>Business Area / <span className='dhivehi'>ބ. އޭރިއާ</span></div>
-                        <div className='col-span-2'>1506</div>
+                        <div className='col-span-2'>{PvValues.businessArea}</div>
                     </div>
                     {/* Vendor */}
                     <div className='grid grid-cols-3'>
                         <div>Vendor / <span className='dhivehi'>ލިބޭފަރާތް</span></div>
-                        <div className='col-span-2'>Dhiraagu</div>
+                        <div className='col-span-2'>{PvValues.vendor}</div>
                     </div>
 
                 </div>
