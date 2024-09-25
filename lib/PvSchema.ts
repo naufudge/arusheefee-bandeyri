@@ -34,7 +34,10 @@ export const PvSchema = z.object({
     preparedBy: userSchema,
     verifiedBy: userSchema,
     authorisedByOne: userSchema,
-    authorisedByTwo: userSchema,
+    authorisedByTwo: z.object({
+      name: z.string().optional(),
+      designation: z.string().optional()
+    }),
   })
   
   export type PvValues = z.infer<typeof PvSchema>
