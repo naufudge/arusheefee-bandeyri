@@ -3,48 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useFieldArray } from "react-hook-form"
 import { z } from 'zod'
-import { CalendarIcon, Plus, Trash2 } from "lucide-react"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
+import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { PvSchema, PvValues } from "@/lib/PvSchema";
-import GLForm from "./GLForm";
-
-
-const FieldNames = {
-  pvNum: "PV Number",
-  businessArea: "Business Area",
-  agency: "Agency",
-  vendor: "Vendor",
-  date: "Date",
-  notes: "Note(s)",
-  currency: "Currency",
-  exchangeRate: "Exchange Rate",
-
-  numOfInvoice: "Number of Invoices",
-  invoiceNumber: "Invoice Number",
-  invoiceDate: "Invoice Date",
-  invoiceTotal: "Invoice Total",
-
-  comments: "Comment(s)"
-}
-
+import { Form } from "@/components/ui/form"
+import { PvSchema } from "@/lib/PvSchema";
+import GLForm from "@/components/GLForm";
+import PvInputField from "@/components/PvInputField";
 
 const PvForm = () => {
   const form = useForm<z.infer<typeof PvSchema>>({
@@ -71,7 +35,7 @@ const PvForm = () => {
         }]
       }],
 
-      preparedBy: {name: "", designation: ""},
+      preparedBy: {name: "Sharumeela Abdul Fatah", designation: "Accounts Officer"},
       verifiedBy: {name: "", designation: ""},
       authorisedByOne: {name: "", designation: ""},
       authorisedByTwo: {name: "", designation: ""},
@@ -92,181 +56,48 @@ const PvForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
-
         <div className="grid grid-cols-3 gap-4">
           {/* Business Area */}
-          <FormField
-            control={form.control}
-            name="businessArea"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <FormControl>
-                  <Input placeholder={FieldNames[field.name]} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <PvInputField control={control} name={"businessArea"} label="Business Area" />
 
           {/* Vendor */}
-          <FormField
-            control={form.control}
-            name="vendor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <FormControl>
-                  <Input placeholder={FieldNames[field.name]} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <PvInputField control={control} name={"vendor"} label="Vendor" />
+          
 
           {/* PV Number */}
-          <FormField
-            disabled
-            control={form.control}
-            name="pvNum"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <FormControl>
-                  <Input placeholder={FieldNames[field.name]} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          </div>
+          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={true} />
+          
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Agency */}
-            <FormField
-              control={form.control}
-              name="agency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{FieldNames[field.name]}</FormLabel>
-                  <FormControl>
-                    <Input placeholder={FieldNames[field.name]} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="grid grid-cols-2 gap-4">
+          {/* Agency */}
+          <PvInputField control={control} name={"agency"} label="Agency" />
+            
 
           {/* PV Date */}
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem className="flex flex-col justify-center mt-2">
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <Popover>
-                <PopoverTrigger asChild>
-                    <FormControl>
-                    <Button
-                        variant={"outline"}
-                        className={cn(
-                        "w-full pl-3 text-left font-normal justify-between",
-                        !field.value && "text-muted-foreground"
-                        )}
-                    >
-                        {field.value ? (
-                        format(field.value, "PPP")
-                        ) : (
-                        <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                    </Button>
-                    </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                    />
-                </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <PvInputField control={control} name={"date"} label="Date" />
+
         </div>
         
         {/* Notes */}
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{FieldNames[field.name]}</FormLabel>
-              <FormControl>
-                <Input placeholder={FieldNames[field.name]} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <PvInputField control={control} name={"notes"} label="Note(s)" />
 
         <div className="grid grid-cols-3 gap-4">
           {/* Currency */}
-          <FormField
-            control={form.control}
-            name="currency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder={FieldNames[field.name]} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <PvInputField control={control} name={"currency"} label="Currency" />
 
           {/* Exchange Rate */}
-          <FormField
-            control={form.control}
-            name="exchangeRate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder={FieldNames[field.name]} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <PvInputField control={control} name={"exchangeRate"} label="Exchange Rate" />
 
-          <FormField
-            control={form.control}
-            name="numOfInvoice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{FieldNames[field.name]}</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder={FieldNames[field.name]} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Number of Invoice(s) */}
+          <PvInputField control={control} name={"numOfInvoice"} label="No. of Invoices" />
         </div>
 
         {/* Invoice Section */}
         <div className="transition-all duration-150">
           {fields.map((item, index) => (
-            <div key={item.id} className="grid grid-cols-2 gap-4 mb-7 bg-slate-50 p-5 pb-8 rounded-xl drop-shadow-md">
-              <div className="flex col-span-3 font-bold text-xl justify-between w-full">
+            <div key={item.id} className="grid grid-cols-4 gap-4 mb-7 bg-slate-50 p-5 pb-8 rounded-xl drop-shadow-md">
+              <div className="flex col-span-4 font-bold text-xl justify-between w-full">
                 <div>Invoice #{index + 1}</div>
                 {/* Show delete button starting from Invoice #2 */}
                 {index != 0 && 
@@ -278,92 +109,20 @@ const PvForm = () => {
                   </Button>
                 }
               </div>
-              <FormField
-                control={control}
-                name={`invoiceDetails.${index}.comments`}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col gap-2 col-span-3">
-                    <FormLabel>Comments</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Comments" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Comment(s) */}
+              <PvInputField control={control} name={`invoiceDetails.${index}.comments`} label="Comments" className="flex flex-col gap-2 col-span-4" />
+              
+              {/* Invoice Date */}
+              <PvInputField control={control} name={`invoiceDetails.${index}.invoiceDate`} label="Invoice Date" className="flex flex-col justify-start gap-2 col-span-2" />
+              
+              {/* Invoice Number */}
+              <PvInputField control={control} name={`invoiceDetails.${index}.invoiceNumber`} label="Invoice Number" className="flex flex-col gap-2" />
 
-              <FormField
-                control={control}
-                name={`invoiceDetails.${index}.invoiceNumber`}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col gap-2">
-                    <FormLabel>Invoice Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Invoice Number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`invoiceDetails.${index}.invoiceDate`}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col justify-center gap-2">
-                    <FormLabel>Invoice Date</FormLabel>
-                    <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                            "w-full pl-3 text-left font-normal justify-between",
-                            !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? (
-                            format(field.value, "PPP")
-                            ) : (
-                            <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                        />
-                    </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={control}
-                name={`invoiceDetails.${index}.invoiceTotal`}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col gap-2">
-                    <FormLabel>Invoice Total</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Invoice Total" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Invoice Total */}
+              <PvInputField control={control} name={`invoiceDetails.${index}.invoiceTotal`} label="Invoice Total" className="flex flex-col gap-2" />
 
               {/* GL Section */}
-              <GLForm className="col-span-3" nestIndex={index} control={control} />
+              <GLForm className="col-span-4" nestIndex={index} control={control} />
             </div>
           ))}
           {/* Add invoice button */}
@@ -384,7 +143,34 @@ const PvForm = () => {
           </Button>
         </div>
 
-        <div>
+        <div className="grid grid-cols-2 gap-6">
+          {/* Prepared By Section */}
+          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
+            <div className="font-bold">Prepared By:</div>
+            <PvInputField control={control} name={"preparedBy.name"} label="Name" />
+            <PvInputField control={control} name={"preparedBy.designation"} label="Designation" />
+          </div>
+          
+          {/* Verified By Section */}
+          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
+            <div className="font-bold">Verified By:</div>
+            <PvInputField control={control} name={"verifiedBy.name"} label="Name" />
+            <PvInputField control={control} name={"verifiedBy.designation"} label="Designation" />
+          </div>
+
+          {/* Authorised By Section One */}
+          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
+            <div className="font-bold">Authorised By:</div>
+            <PvInputField control={control} name={"authorisedByOne.name"} label="Name" />
+            <PvInputField control={control} name={"authorisedByOne.designation"} label="Designation" />
+          </div>
+
+          {/* Authorised By Section Two */}
+          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
+            <div className="font-bold">Authorised By 2:</div>
+            <PvInputField control={control} name={"authorisedByTwo.name"} label="Name" />
+            <PvInputField control={control} name={"authorisedByTwo.designation"} label="Designation" />
+          </div>
             
         </div>
 
