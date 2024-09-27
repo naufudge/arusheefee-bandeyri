@@ -11,6 +11,10 @@ import GLForm from "@/components/GLForm";
 import PvInputField from "@/components/PvInputField";
 import axios from "axios";
 
+interface PvFormProps {
+  
+}
+
 const PvForm = () => {
   const form = useForm<z.infer<typeof PvSchema>>({
     resolver: zodResolver(PvSchema),
@@ -23,7 +27,7 @@ const PvForm = () => {
       notes: "",
       currency: "MVR",
       exchangeRate: 1,
-      numOfInvoice: 1,
+      // numOfInvoice: 1,
 
       invoiceDetails: [{
         comments: "",
@@ -97,7 +101,7 @@ const PvForm = () => {
           <PvInputField control={control} name={"exchangeRate"} label="Exchange Rate" />
 
           {/* Number of Invoice(s) */}
-          <PvInputField control={control} name={"numOfInvoice"} label="No. of Invoices" />
+          {/* <PvInputField control={control} name={"numOfInvoice"} label="No. of Invoices" /> */}
         </div>
 
         {/* Invoice Section */}
