@@ -21,7 +21,7 @@ export const PvSchema = z.object({
     z.object({
       comments: z.string().min(10),
       invoiceNumber: z.string().min(1),
-      invoiceDate: z.date().optional(),
+      invoiceDate: z.date().optional().nullable(),
       invoiceTotal: z.coerce.number().gt(0),
       glDetails: z.array(z.object({
         code: z.coerce.number().gt(100000),
@@ -41,9 +41,9 @@ export const PvSchema = z.object({
 
   poNum: z.string().optional(),
   paymentMethod: z.string(),
-  parkedDate: z.date().optional(),
-  postingDate: z.date().optional(),
-  clearingDoc: z.object({num: z.string().optional(), date: z.date().optional()}),
+  parkedDate: z.date().optional().nullable(),
+  postingDate: z.date().optional().nullable(),
+  clearingDoc: z.object({num: z.string().optional(), date: z.date().optional().nullable()}),
   transferNum: z.string().optional()
 })
 

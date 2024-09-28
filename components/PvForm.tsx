@@ -6,48 +6,75 @@ import { z } from 'zod'
 import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
-import { PvSchema } from "@/lib/PvSchema";
+import { PvSchema, PvValues } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
 import PvInputField from "@/components/PvInputField";
 import axios from "axios";
 
 interface PvFormProps {
-  
+  pv?: any;
 }
 
-const PvForm = () => {
-  const form = useForm<z.infer<typeof PvSchema>>({
-    resolver: zodResolver(PvSchema),
-    defaultValues: {
-      pvNum: 0,
-      businessArea: 1506,
-      agency: "National Archives of Maldives",
-      vendor: "",
-      date: new Date(),
-      notes: "",
-      currency: "MVR",
-      exchangeRate: 1,
-      // numOfInvoice: 1,
+function getForm(pv?: PvValues | null) {
+  if (pv) {
+    console.log("here")
+    return useForm<z.infer<typeof PvSchema>>({
+      resolver: zodResolver(PvSchema),
+      defaultValues: 
+        {
+          pvNum: pv.pvNum,
+          businessArea: pv.businessArea,
+          agency: pv.agency,
+          vendor: pv.vendor,
+          date: pv.date,
+          notes: pv.notes,
+          currency: pv.currency,
+          exchangeRate: pv.exchangeRate,
 
-      invoiceDetails: [{
-        comments: "",
-        invoiceNumber: "",
-        invoiceDate: new Date(),
-        invoiceTotal: 0,
-        glDetails: [{
-          code: 0,
-          fund: "C-GOM",
-          amount: 0
-        }]
-      }],
+          invoiceDetails: pv.invoiceDetails,
 
-      preparedBy: {name: "Sharumeela Abdul Fatah", designation: "Accounts Officer"},
-      verifiedBy: {name: "", designation: ""},
-      authorisedByOne: {name: "", designation: ""},
-      authorisedByTwo: {name: "", designation: ""},
-    }
-  })
+          preparedBy: pv.preparedBy,
+          verifiedBy: pv.verifiedBy,
+          authorisedByOne: pv.authorisedByOne,
+          authorisedByTwo: pv.authorisedByTwo,
+      }})
+  } else {
+    return useForm<z.infer<typeof PvSchema>>({
+      resolver: zodResolver(PvSchema),
+      defaultValues: {
+        pvNum: 0,
+        businessArea: 1506,
+        agency: "National Archives of Maldives",
+        vendor: "",
+        date: new Date(),
+        notes: "",
+        currency: "MVR",
+        exchangeRate: 1,
+        // numOfInvoice: 1,
+  
+        invoiceDetails: [{
+          comments: "",
+          invoiceNumber: "",
+          invoiceDate: new Date(),
+          invoiceTotal: 0,
+          glDetails: [{
+            code: 0,
+            fund: "C-GOM",
+            amount: 0
+          }]
+        }],
+  
+        preparedBy: {name: "Sharumeela Abdul Fatah", designation: "Accounts Officer"},
+        verifiedBy: {name: "", designation: ""},
+        authorisedByOne: {name: "", designation: ""},
+        authorisedByTwo: {name: "", designation: ""},
+    }})
+  }
+}
 
+const PvForm: React.FC<PvFormProps> = ({ pv }) => {
+  const form = getForm(pv)
+  
   const control = form.control
 
   const { fields, append, remove } = useFieldArray({

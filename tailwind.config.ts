@@ -54,7 +54,8 @@ const config: Config = {
   		},
   		fontFamily: {
   			faruma: ["var(--font-faruma)"],
-  			waheed: ["var(--font-waheed)"]
+  			waheed: ["var(--font-waheed)"],
+  			poppins: ["var(--font-poppins)"],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

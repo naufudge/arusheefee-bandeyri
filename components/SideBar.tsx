@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react'
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/nav/sidebar";
-import { BookText, Images, Newspaper, Settings, SquarePen } from "lucide-react";
+import { BookText, Images, Newspaper, NotebookPen, Settings, SquarePen } from "lucide-react";
 import Image from 'next/image';
 
 const SideBar = () => {
     const links = [
         {
           label: "PV Register",
-          href: "/",
+          href: "/pv_register",
           icon: (
             <BookText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
           ),
@@ -18,7 +18,7 @@ const SideBar = () => {
           label: "Create PV",
           href: "/create",
           icon: (
-            <SquarePen className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            <NotebookPen className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
           ),
         },
         {
@@ -41,7 +41,7 @@ const SideBar = () => {
                     className='font-bold'
                     link={{
                     label: "National Archives of Maldives",
-                    href: "#",
+                    href: "/",
                     icon: (
                         <Image
                           src={"/logo.png"}
