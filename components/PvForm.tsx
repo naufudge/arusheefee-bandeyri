@@ -37,6 +37,13 @@ function getForm(pv?: PvValues | null) {
           verifiedBy: pv.verifiedBy,
           authorisedByOne: pv.authorisedByOne,
           authorisedByTwo: pv.authorisedByTwo,
+
+          poNum: pv.poNum,
+          paymentMethod: pv.paymentMethod,
+          parkedDate: pv.parkedDate,
+          postingDate: pv.postingDate,
+          clearingDoc: {num: pv.clearingDoc.num, date: pv.clearingDoc.date},
+          transferNum: pv.transferNum
       }})
   } else {
     return useForm<z.infer<typeof PvSchema>>({
@@ -68,6 +75,13 @@ function getForm(pv?: PvValues | null) {
         verifiedBy: {name: "", designation: ""},
         authorisedByOne: {name: "", designation: ""},
         authorisedByTwo: {name: "", designation: ""},
+
+        poNum: "",
+        paymentMethod: "",
+        parkedDate: null,
+        postingDate: null,
+        clearingDoc: {num: "", date: null},
+        transferNum: ""
     }})
   }
 }
@@ -83,11 +97,15 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof PvSchema>) => {
-    try {
-      const response = await axios.post("http://10.12.29.68:8000/pv/add", values)
-      console.log(response.data)
-    } catch (error: any) {
-      console.log(error.message)
+    if (pv) {
+      try {
+        const response = await axios.post("http://10.12.29.68:8000/pv/add", values)
+        console.log(response.data)
+      } catch (error: any) {
+        console.log(error.message)
+      }
+    } else {
+      console.log(values)
     }
   }
 
@@ -103,7 +121,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           
 
           {/* PV Number */}
-          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={false} />
+          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={pv && true} />
           
         </div>
 
@@ -121,6 +139,9 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
         <PvInputField control={control} name={"notes"} label="Note(s)" />
 
         <div className="grid grid-cols-3 gap-4">
+          {/* PO number */}
+          <PvInputField control={control} name={"poNum"} label="PO Number" />
+
           {/* Currency */}
           <PvInputField control={control} name={"currency"} label="Currency" />
 
@@ -209,7 +230,20 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
             <PvInputField control={control} name={"authorisedByTwo.name"} label="Name" />
             <PvInputField control={control} name={"authorisedByTwo.designation"} label="Designation" />
           </div>
-            
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 gap-y-8">
+          <PvInputField control={control} name={"paymentMethod"} label="Payment Method" />
+
+          <PvInputField control={control} name={"parkedDate"} label="Parking Date" />
+
+          <PvInputField control={control} name={"postingDate"} label="Posting Date" />
+
+          <PvInputField control={control} name={"clearingDoc.num"} label="Clearing Doc. Number" />
+
+          <PvInputField control={control} name={"clearingDoc.date"} label="Clearing Doc. Date" />
+
+          <PvInputField control={control} name={"transferNum"} label="Transfer Number" />
         </div>
 
         <Button type="submit">Submit</Button>

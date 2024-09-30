@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 const userSchema = z.object({
-  name: z.string().min(10),
-  designation: z.string().min(10),
+  name: z.string().optional(),
+  designation: z.string().optional(),
 })
 
 export const PvSchema = z.object({
@@ -20,8 +20,8 @@ export const PvSchema = z.object({
   invoiceDetails: z.array(
     z.object({
       comments: z.string().min(10),
-      invoiceNumber: z.string().min(1),
-      invoiceDate: z.date().optional().nullable(),
+      invoiceNumber: z.string().optional(),
+      invoiceDate: z.date().nullable().optional(),
       invoiceTotal: z.coerce.number().gt(0),
       glDetails: z.array(z.object({
         code: z.coerce.number().gt(100000),
@@ -34,10 +34,7 @@ export const PvSchema = z.object({
   preparedBy: userSchema,
   verifiedBy: userSchema,
   authorisedByOne: userSchema,
-  authorisedByTwo: z.object({
-    name: z.string().optional(),
-    designation: z.string().optional()
-  }),
+  authorisedByTwo: userSchema,
 
   poNum: z.string().optional(),
   paymentMethod: z.string(),

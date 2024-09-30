@@ -45,25 +45,33 @@ const page = () => {
       <div className='grid gap-8'>
         { loading ? <div className='italic'>Loading...</div>
         :
+        // ${pv.transferNum === "" ? 'bg-slate-50' : "bg-green-50"}
         <>
           {pvs.map((pv, index) => (
-            <div key={index} className={`flex ${pv.transferNum === "" ? 'bg-slate-50' : "bg-green-50"}  rounded-lg p-5 w-full drop-shadow`}>
+            <div key={index} className={`flex border rounded-lg p-5 w-full drop-shadow-sm`}>
               
               <div className='flex gap-8 w-full'>
+                {/* PV Number */}
                 <div className='flex place-items-center justify-center font-bold'>{pv.pvNum}</div>
                 
                 <div className='flex flex-col'>
                   <div>{pv.notes}</div>
                   <div className='italic opacity-60 text-sm'>{pv.vendor}</div>
                 </div>
+                
               </div>
 
-              <div className='flex gap-8 place-items-center child:transition-all child:duration-200 child:hover:cursor-pointer'>
-                <Eye className='hover:text-green-600' />
+              <div className='flex gap-8 place-items-center child:transition-all child:duration-200'>
+                <div className='flex gap-2 place-items-center justify-start'>
+                  <div className={`w-[15px] h-[15px] ${pv.transferNum != "" ? "bg-green-700" : "bg-gray-700"} rounded-full`}></div>
+                  <div className='opacity-60 text-sm'>{pv.transferNum != "" ? "Processed" : "Pending"}</div>
+                </div>
+                
+                <Eye className='hover:text-green-600 hover:cursor-pointer' />
 
                 {/* Edit Popup */}
                 <Dialog>
-                    <DialogTrigger><SquarePen className='hover:text-blue-600' /></DialogTrigger>
+                    <DialogTrigger><SquarePen className='hover:text-blue-600 hover:cursor-pointer' /></DialogTrigger>
                     <DialogContent className='bg-white overflow-y-scroll h-[650px] max-w-[750px]'>
                         <DialogHeader>
                         <DialogTitle className='text-center mb-4'>Edit PV</DialogTitle>
@@ -75,8 +83,8 @@ const page = () => {
                     </DialogContent>
                 </Dialog>
 
-                <Printer className='hover:text-purple-600' />
-                <Trash2 className='hover:text-red-600' />
+                <Printer className='hover:text-purple-600 hover:cursor-pointer' onClick={() => console.log(pv)} />
+                <Trash2 className='hover:text-red-600 hover:cursor-pointer' />
               </div>
               </div>
           ))}

@@ -23,24 +23,6 @@ import { Control } from 'react-hook-form'
 import { PvValues } from "@/lib/PvSchema";
 
 
-const FieldNames = {
-    pvNum: "PV Number",
-    businessArea: "Business Area",
-    agency: "Agency",
-    vendor: "Vendor",
-    date: "Date",
-    notes: "Note(s)",
-    currency: "Currency",
-    exchangeRate: "Exchange Rate",
-
-    numOfInvoice: "Number of Invoices",
-    invoiceNumber: "Invoice Number",
-    invoiceDate: "Invoice Date",
-    invoiceTotal: "Invoice Total",
-
-    comments: "Comment(s)"
-}
-
 interface PvInputFieldProps {
     control: Control<PvValues>;
     name: any;
@@ -54,7 +36,7 @@ const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disab
         return (
             <FormField
                 control={control}
-                name="date"
+                name={name}
                 render={({ field }) => (
                 <FormItem className={className}>
                     <FormLabel>{label}</FormLabel>
