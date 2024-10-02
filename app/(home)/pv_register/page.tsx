@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
 import { PvValues } from '@/lib/PvSchema';
 import { Eye, Printer, SquarePen, Trash2 } from 'lucide-react';
 import {
@@ -15,6 +16,7 @@ import PvForm from '@/components/PvForm';
 
 
 const page = () => {
+  const router = useRouter()
   const [pvs, setPvs] = useState<PvValues[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -34,6 +36,10 @@ const page = () => {
     if (pvs.length <= 0) get_pvs()
   }, [pvs, loading])
     
+  const handlePrintClick = (pv: PvValues) => {
+    localStorage.setItem("pvNum", pv.pvNum)
+    router.push("/print")
+  }
 
   return (
     <div className='font-poppins w-full'>
@@ -62,6 +68,7 @@ const page = () => {
               </div>
 
               <div className='flex gap-8 place-items-center child:transition-all child:duration-200'>
+                {/* Status of the PV */}
                 <div className='flex gap-2 place-items-center justify-start'>
                   <div className={`w-[15px] h-[15px] ${pv.transferNum != "" ? "bg-green-700" : "bg-gray-700"} rounded-full`}></div>
                   <div className='opacity-60 text-sm'>{pv.transferNum != "" ? "Processed" : "Pending"}</div>
@@ -83,7 +90,7 @@ const page = () => {
                     </DialogContent>
                 </Dialog>
 
-                <Printer className='hover:text-purple-600 hover:cursor-pointer' onClick={() => console.log(pv)} />
+                <Printer className='hover:text-purple-600 hover:cursor-pointer' onClick={() => handlePrintClick(pv)} />
                 <Trash2 className='hover:text-red-600 hover:cursor-pointer' />
               </div>
               </div>

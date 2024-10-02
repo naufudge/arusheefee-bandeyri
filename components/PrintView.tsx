@@ -1,8 +1,29 @@
 import React from 'react'
 import { PvValues } from '@/lib/PvSchema'
 
+interface PrintProps {
+    pv: PvValues
+}
 
-const PrintView: React.FC<PvValues> = (PvValues) => {
+const PrintView: React.FC<PrintProps> = ({ pv }) => {
+  
+  const formatDate = (date?: Date | null) => {
+    const dateOptions: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
+    if (date) {
+        return date.toLocaleDateString("en-GB", dateOptions).replace(/ /g, '-')
+    } else {
+        return ""
+    }
+  }
+
+  const getGrossTotal = (invoices: PvValues["invoiceDetails"]) => {
+    let total = 0;
+    invoices.filter((inv, index) => {
+        total = total + inv.invoiceTotal
+    })
+    return total;
+  }
+
   return (
     <div className='mx-5 text-[13px]'>
         <div className="container m-10 pb-4 outline outline-1 mx-auto max-w-[950px]">
@@ -17,7 +38,7 @@ const PrintView: React.FC<PvValues> = (PvValues) => {
                 <div className="grid grid-rows-2 col-span-2">
                     <div className="grid grid-cols-4 custom-border-1 child:px-2 child:col-span-2">
                         <div className='font-bold'>Acct. No. / <span className='dhivehi'>އެކައުންޓް</span></div>
-                        <div className="text-center">{PvValues.businessArea}</div>
+                        <div className="text-center">{pv.businessArea}</div>
                     </div>
                     <div className="grid grid-cols-4 custom-border-1 child:px-2 child:col-span-2">
                         <div className='font-bold'>Type / <span className='dhivehi'>ބާވަތް</span></div>
@@ -31,17 +52,17 @@ const PrintView: React.FC<PvValues> = (PvValues) => {
                     {/* Agency */}
                     <div className='grid grid-cols-3'>
                         <div>Agency / <span className='dhivehi'>އޮފީސް</span></div>
-                        <div className='col-span-2'>{PvValues.agency}</div>
+                        <div className='col-span-2'>{pv.agency}</div>
                     </div>
                     {/* Business Area */}
                     <div className='grid grid-cols-3'>
                         <div>Business Area / <span className='dhivehi'>ބ. އޭރިއާ</span></div>
-                        <div className='col-span-2'>{PvValues.businessArea}</div>
+                        <div className='col-span-2'>{pv.businessArea}</div>
                     </div>
                     {/* Vendor */}
                     <div className='grid grid-cols-3'>
                         <div>Vendor / <span className='dhivehi'>ލިބޭފަރާތް</span></div>
-                        <div className='col-span-2'>{PvValues.vendor}</div>
+                        <div className='col-span-2'>{pv.vendor}</div>
                     </div>
 
                 </div>
@@ -50,27 +71,28 @@ const PrintView: React.FC<PvValues> = (PvValues) => {
                     {/* Date */}
                     <div className='grid grid-cols-2'>
                         <div>Date / <span className='dhivehi'>ތާރީޚް</span></div>
-                        <div>21-Sep-2024</div>
+                        <div>{formatDate(pv.date)}</div>
                     </div>
                     {/* PV Number */}
                     <div className='grid grid-cols-2'>
                         <div>PV No. / <span className='dhivehi'>ޕީވީ</span></div>
-                        <div>1506/2024/252</div>
+                        <div>1506/{pv.pvNum.replace("-", "/")}</div>
                     </div>
                     {/* Number of Invoices */}
                     <div className='grid grid-cols-3'>
                         <div className='col-span-2'>Invoice(s) / <span className='dhivehi'>އިންވޮއިސްގެ އަދަދު</span></div>
-                        <div>1</div>
+                        <div>{pv.invoiceDetails.length}</div>
                     </div>
                 </div>
             </div>
             
+            {/* Notes */}
             <div className='flex w-full h-[50px] ml-2'>
                 <div className='place-items-center flex flex-col gap-1 justify-center font-bold'>
                     <span>Note:</span>
                     <span className='dhivehi'>ނޯޓު</span>
                 </div>
-                <div className='w-full outline outline-1 mx-5 p-1'>Write the note(s) here!</div>
+                <div className='w-full outline outline-1 mx-5 p-1'>{pv.notes}</div>
             </div>
             
             {/* Invoice Details Section */}
@@ -87,57 +109,62 @@ const PrintView: React.FC<PvValues> = (PvValues) => {
                         <div>1.0000</div>
                     </div>
                 </div> 
+            </div>
+            {/* Invoice Number, Date, Total, MVR */}
+            {pv.invoiceDetails.map((invoice, index) => (
+                <div key={index} className='ml-0 outline-1 outline'>
+                    <div className='grid grid-cols-4 custom-border-3'>
+                        <div className='grid grid-rows-2'>
+                            <div>Invoice No.</div>
+                            <div>{invoice.invoiceNumber}</div>
+                        </div>
+                        <div className='grid grid-rows-2'>
+                            <div>Invoice Date</div>
+                            <div>{formatDate(invoice.invoiceDate)}</div>
+                        </div>
+                        <div className='grid grid-rows-2'>
+                            <div>Invoice Total</div>
+                            <div>{invoice.invoiceTotal}</div>
+                        </div>
+                        <div className='grid grid-rows-2'>
+                            <div>MVR</div>
+                            <div>{invoice.invoiceTotal}</div>
+                        </div>
+                    </div>
+                    <div className='grid grid-cols-7 gap-1 ml-1 child:px-1 child:py-1'>
+                        <div className='font-bold justify-center flex col-span-1'>Comment(s) / <span className='dhivehi'>ކޮމެންޓް</span></div>
+                        <div className='border border-collapse w-full col-span-6'>{invoice.comments}</div>
+                    </div>
 
-                {/* Invoice Number, Date, Total, MVR */}
-                <div className='grid grid-cols-4 custom-border-3'>
-                    <div className='grid grid-rows-2'>
-                        <div>Invoice No.</div>
-                        <div>INV-1234</div>
-                    </div>
-                    <div className='grid grid-rows-2'>
-                        <div>Invoice Date</div>
-                        <div>01-May-2024</div>
-                    </div>
-                    <div className='grid grid-rows-2'>
-                        <div>Invoice Total</div>
-                        <div>10,000</div>
-                    </div>
-                    <div className='grid grid-rows-2'>
-                        <div>MVR</div>
-                        <div>10,000</div>
+                    {/* GL Section */}
+                    <div className='grid child:text-center'>
+                        {/* Headings */}
+                        <div className='grid grid-cols-6 font-bold custom-border-1 child:py-1'>
+                            <div>GL / Asset</div>
+                            <div>Activity Ref.</div>
+                            <div>Cost Ctr/Proj.</div>
+                            <div>Fund</div>
+                            <div>Amt. in Doc. Curr.</div>
+                            <div>Amt. in MVR</div>
+                        </div>
+
+                        {/* Put a loop here if there are multiple GL Accounts under the same PV */}
+                        {invoice.glDetails.map((gl, glId) => (
+                            <div key={glId} className='grid grid-cols-6 GL-table'>
+                                <div>{gl.code}</div>
+                                <div>-</div>
+                                <div>-</div>
+                                <div>{gl.fund}</div>
+                                <div>{gl.amount}</div>
+                                <div>{gl.amount}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
+            ))}
 
-            {/* Comments */}
-            <div className='flex mt-3 ml-2 child:px-1 child:py-1'>
-                <div className='font-bold justify-center'>Comment(s): <span className='dhivehi'>ކޮމެންޓް</span></div>
-                <div className='outline outline-1 w-full mr-3'>Write the comment(s) here!</div>
-            </div>
-
-            {/* GL Section */}
-            <div className='grid mt-3 ml-2 child:text-center'>
-                {/* Headings */}
-                <div className='grid grid-cols-6 font-bold custom-border-1 child:py-1'>
-                    <div>GL / Asset</div>
-                    <div>Activity Ref.</div>
-                    <div>Cost Ctr/Proj.</div>
-                    <div>Fund</div>
-                    <div>Amt. in Doc. Curr.</div>
-                    <div>Amt. in MVR</div>
-                </div>
-
-                {/* Put a loop here if there are multiple GL Accounts under the same PV */}
-                <div className='grid grid-cols-6 GL-table'>
-                    <div>223001</div>
-                    <div> </div>
-                    <div> </div>
-                    <div>C-GOM</div>
-                    <div>500.00</div>
-                    <div>500.00</div>
-                </div>
-            </div>
-
+            <div className='w-full h-2 col-span-6' />
+                
             {/* Gross Total Section */}
             <div className='grid grid-cols-10 mt-3 ml-2'>
                 <div className='flex flex-col gap-1 col-span-1 justify-center place-items-center font-bold border'>
@@ -159,8 +186,8 @@ const PrintView: React.FC<PvValues> = (PvValues) => {
                 </div>
                 <div className='col-span-2'>
                     <div className='grid child:py-2 child:border child:text-right child:px-4 h-full'>
-                        <div>55,234.55</div>
-                        <div>55,234.55</div>
+                        <div>{getGrossTotal(pv.invoiceDetails)}</div>
+                        <div>{getGrossTotal(pv.invoiceDetails)}</div>
                     </div>
                 </div>
             </div>

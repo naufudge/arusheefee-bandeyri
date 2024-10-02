@@ -99,7 +99,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const onSubmit = async (values: z.infer<typeof PvSchema>) => {
     if (pv) {
       try {
-        const response = await axios.post("http://10.12.29.68:8000/pv/add", values)
+        const response = await axios.post("http://10.12.29.68:8000/pvs/", values)
         console.log(response.data)
       } catch (error: any) {
         console.log(error.message)

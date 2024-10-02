@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import { waheed } from "./app/layout";
+import { waheed } from "./app/(home)/layout";
 
 const config: Config = {
     darkMode: ["class"],
