@@ -104,6 +104,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const form = getForm(pv)
   
   const control = form.control
+  const register = form.register
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -153,7 +154,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           
 
           {/* PV Number */}
-          <PvInputField control={control} name={"pvNum"} label="PV Number" />
+          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={pv ? true : false} required={pv ? false : true} register={register} />
           
         </div>
 

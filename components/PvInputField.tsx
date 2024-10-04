@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
-import { Control } from 'react-hook-form'
+import { Control, UseFormRegister } from 'react-hook-form'
 import { PvValues } from "@/lib/PvSchema";
 
 
@@ -29,10 +29,13 @@ interface PvInputFieldProps {
     label: string;
     disabled?: boolean;
     className?: string;
+    required?: boolean;
+    register?: UseFormRegister<PvValues>;
 }
 
-const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disabled, className }) => {
+const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disabled, className, required, register }) => {
     if (name.toLowerCase().includes("date")) {
+        // If it's a date field
         return (
             <FormField
                 control={control}
@@ -80,14 +83,27 @@ const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disab
 
     return (
         <FormField
-            disabled={disabled ? true : false}
             control={control}
             name={name}
             render={({ field }) => (
                 <FormItem className={className}>
                 <FormLabel>{label}</FormLabel>
                 <FormControl>
-                    <Input placeholder={label} {...field} />
+                    { register ?
+                        <Input
+                            {...field}
+                            placeholder={label}
+                            disabled={disabled ? true : false}
+                            {...register(name, {
+                                required: required,
+                            })}
+                        />
+                    : 
+                        <Input
+                            {...field}
+                            placeholder={label}
+                        />
+                    }
                 </FormControl>
                 <FormMessage />
                 </FormItem>
