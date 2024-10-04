@@ -13,12 +13,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import PvForm from '@/components/PvForm';
+import Popup from '@/components/Popup';
 
 
 const page = () => {
   const router = useRouter()
   const [pvs, setPvs] = useState<PvValues[]>([])
   const [loading, setLoading] = useState(true)
+
+  const [popup, setPopup] = useState(false)
+  const [popupInfo, setPopupInfo] = useState({
+    title: "",
+    detail: ""
+  })
 
   useEffect(() => {
     async function get_pvs() {
@@ -53,6 +60,7 @@ const page = () => {
         :
         // ${pv.transferNum === "" ? 'bg-slate-50' : "bg-green-50"}
         <>
+          <Popup open={popup} setOpen={setPopup} info={popupInfo} />
           {pvs.map((pv, index) => (
             <div key={index} className={`flex border rounded-lg p-5 w-full drop-shadow-sm`}>
               
@@ -86,7 +94,7 @@ const page = () => {
                             You can edit the PV below. Be sure to press "Save" after bringing necessary changes.
                         </DialogDescription>
                         </DialogHeader>
-                        <PvForm pv={pv} />
+                        <PvForm pv={pv} showPopup={setPopup} setPopupInfo={setPopupInfo} />
                     </DialogContent>
                 </Dialog>
 

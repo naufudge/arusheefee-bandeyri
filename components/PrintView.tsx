@@ -1,5 +1,6 @@
 import React from 'react'
 import { PvValues } from '@/lib/PvSchema'
+import { formatNumberWithCommas, numberToWords } from '@/lib/helpers'
 
 interface PrintProps {
     pv: PvValues
@@ -16,7 +17,8 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
     }
   }
 
-  const getGrossTotal = (invoices: PvValues["invoiceDetails"]) => {
+  const getGrossTotal = () => {
+    const invoices = pv.invoiceDetails
     let total = 0;
     invoices.filter((inv, index) => {
         total = total + inv.invoiceTotal
@@ -124,11 +126,11 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                         </div>
                         <div className='grid grid-rows-2'>
                             <div>Invoice Total</div>
-                            <div>{invoice.invoiceTotal}</div>
+                            <div>{formatNumberWithCommas(invoice.invoiceTotal)}</div>
                         </div>
                         <div className='grid grid-rows-2'>
                             <div>MVR</div>
-                            <div>{invoice.invoiceTotal}</div>
+                            <div>{formatNumberWithCommas(invoice.invoiceTotal)}</div>
                         </div>
                     </div>
                     <div className='grid grid-cols-7 gap-1 ml-1 child:px-1 child:py-1'>
@@ -155,8 +157,8 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                                 <div>-</div>
                                 <div>-</div>
                                 <div>{gl.fund}</div>
-                                <div>{gl.amount}</div>
-                                <div>{gl.amount}</div>
+                                <div>{formatNumberWithCommas(gl.amount)}</div>
+                                <div>{formatNumberWithCommas(gl.amount)}</div>
                             </div>
                         ))}
                     </div>
@@ -180,14 +182,14 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                 </div>
                 <div className='col-span-6'>
                     <div className='grid child:py-2 child:border child:justify child:px-4'>
-                        <div>Fifty-Five Thousand Two Hundred and Thirty-Four Rufiyaa, Fifty-Five Laari</div>
-                        <div>Fifty-Five Thousand Two Hundred and Thirty-Four Rufiyaa, Fifty-Five Laari</div>
+                        <div>{numberToWords(getGrossTotal())}</div>
+                        <div>{numberToWords(getGrossTotal())}</div>
                     </div>
                 </div>
                 <div className='col-span-2'>
                     <div className='grid child:py-2 child:border child:text-right child:px-4 h-full'>
-                        <div>{getGrossTotal(pv.invoiceDetails)}</div>
-                        <div>{getGrossTotal(pv.invoiceDetails)}</div>
+                        <div>{formatNumberWithCommas(getGrossTotal(), true)}</div>
+                        <div>{formatNumberWithCommas(getGrossTotal(), true)}</div>
                     </div>
                 </div>
             </div>
@@ -204,10 +206,10 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                             <div className='dhivehi'>ތައްޔާރު ކުރި</div>
                         </div> 
                         <div className='col-span-3 child:text-center'>
-                            <div>Sharumeela Abdul Fatah</div>
-                            <div>Accounts Officer</div>
+                            <div>{pv.preparedBy.name}</div>
+                            <div>{pv.preparedBy.designation}</div>
                         </div>
-                        <div className='col-span-1 flex place-items-center justify-center'>06-May-2024</div>
+                        <div className='col-span-1 flex place-items-center justify-center'>{formatDate(pv.date)}</div>
                         <div className='col-span-2'></div>
                     </div>
 
@@ -218,10 +220,10 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                             <div className='dhivehi'>ޗެކް ކުރި</div>
                         </div>
                         <div className='col-span-3 child:text-center'>
-                            <div>Sharumeela Abdul Fatah</div>
-                            <div>Accounts Officer</div>
+                            <div>{pv.verifiedBy.name}</div>
+                            <div>{pv.verifiedBy.designation}</div>
                         </div>
-                        <div className='col-span-1 flex place-items-center justify-center'>06-May-2024</div>
+                        <div className='col-span-1 flex place-items-center justify-center'>{formatDate(pv.date)}</div>
                         <div className='col-span-2'></div>
                     </div>
 
@@ -232,10 +234,10 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                             <div className='dhivehi'>ހުއްދަ ދިން</div>
                         </div>
                         <div className='col-span-3 child:text-center'>
-                            <div>Sharumeela Abdul Fatah</div>
-                            <div>Accounts Officer</div>
+                            <div>{pv.authorisedByOne.name}</div>
+                            <div>{pv.authorisedByOne.designation}</div>
                         </div>
-                        <div className='col-span-1 flex place-items-center justify-center'>06-May-2024</div>
+                        <div className='col-span-1 flex place-items-center justify-center'>{formatDate(pv.date)}</div>
                         <div className='col-span-2'></div>
                     </div>
 
@@ -246,10 +248,10 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                             <div className='dhivehi'>ހުއްދަ ދިން</div>
                         </div>
                         <div className='col-span-3 child:text-center'>
-                            <div>Sharumeela Abdul Fatah</div>
-                            <div>Accounts Officer</div>
+                            <div>{pv.authorisedByTwo.name}</div>
+                            <div>{pv.authorisedByTwo.designation}</div>
                         </div>
-                        <div className='col-span-1 flex place-items-center justify-center'>06-May-2024</div>
+                        <div className='col-span-1 flex place-items-center justify-center'>{formatDate(pv.date)}</div>
                         <div className='col-span-2'></div>
                     </div>
                 </div>

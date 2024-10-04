@@ -22,11 +22,11 @@ export const PvSchema = z.object({
       comments: z.string().min(10),
       invoiceNumber: z.string().optional(),
       invoiceDate: z.date().nullable().optional(),
-      invoiceTotal: z.coerce.number().gt(0),
+      invoiceTotal: z.coerce.number().gt(0).multipleOf(0.01),
       glDetails: z.array(z.object({
         code: z.coerce.number().gt(100000),
         fund: z.string().default("C-GOM"),
-        amount: z.coerce.number().gt(0)
+        amount: z.coerce.number().gt(0).multipleOf(0.01)
       })),
     })
   ),
@@ -36,7 +36,7 @@ export const PvSchema = z.object({
   authorisedByOne: userSchema,
   authorisedByTwo: userSchema,
 
-  poNum: z.string().optional(),
+  poNum: z.coerce.string().optional(),
   paymentMethod: z.string(),
   parkedDate: z.date().optional().nullable(),
   postingDate: z.date().optional().nullable(),

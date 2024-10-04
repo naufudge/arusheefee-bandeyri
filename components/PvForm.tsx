@@ -10,46 +10,60 @@ import { PvSchema, PvValues } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
 import PvInputField from "@/components/PvInputField";
 import axios from "axios";
+import { Dispatch, SetStateAction } from "react";
+import { PopupInfoType } from "@/lib/MyTypes";
 
 interface PvFormProps {
   pv?: any;
+  showPopup?: Dispatch<SetStateAction<boolean>>;
+  setPopupInfo?: Dispatch<SetStateAction<PopupInfoType>>;
+}
+
+type ServerResponseType = {
+  success: boolean,
+  result: PvValues
 }
 
 function getForm(pv?: PvValues | null) {
   if (pv) {
-    console.log("here")
+    const vals = {
+      pvNum: pv.pvNum,
+      businessArea: pv.businessArea,
+      agency: pv.agency,
+      vendor: pv.vendor,
+      date: new Date(pv.date),
+      notes: pv.notes,
+      currency: pv.currency,
+      exchangeRate: pv.exchangeRate,
+
+      invoiceDetails: pv.invoiceDetails,
+
+      preparedBy: pv.preparedBy,
+      verifiedBy: pv.verifiedBy,
+      authorisedByOne: pv.authorisedByOne,
+      authorisedByTwo: pv.authorisedByTwo,
+
+      poNum: pv.poNum,
+      paymentMethod: pv.paymentMethod,
+      parkedDate: pv.parkedDate ? new Date(pv.parkedDate) : null,
+      postingDate: pv.postingDate ? new Date(pv.postingDate) : null,
+      clearingDoc: {
+        num: pv.clearingDoc.num?.toString(), 
+        date: pv.clearingDoc.date ? new Date(pv.clearingDoc.date) : null 
+      },
+      transferNum: pv.transferNum
+    }
+    
     return useForm<z.infer<typeof PvSchema>>({
       resolver: zodResolver(PvSchema),
-      defaultValues: 
-        {
-          pvNum: pv.pvNum,
-          businessArea: pv.businessArea,
-          agency: pv.agency,
-          vendor: pv.vendor,
-          date: pv.date,
-          notes: pv.notes,
-          currency: pv.currency,
-          exchangeRate: pv.exchangeRate,
-
-          invoiceDetails: pv.invoiceDetails,
-
-          preparedBy: pv.preparedBy,
-          verifiedBy: pv.verifiedBy,
-          authorisedByOne: pv.authorisedByOne,
-          authorisedByTwo: pv.authorisedByTwo,
-
-          poNum: pv.poNum,
-          paymentMethod: pv.paymentMethod,
-          parkedDate: pv.parkedDate,
-          postingDate: pv.postingDate,
-          clearingDoc: {num: pv.clearingDoc.num, date: pv.clearingDoc.date},
-          transferNum: pv.transferNum
-      }})
+      defaultValues: vals,
+      values: vals
+    })
   } else {
     return useForm<z.infer<typeof PvSchema>>({
       resolver: zodResolver(PvSchema),
       defaultValues: {
-        pvNum: 0,
+        pvNum: "",
         businessArea: 1506,
         agency: "National Archives of Maldives",
         vendor: "",
@@ -86,7 +100,7 @@ function getForm(pv?: PvValues | null) {
   }
 }
 
-const PvForm: React.FC<PvFormProps> = ({ pv }) => {
+const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const form = getForm(pv)
   
   const control = form.control
@@ -97,17 +111,35 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof PvSchema>) => {
-    if (pv) {
+    if (!pv) {
+      // When submiting a new PV
       try {
-        const response = await axios.post("http://10.12.29.68:8000/pvs/", values)
-        console.log(response.data)
+        const response = await axios.post("http://10.12.29.68:8000/pvs/", values)        
+        const serverResponse: ServerResponseType = response.data
       } catch (error: any) {
         console.log(error.message)
       }
     } else {
-      console.log(values)
-    }
-  }
+      // When editing an existing PV
+      try {
+        const response = await axios.put("http://10.12.29.68:8000/pvs/", values)
+        const serverResponse: ServerResponseType = response.data
+        setPopupInfo?.({
+          title: serverResponse.success ? "Success" : "Error",
+          detail: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error."
+        })
+      } catch (error: any) {
+        console.log(error.message)
+        setPopupInfo?.({
+          title: "Error",
+          detail: "There was an error. Please try again later."
+        })
+
+      } finally {
+        showPopup?.(true)
+      }
+    } 
+  } 
 
   return (
     <Form {...form}>
@@ -121,7 +153,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           
 
           {/* PV Number */}
-          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={pv && true} />
+          <PvInputField control={control} name={"pvNum"} label="PV Number" />
           
         </div>
 
@@ -148,8 +180,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           {/* Exchange Rate */}
           <PvInputField control={control} name={"exchangeRate"} label="Exchange Rate" />
 
-          {/* Number of Invoice(s) */}
-          {/* <PvInputField control={control} name={"numOfInvoice"} label="No. of Invoices" /> */}
         </div>
 
         {/* Invoice Section */}
@@ -246,7 +276,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           <PvInputField control={control} name={"transferNum"} label="Transfer Number" />
         </div>
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit">{pv ? "Save" : "Submit"}</Button>
       </form>
     </Form>
   )
