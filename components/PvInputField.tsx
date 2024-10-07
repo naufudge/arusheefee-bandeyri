@@ -31,9 +31,10 @@ interface PvInputFieldProps {
     className?: string;
     required?: boolean;
     register?: UseFormRegister<PvValues>;
+    description?: string;
 }
 
-const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disabled, className, required, register }) => {
+const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disabled, className, required, register, description }) => {
     if (name.toLowerCase().includes("date")) {
         // If it's a date field
         return (
@@ -105,6 +106,7 @@ const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disab
                         />
                     }
                 </FormControl>
+                { description && <FormDescription className='text-xs'>{description}</FormDescription>}
                 <FormMessage />
                 </FormItem>
             )}

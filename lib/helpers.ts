@@ -91,3 +91,15 @@ export function formatNumberWithCommas(num: number | string, withDecimals?: bool
         }
     }
 }
+
+/**
+    * Removes duplicates from a list and returns it after that.
+    * @param {string[]} original - The original list that you want to remove duplicates from.
+*/
+export function removeDuplicates(original: string[]) {
+    const result: string[] = original.reduce((prev: string[], curr: string) => {
+        if (!prev.includes(curr)) prev.push(curr);
+        return prev;
+    }, []);
+    return result
+}

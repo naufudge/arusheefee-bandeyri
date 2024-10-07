@@ -11,7 +11,7 @@ import GLForm from "@/components/GLForm";
 import PvInputField from "@/components/PvInputField";
 import axios from "axios";
 import { Dispatch, SetStateAction } from "react";
-import { PopupInfoType } from "@/lib/MyTypes";
+import { PopupInfoType, SinglePVServerResponseType } from "@/lib/MyTypes";
 
 interface PvFormProps {
   pv?: any;
@@ -19,10 +19,6 @@ interface PvFormProps {
   setPopupInfo?: Dispatch<SetStateAction<PopupInfoType>>;
 }
 
-type ServerResponseType = {
-  success: boolean,
-  result: PvValues
-}
 
 function getForm(pv?: PvValues | null) {
   if (pv) {
@@ -116,7 +112,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
       // When submiting a new PV
       try {
         const response = await axios.post("http://10.12.29.68:8000/pvs/", values)        
-        const serverResponse: ServerResponseType = response.data
+        const serverResponse: SinglePVServerResponseType = response.data
       } catch (error: any) {
         console.log(error.message)
       }
@@ -124,7 +120,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
       // When editing an existing PV
       try {
         const response = await axios.put("http://10.12.29.68:8000/pvs/", values)
-        const serverResponse: ServerResponseType = response.data
+        const serverResponse: SinglePVServerResponseType = response.data
         setPopupInfo?.({
           title: serverResponse.success ? "Success" : "Error",
           detail: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error."
@@ -154,8 +150,17 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           
 
           {/* PV Number */}
-          <PvInputField control={control} name={"pvNum"} label="PV Number" disabled={pv ? true : false} required={pv ? false : true} register={register} />
-          
+          <PvInputField 
+          control={control} 
+          name={"pvNum"} 
+          label="PV Number" 
+          disabled={pv ? true : false} 
+          required={pv ? false : true} 
+          register={register} 
+          description="PV Number Eg: 2024-03"
+          />
+           
+
         </div>
 
         <div className="grid grid-cols-2 gap-4">
