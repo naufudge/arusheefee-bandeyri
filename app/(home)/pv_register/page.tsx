@@ -123,22 +123,15 @@ const page = () => {
                     <div className='opacity-60 text-sm'>{pv.transferNum != "" ? "Processed" : "Pending"}</div>
                   </div>
                   
+                  {/* View Button */}
                   <Eye className='hover:text-green-600 hover:cursor-pointer' />
 
                   {/* Edit Popup */}
-                  <Dialog>
-                      <DialogTrigger><SquarePen className='hover:text-blue-600 hover:cursor-pointer' /></DialogTrigger>
-                      <DialogContent className='bg-white overflow-y-scroll h-[650px] max-w-[750px]'>
-                          <DialogHeader>
-                          <DialogTitle className='text-center mb-4'>Edit PV</DialogTitle>
-                          <DialogDescription>
-                              You can edit the PV below. Be sure to press "Save" after bringing necessary changes.
-                          </DialogDescription>
-                          </DialogHeader>
-                          <PvForm pv={pv} showPopup={setPopup} setPopupInfo={setPopupInfo} />
-                      </DialogContent>
-                  </Dialog>
-
+                  <SquarePen 
+                  onClick={() => router.push(`/edit/${pv.pvNum}`)}
+                  className='hover:text-blue-600 hover:cursor-pointer'
+                  />
+                
                   <Printer className='hover:text-purple-600 hover:cursor-pointer' onClick={() => handlePrintClick(pv)} />
                   
                   {/* Delete Popup */}

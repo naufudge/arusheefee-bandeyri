@@ -42,7 +42,7 @@ const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disab
                 control={control}
                 name={name}
                 render={({ field }) => (
-                <FormItem className={className}>
+                <FormItem className={`${className}`}>
                     <FormLabel>{label}</FormLabel>
                     <Popover>
                     <PopoverTrigger asChild>

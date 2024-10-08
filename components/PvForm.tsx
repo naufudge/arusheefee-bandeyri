@@ -157,7 +157,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           disabled={pv ? true : false} 
           required={pv ? false : true} 
           register={register} 
-          description="PV Number Eg: 2024-03"
+          description={pv ? "" : "PV Number Eg: 2024-03"}
           />
            
 
