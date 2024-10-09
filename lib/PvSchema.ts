@@ -6,7 +6,7 @@ const userSchema = z.object({
 })
 
 export const PvSchema = z.object({
-  pvNum: z.string(),
+  pvNum: z.string().min(6),
   businessArea: z.coerce.number().default(1506),
   agency: z.string().default("National Archives of Maldives"),
   vendor: z.string().min(1),

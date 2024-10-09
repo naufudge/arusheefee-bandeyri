@@ -92,12 +92,11 @@ const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label, disab
                 <FormControl>
                     { register ?
                         <Input
+                            {...register(name, { required: required })}
                             {...field}
                             placeholder={label}
                             disabled={disabled ? true : false}
-                            {...register(name, {
-                                required: required,
-                            })}
+                            // required={required}
                         />
                     : 
                         <Input

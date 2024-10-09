@@ -10,11 +10,11 @@ import { PvSchema, PvValues } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
 import PvInputField from "@/components/PvInputField";
 import axios from "axios";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { PopupInfoType, SinglePVServerResponseType } from "@/lib/MyTypes";
 
 interface PvFormProps {
-  pv?: any;
+  pv?: PvValues;
   showPopup?: Dispatch<SetStateAction<boolean>>;
   setPopupInfo?: Dispatch<SetStateAction<PopupInfoType>>;
 }
@@ -97,6 +97,8 @@ function getForm(pv?: PvValues | null) {
 }
 
 const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
+  const [submitBtnState, setSubmitBtnState] = useState<boolean>(true)
+
   const form = getForm(pv)
   
   const control = form.control
@@ -108,6 +110,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof PvSchema>) => {
+    setSubmitBtnState(false)
     if (!pv) {
       // When submiting a new PV
       try {
@@ -135,7 +138,8 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
       } finally {
         showPopup?.(true)
       }
-    } 
+    }
+    setSubmitBtnState(true)
   } 
 
   return (
@@ -282,7 +286,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           <PvInputField control={control} name={"transferNum"} label="Transfer Number" />
         </div>
 
-        <Button type="submit">{pv ? "Save" : "Submit"}</Button>
+        <Button disabled={!submitBtnState} type="submit">{pv ? "Save" : "Submit"}</Button>
       </form>
     </Form>
   )
