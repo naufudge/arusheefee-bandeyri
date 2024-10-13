@@ -38,7 +38,6 @@ const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor, sel
 
   return (
     <div className='mt-5'>
-       
         <Popover>
             <PopoverTrigger asChild>
                 <Button className='gap-3' variant={'outline'}>
@@ -104,9 +103,6 @@ const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor, sel
                 </div>
             </PopoverContent>
         </Popover>
-        
-        
-        
 
     </div>
   )

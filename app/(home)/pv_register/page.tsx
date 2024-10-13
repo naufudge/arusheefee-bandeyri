@@ -7,14 +7,6 @@ import { PvValues } from '@/lib/PvSchema';
 import { MultiplePVServerResponseType } from '@/lib/MyTypes';
 import { Eye, Printer, SquarePen, Trash2 } from 'lucide-react';
 import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
