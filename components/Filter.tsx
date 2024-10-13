@@ -20,17 +20,25 @@ interface FilterProps {
     vendors?: string[];
     selectedVendor: string;
     setVendor: Dispatch<SetStateAction<string>>;
+    selectedStatus: string;
+    setSelectedStatus: Dispatch<SetStateAction<string>>;
 }
 
-const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor }) => {
+const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor, selectedStatus, setSelectedStatus }) => {
+    const xCircleSize = 25;
+
     const handleVendorSelect = (value: string) => {
-        console.log(value)
         setVendor(value)
         // handleFilter()
     }
 
+    const handleStatusSelect = (value: string) => {
+        
+    }
+
   return (
     <div className='mt-5'>
+       
         <Popover>
             <PopoverTrigger asChild>
                 <Button className='gap-3' variant={'outline'}>
@@ -38,11 +46,12 @@ const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor }) =
                 </Button>
             </PopoverTrigger>
             <PopoverContent align='start' className='w-[700px]'>
-                <div className='grid grid-cols-3'>
-                    <div className='gap-1'>
+                <div className='grid grid-cols-3 gap-8'>
+                    {/* Vendor Filter */}
+                    <div className='gap-'>
                         <Label>Vendor</Label>
                         <div className='flex gap-2 place-items-center'>
-                            <Select onValueChange={handleVendorSelect}>
+                            <Select onValueChange={setVendor}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder={selectedVendor ? selectedVendor : "Select a Vendor"} />
                                 </SelectTrigger>
@@ -57,19 +66,48 @@ const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor }) =
                             { selectedVendor &&
                             <CircleX 
                             onClick={() => setVendor("")}
+                            color='white'
+                            width={xCircleSize} 
+                            height={xCircleSize} 
+                            className='hover:cursor-pointer hover:fill-red-600 fill-red-700 transition-all' />
+                            }
+                        </div>
+                    </div>
+                    
+                    {/* Pending or Proccessed Filter */}
+                    <div className='gap-1'>
+                        <Label>Status</Label>
+                        <div className='flex gap-2 place-items-center'>
+                            <Select onValueChange={setSelectedStatus}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder={selectedStatus ? selectedStatus : "Select Status"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={"pending"} className='hover:cursor-pointer'>Pending</SelectItem>
+                                    <SelectItem value={"proccessed"} className='hover:cursor-pointer'>Proccessed</SelectItem>
+                                    
+                                </SelectContent>
+                            </Select>
+
+                            {/* Clear selection button */}
+                            { selectedStatus &&
+                            <CircleX 
+                            onClick={() => setSelectedStatus("")}
                             color='white' 
-                            width={30} 
-                            height={30} 
+                            width={xCircleSize} 
+                            height={xCircleSize} 
                             className='hover:cursor-pointer hover:fill-red-600 fill-red-700 transition-all' />
                             }
                         </div>
                     </div>
 
-
                 </div>
             </PopoverContent>
         </Popover>
         
+        
+        
+
     </div>
   )
 }

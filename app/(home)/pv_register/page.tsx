@@ -39,6 +39,8 @@ const page = () => {
   const [vendors, setVendors] = useState<string[]>([])
   const [selectedVendor, setSelectedVendor] = useState<string>("")
 
+  const [selectedStatus, setSelectedStatus] = useState<string>("")
+
   const [popup, setPopup] = useState(false)
   const [popupInfo, setPopupInfo] = useState({
     title: "",
@@ -71,7 +73,9 @@ const page = () => {
     if (pvs.length <= 0) get_pvs()
   }, [pvs, loading, vendors])
 
-  const filteredPvs = selectedVendor ? pvs.filter((item) => item.vendor === selectedVendor) : pvs
+  const filteredPvs = selectedVendor ? pvs.filter((item) => item.vendor === selectedVendor)
+    : selectedStatus ? pvs.filter((item) => selectedStatus === "pending" ? item.transferNum === "" : item.transferNum != "") 
+    : pvs
 
   const handlePrintClick = (pv: PvValues) => {
     localStorage.setItem("pvNum", pv.pvNum)
@@ -94,7 +98,13 @@ const page = () => {
       </div>
 
       {/* Search & Filtering */}
-      <Filter vendors={vendors} selectedVendor={selectedVendor} setVendor={setSelectedVendor} />
+      <Filter 
+      vendors={vendors}
+      selectedVendor={selectedVendor}
+      setVendor={setSelectedVendor}
+      selectedStatus={selectedStatus}
+      setSelectedStatus={setSelectedStatus}
+      />
 
       <br />
       <div className='grid gap-8'>
