@@ -37,7 +37,7 @@ export function numberToWords(num: number) {
     return `${words.trim()} Rufiyaa` + (decimalWords ? ", " + `${decimalWords.trim()} Laari` : "");
 }
 
-export function formatNumberWithCommas(num: number | string, withDecimals?: boolean) {
+export function formatNumberWithCommas(num: number | string, withDecimals: boolean = true) {
     const result = num.toString()
 
     const numWithDecimal = result.includes(".") && result.split(".")
