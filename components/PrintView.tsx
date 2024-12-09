@@ -257,7 +257,7 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                             <div>{pv.authorisedByTwo.name}</div>
                             <div>{pv.authorisedByTwo.designation}</div>
                         </div>
-                        <div className='col-span-1 flex place-items-center justify-center'>{formatDate(pv.date)}</div>
+                        <div className='col-span-1 flex place-items-center justify-center'>{pv.authorisedByTwo.name ? formatDate(pv.date) : ""}</div>
                         <div className='col-span-2'></div>
                     </div>
                 </div>
