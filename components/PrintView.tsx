@@ -63,7 +63,7 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                     </div>
                     {/* Business Area */}
                     <div className='grid grid-cols-3'>
-                        <div>Business Area / <span className='dhivehi'>ބ. އޭރިއާ</span></div>
+                        <div>Bus. Area / <span className='dhivehi'>ބ. އޭރިއާ</span></div>
                         <div className='col-span-2'>{pv.businessArea}</div>
                     </div>
                     {/* Vendor */}
@@ -139,7 +139,8 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                         </div>
                     </div>
                     <div className='grid grid-cols-7 gap-1 ml-1 child:px-1 child:py-1'>
-                        <div className='font-bold justify-center flex col-span-1'>Comment(s) / <span className='dhivehi'>ކޮމެންޓް</span></div>
+                        <div className='font-bold justify-center flex col-span-1'>Comment(s)</div>
+                        {/* <div className='font-bold justify-center flex col-span-1'>Comment(s) / <span className='dhivehi'>ކޮމެންޓް</span></div> */}
                         <div className='border border-collapse w-full col-span-6'>{invoice.comments}</div>
                     </div>
 
