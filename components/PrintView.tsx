@@ -11,7 +11,12 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
   const formatDate = (date?: Date | null) => {
     const dateOptions: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
     if (date) {
-        return date.toLocaleDateString("en-GB", dateOptions).replace(/ /g, '-')
+        try {
+            return date.toLocaleDateString("en-GB", dateOptions).replace(/ /g, '-')
+        } catch (error: any) {
+            console.log(error.message)
+            return ""
+        }
     } else {
         return ""
     }

@@ -6,6 +6,9 @@ import axios from 'axios';
 import { SinglePVServerResponseType } from '@/lib/MyTypes';
 import PvForm from '@/components/PvForm';
 import Popup from '@/components/Popup';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface EditPageProps {
   pvNum: string
@@ -14,6 +17,7 @@ interface EditPageProps {
 const PvEditPage = ({params}: {
   params: {pvNum: string}
 }) => {
+  const router = useRouter()
   const [requestState, setRequestState] = useState(false)
   const [pvDetails, setPvDetails] = useState<PvValues | null>()
 
@@ -46,6 +50,12 @@ const PvEditPage = ({params}: {
 
   return (
     <div className='w-full'>
+      <div>
+        <Button onClick={() => {router.push("/pv_register")}} variant={"outline"} className='justify-evenly flex gap-1'>
+          <ChevronLeft />
+          Back
+        </Button>
+      </div>
       <div className='text-center mt-4 mb-12 flex flex-col gap-3'>
         <h1 className='text-2xl font-bold'>Edit Payment Voucher</h1>
         <p className='text-sm italic opacity-50'>You can edit the PV below. Be sure to press "Save" after bringing necessary changes.</p>
@@ -53,7 +63,7 @@ const PvEditPage = ({params}: {
 
       <Popup open={popup} setOpen={setPopup} info={popupInfo} />
       <div className='mx-auto max-w-[700px]'>
-        <PvForm pv={pvDetails} showPopup={setPopup} setPopupInfo={setPopupInfo} />
+        <PvForm pv={pvDetails!!} showPopup={setPopup} setPopupInfo={setPopupInfo} />
       </div>
     </div>
   )

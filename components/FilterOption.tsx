@@ -8,15 +8,17 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Label } from '@/components/ui/label'
+import { capitalizeFirstLetter } from '@/lib/helpers';
 
 interface FilterOptionProps {
     label: string;
-    selectItems: string[];
+    placeholder: string;
+    selectItems?: string[];
     setSelect: Dispatch<SetStateAction<string>>;
     selectedValue: string;
 }
 
-const FilterOption: React.FC<FilterOptionProps> = ({ label, setSelect, selectedValue, selectItems }) => {
+const FilterOption: React.FC<FilterOptionProps> = ({ label, placeholder, setSelect, selectedValue, selectItems }) => {
     const xCircleSize = 25;
     return (
         <div className='gap-1'>
@@ -24,13 +26,12 @@ const FilterOption: React.FC<FilterOptionProps> = ({ label, setSelect, selectedV
             <div className='flex gap-2 place-items-center'>
                 <Select onValueChange={setSelect}>
                     <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder={selectedValue ? selectedValue : "Select Status"} />
+                        <SelectValue placeholder={selectedValue ? selectedValue : placeholder} />
                     </SelectTrigger>
                     <SelectContent>
-                        {selectItems.map((item, index) => (
-                            <SelectItem value={item} className='hover:cursor-pointer'>{item}</SelectItem>
+                        {selectItems?.map((item, index) => (
+                            <SelectItem key={index} value={item} className='hover:cursor-pointer'>{capitalizeFirstLetter(item)}</SelectItem>
                         ))}
-                        
                     </SelectContent>
                 </Select>
 

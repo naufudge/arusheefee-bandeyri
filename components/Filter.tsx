@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Label } from './ui/label'
+import FilterOption from './FilterOption'
   
 
 interface FilterProps {
@@ -47,58 +48,10 @@ const Filter: React.FC<FilterProps> = ({ vendors, selectedVendor, setVendor, sel
             <PopoverContent align='start' className='w-[700px]'>
                 <div className='grid grid-cols-3 gap-8'>
                     {/* Vendor Filter */}
-                    <div className='gap-'>
-                        <Label>Vendor</Label>
-                        <div className='flex gap-2 place-items-center'>
-                            <Select onValueChange={setVendor}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder={selectedVendor ? selectedVendor : "Select a Vendor"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {vendors?.map((item, index) => (
-                                        <SelectItem key={index} value={item} className='hover:cursor-pointer'>{item}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-
-                            {/* Clear selection button */}
-                            { selectedVendor &&
-                            <CircleX 
-                            onClick={() => setVendor("")}
-                            color='white'
-                            width={xCircleSize} 
-                            height={xCircleSize} 
-                            className='hover:cursor-pointer hover:fill-red-600 fill-red-700 transition-all' />
-                            }
-                        </div>
-                    </div>
+                    <FilterOption label='Vendor' placeholder="Select a Vendor" selectItems={vendors} selectedValue={selectedVendor} setSelect={setVendor}  />
                     
                     {/* Pending or Proccessed Filter */}
-                    <div className='gap-1'>
-                        <Label>Status</Label>
-                        <div className='flex gap-2 place-items-center'>
-                            <Select onValueChange={setSelectedStatus}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder={selectedStatus ? selectedStatus : "Select Status"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={"pending"} className='hover:cursor-pointer'>Pending</SelectItem>
-                                    <SelectItem value={"proccessed"} className='hover:cursor-pointer'>Proccessed</SelectItem>
-                                    
-                                </SelectContent>
-                            </Select>
-
-                            {/* Clear selection button */}
-                            { selectedStatus &&
-                            <CircleX 
-                            onClick={() => setSelectedStatus("")}
-                            color='white' 
-                            width={xCircleSize} 
-                            height={xCircleSize} 
-                            className='hover:cursor-pointer hover:fill-red-600 fill-red-700 transition-all' />
-                            }
-                        </div>
-                    </div>
+                    <FilterOption label='Status' placeholder="Select Status" selectItems={["pending", "processed"]} selectedValue={selectedStatus} setSelect={setSelectedStatus}  />
 
                 </div>
             </PopoverContent>
