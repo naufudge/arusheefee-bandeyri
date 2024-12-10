@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { PvSchema, PvValues } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
-import PvInputField from "@/components/PvInputField";
+import { PvInputField } from "@/components/PvInputField";
 import axios from "axios";
 import { Dispatch, SetStateAction, useState } from "react";
 import { PopupInfoType, SinglePVServerResponseType } from "@/lib/MyTypes";
