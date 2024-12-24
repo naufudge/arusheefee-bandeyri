@@ -49,7 +49,7 @@ export function formatNumberWithCommas(num: number | string, withDecimals: boole
             case 1:
             case 2:
             case 3:
-                return `${result}.00`
+                return `${result}`
             case 4:
                 numArray.splice(1, 0, ",")
                 return numArray.join("") + "." + numWithDecimal[1]
