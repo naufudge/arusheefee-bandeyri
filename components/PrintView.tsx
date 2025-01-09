@@ -25,7 +25,7 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
   const getGrossTotal = () => {
     const invoices = pv.invoiceDetails
     let total = 0;
-    invoices.filter((inv, index) => {
+    invoices.filter((inv) => {
         total = total + inv.invoiceTotal
     })
     return total;
@@ -109,11 +109,11 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                 <div className='grid grid-cols-6 custom-border-2'>
                     <div className='grid grid-cols-3 col-span-2'>
                         <div className='col-span-2'>Doc. Currency / <span className='dhivehi'>ފައިސާ</span></div>
-                        <div>MVR</div>
+                        <div>{pv.currency}</div>
                     </div>
                     <div className='grid grid-cols-4 col-span-4'>
                         <div className='col-span-3'>Doc. Curr. to MVR Exchange Rate / <span className='dhivehi'>އެކްސްޗޭންޖް ރޭޓް</span></div>
-                        <div>1.0000</div>
+                        <div>{pv.exchangeRate}</div>
                     </div>
                 </div> 
             </div>
@@ -131,11 +131,11 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                         </div>
                         <div className='grid grid-rows-2'>
                             <div>Invoice Total</div>
-                            <div>{formatNumberWithCommas(invoice.invoiceTotal)}</div>
+                            <div>{pv.currency.toLowerCase() === "mvr" ? formatNumberWithCommas(invoice.invoiceTotal * pv.exchangeRate) : formatNumberWithCommas(invoice.invoiceTotal)}</div>
                         </div>
                         <div className='grid grid-rows-2'>
                             <div>MVR</div>
-                            <div>{formatNumberWithCommas(invoice.invoiceTotal)}</div>
+                            <div>{pv.currency.toLowerCase() != "mvr" ? formatNumberWithCommas(invoice.invoiceTotal * pv.exchangeRate) : formatNumberWithCommas(invoice.invoiceTotal)}</div>
                         </div>
                     </div>
                     <div className='grid grid-cols-7 gap-1 ml-1 child:px-1 child:py-1'>
@@ -150,20 +150,20 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                         <div className='grid grid-cols-6 font-bold custom-border-1 child:py-1'>
                             <div>GL / Asset</div>
                             <div>Activity Ref.</div>
-                            <div>Cost Ctr/Proj.</div>
+                            <div>Cost Ctr/Proj.</div>   
                             <div>Fund</div>
                             <div>Amt. in Doc. Curr.</div>
                             <div>Amt. in MVR</div>
                         </div>
 
-                        {/* Put a loop here if there are multiple GL Accounts under the same PV */}
+                        {/* Looping through multiple GL Accounts under the same PV */}
                         {invoice.glDetails.map((gl, glId) => (
                             <div key={glId} className='grid grid-cols-6 GL-table'>
                                 <div>{gl.code}</div>
                                 <div>-</div>
                                 <div>-</div>
                                 <div>{gl.fund}</div>
-                                <div>{formatNumberWithCommas(gl.amount)}</div>
+                                <div>{formatNumberWithCommas(gl.amount / pv.exchangeRate)}</div>
                                 <div>{formatNumberWithCommas(gl.amount)}</div>
                             </div>
                         ))}
@@ -182,20 +182,20 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                 </div>
                 <div className='col-span-1'>
                     <div className='grid child:py-2 child:border child:text-center child:px-4 h-full'>
-                        <div>MVR</div>
+                        <div>{pv.currency}</div>
                         <div>MVR</div>
                     </div>
                 </div>
                 <div className='col-span-6'>
                     <div className='grid child:py-2 child:border child:justify child:px-4'>
-                        <div>{numberToWords(getGrossTotal())}</div>
-                        <div>{numberToWords(getGrossTotal())}</div>
+                        <div>{pv.currency.toLowerCase() != "mvr" ? numberToWords(getGrossTotal(), "Euro") : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
+                        <div>{pv.currency.toLowerCase() === "mvr" ? numberToWords(getGrossTotal()) : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
                     </div>
                 </div>
                 <div className='col-span-2'>
                     <div className='grid child:py-2 child:border child:text-right child:px-4 h-full'>
                         <div>{formatNumberWithCommas(getGrossTotal(), true)}</div>
-                        <div>{formatNumberWithCommas(getGrossTotal(), true)}</div>
+                        <div>{formatNumberWithCommas(getGrossTotal() * pv.exchangeRate, true)}</div>
                     </div>
                 </div>
             </div>

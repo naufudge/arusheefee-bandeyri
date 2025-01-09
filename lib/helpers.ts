@@ -3,7 +3,7 @@
     * Returns input number in words (in Rufiyaa and Laari).
     * @param {number} num - The number that you want to convert.
 */
-export function numberToWords(num: number) {
+export function numberToWords(num: number, currency: string = "Rufiyaa") {
     
     const belowTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
     const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
@@ -34,7 +34,7 @@ export function numberToWords(num: number) {
 
     let decimalWords = decimalPart > 0 ? helper(decimalPart) : "";
 
-    return `${words.trim()} Rufiyaa` + (decimalWords ? ", " + `${decimalWords.trim()} Laari` : "");
+    return `${words.trim()} ${currency}` + (decimalWords ? ", " + `${decimalWords.trim()} Laari` : "");
 }
 
 export function formatNumberWithCommas(num: number | string, withDecimals: boolean = true) {
