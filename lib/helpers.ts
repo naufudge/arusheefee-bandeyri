@@ -38,7 +38,7 @@ export function numberToWords(num: number, currency: string = "Rufiyaa") {
 }
 
 export function formatNumberWithCommas(num: number | string, withDecimals: boolean = true) {
-    const result = num.toString()
+    const result = Number(num).toFixed(2);
 
     const numWithDecimal = result.includes(".") && result.split(".")
 
