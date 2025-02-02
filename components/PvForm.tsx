@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useFieldArray } from "react-hook-form"
+import { useToast } from "@/hooks/use-toast";
 import { z } from 'zod'
 import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -102,7 +103,10 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true)
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>()
 
+  const { toast } = useToast()
+
   useEffect(() => {
+    // Fetch the current exchange rates from the MMA website
     async function getExchangeRates() {
       try {
         const response = await axios.get("http://10.12.29.68:8000/exchange_rates")
@@ -155,24 +159,47 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
       try {
         const response = await axios.post("http://10.12.29.68:8000/pvs/", values)
         const serverResponse: SinglePVServerResponseType = response.data
-      } catch (error: any) {
-        console.log(error.message)
+        toast({
+          title: "Success",
+          description: "Successfully created a new PV!",
+        })
+      } catch (error: unknown) {
+        let errorMessage = "";
+        if (error instanceof Error) {
+          errorMessage = error.message
+        } else {
+          errorMessage = "An unknown error occurred."
+        }
+        toast({
+          title: "Error",
+          description: "There was an error. Please try again later.",
+        })
+        
+        console.log(errorMessage)
       }
     } else {
       // When editing an existing PV
       try {
         const response = await axios.put("http://10.12.29.68:8000/pvs/", values)
         const serverResponse: SinglePVServerResponseType = response.data
-        setPopupInfo?.({
+        toast({
           title: serverResponse.success ? "Success" : "Error",
-          detail: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error."
+          description: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error.",
         })
+        // setPopupInfo?.({
+        //   title: serverResponse.success ? "Success" : "Error",
+        //   detail: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error."
+        // })
       } catch (error: any) {
         console.log(error.message)
-        setPopupInfo?.({
+        toast({
           title: "Error",
-          detail: "There was an error. Please try again later."
+          description: "There was an error. Please try again later.",
         })
+        // setPopupInfo?.({
+        //   title: "Error",
+        //   detail: "There was an error. Please try again later."
+        // })
 
       } finally {
         showPopup?.(true)

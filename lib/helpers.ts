@@ -2,6 +2,7 @@
 /**
     * Returns input number in words (in Rufiyaa and Laari).
     * @param {number} num - The number that you want to convert.
+    * @param {string} currency - The name of the currency.
 */
 export function numberToWords(num: number, currency: string = "Rufiyaa") {
     

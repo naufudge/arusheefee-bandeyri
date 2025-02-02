@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Poppins } from 'next/font/google'
+import { Poppins } from 'next/font/google';
 import SideBar from "@/components/SideBar";
+import { Toaster } from "@/components/ui/toaster";
 import "@/app/globals.css";
 
 const geistSans = localFont({
@@ -52,6 +53,7 @@ export default function RootLayout({
             </div>
           </div>
         </div>
+        <Toaster />
       </body>
     </html>
   );
