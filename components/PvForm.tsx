@@ -1,5 +1,6 @@
 "use client";
 
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useFieldArray } from "react-hook-form"
 import { z } from 'zod'
@@ -8,10 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { PvSchema, PvValues } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
-import { PvInputField } from "@/components/PvInputField";
+import { PVDropDownField, PvInputField } from "@/components/PvInputField";
 import axios from "axios";
-import { Dispatch, SetStateAction, useState } from "react";
-import { PopupInfoType, SinglePVServerResponseType } from "@/lib/MyTypes";
+import { ExchangeRates, PopupInfoType, SinglePVServerResponseType } from "@/lib/MyTypes";
+import { Currencies } from "@/lib/data";
 
 interface PvFormProps {
   pv?: PvValues;
@@ -44,12 +45,12 @@ function getForm(pv?: PvValues | null) {
       parkedDate: pv.parkedDate ? new Date(pv.parkedDate) : null,
       postingDate: pv.postingDate ? new Date(pv.postingDate) : null,
       clearingDoc: {
-        num: pv.clearingDoc.num?.toString(), 
-        date: pv.clearingDoc.date ? new Date(pv.clearingDoc.date) : null 
+        num: pv.clearingDoc.num?.toString(),
+        date: pv.clearingDoc.date ? new Date(pv.clearingDoc.date) : null
       },
       transferNum: pv.transferNum
     }
-    
+
     return useForm<z.infer<typeof PvSchema>>({
       resolver: zodResolver(PvSchema),
       defaultValues: vals,
@@ -68,7 +69,7 @@ function getForm(pv?: PvValues | null) {
         currency: "MVR",
         exchangeRate: 1,
         // numOfInvoice: 1,
-  
+
         invoiceDetails: [{
           comments: "",
           invoiceNumber: "",
@@ -80,29 +81,67 @@ function getForm(pv?: PvValues | null) {
             amount: 0
           }]
         }],
-  
-        preparedBy: {name: "Sharumeela Abdul Fatah", designation: "Accounts Officer"},
-        verifiedBy: {name: "", designation: ""},
-        authorisedByOne: {name: "", designation: ""},
-        authorisedByTwo: {name: "", designation: ""},
+
+        preparedBy: { name: "Sharumeela Abdul Fatah", designation: "Accounts Officer" },
+        verifiedBy: { name: "", designation: "" },
+        authorisedByOne: { name: "", designation: "" },
+        authorisedByTwo: { name: "", designation: "" },
 
         poNum: "",
         paymentMethod: "",
         parkedDate: null,
         postingDate: null,
-        clearingDoc: {num: "", date: null},
+        clearingDoc: { num: "", date: null },
         transferNum: ""
-    }})
+      }
+    })
   }
 }
 
 const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true)
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRates>()
+
+  useEffect(() => {
+    async function getExchangeRates() {
+      try {
+        const response = await axios.get("http://10.12.29.68:8000/exchange_rates")
+        if (response.data.success) {
+          const data: ExchangeRates = response.data.result
+          setExchangeRates(data)
+        } else {
+          console.log("Error fetching exchange rates.")
+        }
+      } catch (error: unknown) {
+        let errorMessage = ""
+        if (error instanceof Error) {
+          errorMessage = error.message
+        } else {
+          errorMessage = "An unknown error occurred."
+        }
+        console.log(errorMessage)
+      }
+    }
+
+    if (!exchangeRates) getExchangeRates();
+  }, [exchangeRates])
 
   const form = getForm(pv)
-  
+
   const control = form.control
   const register = form.register
+  const setValue = form.setValue
+
+  const handleCurrencyChange = (currency: string) => {
+    setValue("currency", currency)
+    if (currency === "MVR") {
+      setValue("exchangeRate", 1)
+    }
+    if (exchangeRates) {
+      setValue("exchangeRate", exchangeRates[currency as keyof ExchangeRates])
+    }
+    return
+  }
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -114,7 +153,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
     if (!pv) {
       // When submiting a new PV
       try {
-        const response = await axios.post("http://10.12.29.68:8000/pvs/", values)        
+        const response = await axios.post("http://10.12.29.68:8000/pvs/", values)
         const serverResponse: SinglePVServerResponseType = response.data
       } catch (error: any) {
         console.log(error.message)
@@ -140,7 +179,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
       }
     }
     setSubmitBtnState(true)
-  } 
+  }
 
   return (
     <Form {...form}>
@@ -151,32 +190,32 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
 
           {/* Vendor */}
           <PvInputField control={control} name={"vendor"} label="Vendor" />
-          
+
 
           {/* PV Number */}
-          <PvInputField 
-          control={control} 
-          name={"pvNum"} 
-          label="PV Number" 
-          disabled={pv ? true : false} 
-          required={pv ? false : true} 
-          register={register} 
-          description={pv ? "" : "PV Number Eg: 2024-03"}
+          <PvInputField
+            control={control}
+            name={"pvNum"}
+            label="PV Number"
+            disabled={pv ? true : false}
+            required={pv ? false : true}
+            register={register}
+            description={pv ? "" : "PV Number Eg: 2024-03"}
           />
-           
+
 
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           {/* Agency */}
           <PvInputField control={control} name={"agency"} label="Agency" />
-            
+
 
           {/* PV Date */}
           <PvInputField control={control} name={"date"} label="Date" />
 
         </div>
-        
+
         {/* Notes */}
         <PvInputField control={control} name={"notes"} label="Note(s)" />
 
@@ -185,10 +224,10 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           <PvInputField control={control} name={"poNum"} label="PO Number" />
 
           {/* Currency */}
-          <PvInputField control={control} name={"currency"} label="Currency" />
+          <PVDropDownField control={control} name={"currency"} label="Currency" options={Currencies.sort()} placeholder="Select a currency" customHandler={handleCurrencyChange} description="All the available currencies in MMA website." />
 
           {/* Exchange Rate */}
-          <PvInputField control={control} name={"exchangeRate"} label="Exchange Rate" />
+          <PvInputField control={control} name={"exchangeRate"} label="Exchange Rate" disabled={true} description="Rate is taken from MMA website." />
 
         </div>
 
@@ -199,21 +238,21 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
               <div className="flex col-span-4 font-bold text-xl justify-between w-full">
                 <div>Invoice #{index + 1}</div>
                 {/* Show delete button starting from Invoice #2 */}
-                {index != 0 && 
-                  <Button 
-                  type="button"
-                  variant="destructive"
-                  onClick={() => remove(index)}>
-                      <Trash2 width={20} height={20}/>
+                {index != 0 &&
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => remove(index)}>
+                    <Trash2 width={20} height={20} />
                   </Button>
                 }
               </div>
               {/* Comment(s) */}
               <PvInputField control={control} name={`invoiceDetails.${index}.comments`} label="Comments" className="flex flex-col gap-2 col-span-4" />
-              
+
               {/* Invoice Date */}
               <PvInputField control={control} name={`invoiceDetails.${index}.invoiceDate`} label="Invoice Date" className="flex flex-col justify-start gap-2 col-span-2" />
-              
+
               {/* Invoice Number */}
               <PvInputField control={control} name={`invoiceDetails.${index}.invoiceNumber`} label="Invoice Number" className="flex flex-col gap-2" />
 
@@ -225,18 +264,21 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
             </div>
           ))}
           {/* Add invoice button */}
-          <Button type="button" variant="outline" className="flex gap-2" 
-            onClick={() => {append(
-              { comments: "",
-                invoiceNumber: "",
-                invoiceDate: new Date(),
-                invoiceTotal: 0,
-                glDetails: [{
-                  code: 0,
-                  fund: "C-GOM",
-                  amount: 0
-                }]
-              })}
+          <Button type="button" variant="outline" className="flex gap-2"
+            onClick={() => {
+              append(
+                {
+                  comments: "",
+                  invoiceNumber: "",
+                  invoiceDate: new Date(),
+                  invoiceTotal: 0,
+                  glDetails: [{
+                    code: 0,
+                    fund: "C-GOM",
+                    amount: 0
+                  }]
+                })
+            }
             }>
             <Plus width={20} height={20} />Invoice
           </Button>
@@ -249,7 +291,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
             <PvInputField control={control} name={"preparedBy.name"} label="Name" />
             <PvInputField control={control} name={"preparedBy.designation"} label="Designation" />
           </div>
-          
+
           {/* Verified By Section */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Verified By:</div>

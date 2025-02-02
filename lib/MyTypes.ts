@@ -14,3 +14,25 @@ export type MultiplePVServerResponseType = {
     success: boolean,
     result: PvValues[]
 }
+
+export type ExchangeRates = {
+    USD: number,
+    AUD: number,
+    CAD: number,
+    DKK: number,
+    EUR: number,
+    HKD: number,
+    JPY: number,
+    NOK: number,
+    SGD: number,
+    SAR: number,
+    GBP: number,
+    CHF: number,
+    SEK: number,
+    LKR: number,
+    INR: number,
+    THB: number,
+    MYR: number,
+    IDR: number,
+    AED: number,
+}

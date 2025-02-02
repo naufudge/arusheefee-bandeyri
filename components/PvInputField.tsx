@@ -13,7 +13,14 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-  } from "@/components/ui/popover"
+} from "@/components/ui/popover"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -42,41 +49,41 @@ export const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label
                 control={control}
                 name={name}
                 render={({ field }) => (
-                <FormItem className={`${className}`}>
-                    <FormLabel>{label}</FormLabel>
-                    <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                            "w-full pl-3 text-left font-normal justify-between",
-                            !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? (
-                            format(field.value, "PPP")
-                            ) : (
-                            <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                        />
-                    </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
+                    <FormItem className={`${className}`}>
+                        <FormLabel>{label}</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full pl-3 text-left font-normal justify-between",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                    >
+                                        {field.value ? (
+                                            format(field.value, "PPP")
+                                        ) : (
+                                            <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                                    </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                    </FormItem>
                 )}
             />
         )
@@ -88,35 +95,63 @@ export const PvInputField: React.FC<PvInputFieldProps> = ({ control, name, label
             name={name}
             render={({ field }) => (
                 <FormItem className={className}>
-                <FormLabel>{label}</FormLabel>
-                <FormControl>
-                    { register ?
-                        <Input
-                            {...register(name, { required: required })}
-                            {...field}
-                            placeholder={label}
-                            disabled={disabled ? true : false}
+                    <FormLabel>{label}</FormLabel>
+                    <FormControl>
+                        {register ?
+                            <Input
+                                {...register(name, { required: required })}
+                                {...field}
+                                placeholder={label}
+                                disabled={disabled ? true : false}
                             // required={required}
-                        />
-                    : 
-                        <Input
-                            {...field}
-                            placeholder={label}
-                        />
-                    }
-                </FormControl>
-                { description && <FormDescription className='text-xs'>{description}</FormDescription>}
-                <FormMessage />
+                            />
+                            :
+                            <Input
+                                {...field}
+                                placeholder={label}
+                                disabled={disabled ? true : false}
+                            />
+                        }
+                    </FormControl>
+                    {description && <FormDescription className='text-xs'>{description}</FormDescription>}
+                    <FormMessage />
                 </FormItem>
             )}
         />
     )
 }
 
-export const PVDropDownField: React.FC = ({  }) => {
-    return(
-        <div>
-            
-        </div>
+type DropDownFieldProps = PvInputFieldProps & {
+    options: string[];
+    placeholder: string;
+    customHandler?: (value: string) => void;
+}
+
+export const PVDropDownField: React.FC<DropDownFieldProps> = ({ control, name, label, disabled, className, required, register, description, options, placeholder, customHandler }) => {
+    return (
+        <FormField
+          control={control}
+          name={name}
+          render={({ field }) => (
+            <FormItem className={className}>
+              <FormLabel>{label}</FormLabel>
+              <Select onValueChange={customHandler ? customHandler : field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={placeholder} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                    {options.map((option, index) => (
+                        <SelectItem key={index} value={option}>{option}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+
+              {description && <FormDescription className='text-xs'>{description}</FormDescription>}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
     )
 }
