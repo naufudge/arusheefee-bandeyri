@@ -103,6 +103,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true)
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>()
   const [staff, setStaff] = useState<Staff[]>()
+  const [latestPVnum, setLatestPVnum] = useState<number>()
 
   const { toast } = useToast()
 
@@ -149,16 +150,44 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
     }
   }
 
+  // Get latest PV
+  async function getLatestPV() {
+    try {
+       const response = await axios.get("http://10.12.29.68:8000/pv/latest")
+       if (response.data.success) {
+        const pv: z.infer<typeof PvSchema> = response.data.result
+        const pvNum = pv.pvNum.split("-")[1]
+        console.log(pvNum)
+        setLatestPVnum(Number(pvNum) + 1)
+      } else {
+        console.log("Error fetching exchange rates.")
+      }
+    } catch (error: unknown) {
+      let errorMessage = ""
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = "An unknown error occurred."
+      }
+      console.log(errorMessage)
+    }
+  }
+
   useEffect(() => {
     if (!exchangeRates) getExchangeRates();
     if (!staff) getStaff();
-  }, [exchangeRates, staff])
+    if (!pv && !latestPVnum) getLatestPV();
+  }, [])
 
   const form = getForm(pv)
 
   const control = form.control
   const register = form.register
   const setValue = form.setValue
+
+  useEffect(() => {
+    if (!pv && latestPVnum) setValue("pvNum", `2025-${latestPVnum.toString().padStart(3, "0")}`)
+  }, [latestPVnum])
 
   // Handles currency dropdown selection
   const handleCurrencyChange = (currency: string) => {
@@ -238,12 +267,11 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
             control={control}
             name={"pvNum"}
             label="PV Number"
-            disabled={pv ? true : false}
+            disabled={pv ? true : latestPVnum ? false : true}
             required={pv ? false : true}
             register={register}
             description={pv ? "" : "PV Number Eg: 2024-03"}
           />
-
 
         </div>
 
@@ -329,7 +357,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           {/* Prepared By Section */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Prepared By:</div>
-            {/* <PvInputField control={control} name={"preparedBy.name"} label="Name" /> */}
             <StaffDropDownField control={control} name="preparedBy" label="Name" staffs={staff ?? []} formSetValue={setValue} />
             <PvInputField control={control} name={"preparedBy.designation"} label="Designation" disabled={true} />
           </div>
@@ -337,7 +364,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           {/* Verified By Section */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Verified By:</div>
-            {/* <PvInputField control={control} name={"verifiedBy.name"} label="Name" /> */}
             <StaffDropDownField control={control} name="verifiedBy" label="Name" staffs={staff ?? []} formSetValue={setValue} />
             <PvInputField control={control} name={"verifiedBy.designation"} label="Designation" disabled={true} />
           </div>
@@ -345,7 +371,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           {/* Authorised By Section One */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Authorised By:</div>
-            {/* <PvInputField control={control} name={"authorisedByOne.name"} label="Name" /> */}
             <StaffDropDownField control={control} name="authorisedByOne" label="Name" staffs={staff ?? []} formSetValue={setValue} />
             <PvInputField control={control} name={"authorisedByOne.designation"} label="Designation" disabled={true} />
           </div>
@@ -353,7 +378,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           {/* Authorised By Section Two */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Authorised By 2:</div>
-            {/* <PvInputField control={control} name={"authorisedByTwo.name"} label="Name" /> */}
             <StaffDropDownField control={control} name="authorisedByTwo" label="Name" staffs={staff ?? []} formSetValue={setValue} />
             <PvInputField control={control} name={"authorisedByTwo.designation"} label="Designation" disabled={true} />
           </div>
