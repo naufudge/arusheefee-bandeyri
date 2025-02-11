@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { PvSchema, PvValues } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
-import { PVDropDownField, PvInputField } from "@/components/PvInputField";
+import { PVDropDownField, PvInputField, StaffDropDownField } from "@/components/PvInputField";
 import axios from "axios";
-import { ExchangeRates, PopupInfoType, SinglePVServerResponseType } from "@/lib/MyTypes";
+import { ExchangeRates, PopupInfoType, SinglePVServerResponseType, Staff } from "@/lib/MyTypes";
 import { Currencies } from "@/lib/data";
 
 interface PvFormProps {
@@ -102,33 +102,57 @@ function getForm(pv?: PvValues | null) {
 const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true)
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>()
+  const [staff, setStaff] = useState<Staff[]>()
 
   const { toast } = useToast()
 
-  useEffect(() => {
-    // Fetch the current exchange rates from the MMA website
-    async function getExchangeRates() {
-      try {
-        const response = await axios.get("http://10.12.29.68:8000/exchange_rates")
-        if (response.data.success) {
-          const data: ExchangeRates = response.data.result
-          setExchangeRates(data)
-        } else {
-          console.log("Error fetching exchange rates.")
-        }
-      } catch (error: unknown) {
-        let errorMessage = ""
-        if (error instanceof Error) {
-          errorMessage = error.message
-        } else {
-          errorMessage = "An unknown error occurred."
-        }
-        console.log(errorMessage)
+  // Fetch the current exchange rates from the MMA website
+  async function getExchangeRates() {
+    try {
+      const response = await axios.get("http://10.12.29.68:8000/exchange_rates")
+      if (response.data.success) {
+        const data: ExchangeRates = response.data.result
+        setExchangeRates(data)
+      } else {
+        console.log("Error fetching exchange rates.")
       }
+    } catch (error: unknown) {
+      let errorMessage = ""
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = "An unknown error occurred."
+      }
+      console.log(errorMessage)
     }
+  }
 
+  // Get all staff available in the DB
+  async function getStaff() {
+    try {
+      const response = await axios.get("http://10.12.29.68:8000/staff")
+      if (response.data.success) {
+        const data: Staff[] = response.data.result
+        const sortedStaffs = data.sort((a, b) => a.name.localeCompare(b.name))
+        setStaff(sortedStaffs)
+      } else {
+        console.log("Error fetching exchange rates.")
+      }
+    } catch (error: unknown) {
+      let errorMessage = ""
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = "An unknown error occurred."
+      }
+      console.log(errorMessage)
+    }
+  }
+
+  useEffect(() => {
     if (!exchangeRates) getExchangeRates();
-  }, [exchangeRates])
+    if (!staff) getStaff();
+  }, [exchangeRates, staff])
 
   const form = getForm(pv)
 
@@ -136,6 +160,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
   const register = form.register
   const setValue = form.setValue
 
+  // Handles currency dropdown selection
   const handleCurrencyChange = (currency: string) => {
     setValue("currency", currency)
     if (currency === "MVR") {
@@ -186,21 +211,12 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           title: serverResponse.success ? "Success" : "Error",
           description: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error.",
         })
-        // setPopupInfo?.({
-        //   title: serverResponse.success ? "Success" : "Error",
-        //   detail: serverResponse.success ? `Successfully updated PV ${values.pvNum}!` : "Encountered a server error."
-        // })
       } catch (error: any) {
         console.log(error.message)
         toast({
           title: "Error",
           description: "There was an error. Please try again later.",
         })
-        // setPopupInfo?.({
-        //   title: "Error",
-        //   detail: "There was an error. Please try again later."
-        // })
-
       }
     }
     setSubmitBtnState(true)
@@ -313,29 +329,33 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
           {/* Prepared By Section */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Prepared By:</div>
-            <PvInputField control={control} name={"preparedBy.name"} label="Name" />
-            <PvInputField control={control} name={"preparedBy.designation"} label="Designation" />
+            {/* <PvInputField control={control} name={"preparedBy.name"} label="Name" /> */}
+            <StaffDropDownField control={control} name="preparedBy" label="Name" staffs={staff ?? []} formSetValue={setValue} />
+            <PvInputField control={control} name={"preparedBy.designation"} label="Designation" disabled={true} />
           </div>
 
           {/* Verified By Section */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Verified By:</div>
-            <PvInputField control={control} name={"verifiedBy.name"} label="Name" />
-            <PvInputField control={control} name={"verifiedBy.designation"} label="Designation" />
+            {/* <PvInputField control={control} name={"verifiedBy.name"} label="Name" /> */}
+            <StaffDropDownField control={control} name="verifiedBy" label="Name" staffs={staff ?? []} formSetValue={setValue} />
+            <PvInputField control={control} name={"verifiedBy.designation"} label="Designation" disabled={true} />
           </div>
 
           {/* Authorised By Section One */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Authorised By:</div>
-            <PvInputField control={control} name={"authorisedByOne.name"} label="Name" />
-            <PvInputField control={control} name={"authorisedByOne.designation"} label="Designation" />
+            {/* <PvInputField control={control} name={"authorisedByOne.name"} label="Name" /> */}
+            <StaffDropDownField control={control} name="authorisedByOne" label="Name" staffs={staff ?? []} formSetValue={setValue} />
+            <PvInputField control={control} name={"authorisedByOne.designation"} label="Designation" disabled={true} />
           </div>
 
           {/* Authorised By Section Two */}
           <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
             <div className="font-bold">Authorised By 2:</div>
-            <PvInputField control={control} name={"authorisedByTwo.name"} label="Name" />
-            <PvInputField control={control} name={"authorisedByTwo.designation"} label="Designation" />
+            {/* <PvInputField control={control} name={"authorisedByTwo.name"} label="Name" /> */}
+            <StaffDropDownField control={control} name="authorisedByTwo" label="Name" staffs={staff ?? []} formSetValue={setValue} />
+            <PvInputField control={control} name={"authorisedByTwo.designation"} label="Designation" disabled={true} />
           </div>
         </div>
 

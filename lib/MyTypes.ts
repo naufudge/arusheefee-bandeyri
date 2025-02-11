@@ -36,3 +36,9 @@ export type ExchangeRates = {
     IDR: number,
     AED: number,
 }
+
+export type Staff = {
+    _id: string,
+    name: string,
+    designation: string,
+}
