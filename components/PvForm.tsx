@@ -201,8 +201,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
         //   detail: "There was an error. Please try again later."
         // })
 
-      } finally {
-        showPopup?.(true)
       }
     }
     setSubmitBtnState(true)

@@ -1,6 +1,7 @@
 import React from 'react'
 import { PvValues } from '@/lib/PvSchema'
 import { formatNumberWithCommas, numberToWords } from '@/lib/helpers'
+import { CurrencyNames } from '@/lib/data'
 
 interface PrintProps {
     pv: PvValues
@@ -163,8 +164,8 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                                 <div>-</div>
                                 <div>-</div>
                                 <div>{gl.fund}</div>
-                                <div>{formatNumberWithCommas(gl.amount / pv.exchangeRate)}</div>
                                 <div>{formatNumberWithCommas(gl.amount)}</div>
+                                <div>{formatNumberWithCommas(gl.amount * pv.exchangeRate)}</div>
                             </div>
                         ))}
                     </div>
@@ -188,7 +189,7 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                 </div>
                 <div className='col-span-6'>
                     <div className='grid child:py-2 child:border child:justify child:px-4'>
-                        <div>{pv.currency.toLowerCase() != "mvr" ? numberToWords(getGrossTotal(), "Euro") : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
+                        <div>{pv.currency.toLowerCase() != "mvr" ? numberToWords(getGrossTotal(), CurrencyNames[pv.currency as keyof typeof CurrencyNames]) : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
                         <div>{pv.currency.toLowerCase() === "mvr" ? numberToWords(getGrossTotal()) : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
                     </div>
                 </div>

@@ -43,3 +43,26 @@ export const Currencies: string[] = [
     "IDR",
     "AED",
 ]
+
+export const CurrencyNames = {
+    "MVR": "Rufiyya",
+    "USD": "Dollars",
+    "AUD": "",
+    "CAD": "",
+    "DKK": "",
+    "EUR": "Euro",
+    "HKD": "",
+    "JPY": "Yen",
+    "NOK": "",
+    "SGD": "",
+    "SAR": "",
+    "GBP": "Pounds",
+    "CHF": "",
+    "SEK": "",
+    "LKR": "",
+    "INR": "",
+    "THB": "",
+    "MYR": "Ringgit",
+    "IDR": "",
+    "AED": "",
+}

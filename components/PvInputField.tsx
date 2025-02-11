@@ -135,7 +135,7 @@ export const PVDropDownField: React.FC<DropDownFieldProps> = ({ control, name, l
           render={({ field }) => (
             <FormItem className={className}>
               <FormLabel>{label}</FormLabel>
-              <Select onValueChange={customHandler ? customHandler : field.onChange} defaultValue={field.value}>
+              <Select onValueChange={customHandler ? customHandler : field.onChange} defaultValue={field.value} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder={placeholder} />

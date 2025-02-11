@@ -14,6 +14,7 @@ export function numberToWords(num: number, currency: string = "Rufiyaa") {
         if (n === 0) return "";
         else if (n < 20) return belowTwenty[n] + " ";
         else if (n < 100) return tens[Math.floor(n / 10)] + " " + helper(n % 10);
+        else if (n % 100 === 0) return belowTwenty[Math.floor(n / 100)] + " Hundred" + helper(n % 100);
         else return belowTwenty[Math.floor(n / 100)] + " Hundred and " + helper(n % 100);
     }
 
