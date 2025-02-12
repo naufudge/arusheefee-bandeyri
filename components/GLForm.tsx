@@ -27,8 +27,8 @@ const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, setValue, formValue
         name: `invoiceDetails.${nestIndex}.glDetails`
     })
 
-    const handleGlAmountChange = (GlAmount: number, GLIndex: number) => {
-        setValue(`invoiceDetails.${nestIndex}.glDetails.${GLIndex}.amount`, GlAmount)
+    // Updates the invoice total by adding up all the GL amounts
+    const updateInvoiceTotal = () => {
         const values = formValues()
         const invoices = values.invoiceDetails
         const currentInvoiceTotal = invoices[nestIndex].glDetails.reduce(
@@ -36,6 +36,11 @@ const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, setValue, formValue
             0
         );
         setValue(`invoiceDetails.${nestIndex}.invoiceTotal`, currentInvoiceTotal)
+    }
+
+    const handleGlAmountChange = (GlAmount: number, GLIndex: number) => {
+        setValue(`invoiceDetails.${nestIndex}.glDetails.${GLIndex}.amount`, GlAmount)
+        updateInvoiceTotal();
     }
 
     return (
@@ -94,7 +99,10 @@ const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, setValue, formValue
                         <Button
                         type="button"
                         variant="destructive"
-                        onClick={() => removeGL(GLIndex)}>
+                        onClick={() => {
+                            removeGL(GLIndex)
+                            updateInvoiceTotal()
+                        }}>
                             <Trash2 width={20} height={20}/>
                         </Button>
                     </div>
