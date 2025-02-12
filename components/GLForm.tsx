@@ -1,30 +1,42 @@
 import React from 'react'
-import { CalendarIcon, Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Control, FieldArrayWithId, useFieldArray } from 'react-hook-form'
-import { PvValues } from "@/lib/PvSchema";
+import { Control, useFieldArray, UseFormGetValues, UseFormSetValue } from 'react-hook-form'
+import { PvSchema, PvValues } from "@/lib/PvSchema";
+import { z } from 'zod'
 
 interface GLFormProps {
     nestIndex: number;
     control: Control<PvValues>;
+    setValue: UseFormSetValue<z.infer<typeof PvSchema>>;
+    formValues: UseFormGetValues<z.infer<typeof PvSchema>>;
     className?: string
 }
 
-const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, className }) => {
+const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, setValue, formValues, className }) => {
     const {fields: glFields, append: appendGL, remove: removeGL} = useFieldArray({
         control,
         name: `invoiceDetails.${nestIndex}.glDetails`
     })
+
+    const handleGlAmountChange = (GlAmount: number, GLIndex: number) => {
+        setValue(`invoiceDetails.${nestIndex}.glDetails.${GLIndex}.amount`, GlAmount)
+        const values = formValues()
+        const invoices = values.invoiceDetails
+        const currentInvoiceTotal = invoices[nestIndex].glDetails.reduce(
+            (sum, GlDetail) => sum + (GlDetail.amount || 0),
+            0
+        );
+        setValue(`invoiceDetails.${nestIndex}.invoiceTotal`, currentInvoiceTotal)
+    }
 
     return (
     <div className={className}>
@@ -70,7 +82,7 @@ const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, className }) => {
                         <FormItem className={GLIndex != 0 ? "col-span-2" : ""}>
                             <FormLabel>Amount</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="Amount" {...field} />
+                                <Input {...field} type="number" placeholder="Amount" onChange={(e) => handleGlAmountChange(Number(e.target.value), GLIndex)} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
