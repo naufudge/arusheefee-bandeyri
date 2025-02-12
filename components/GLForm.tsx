@@ -35,7 +35,7 @@ const GLForm: React.FC<GLFormProps> = ({ nestIndex, control, setValue, formValue
             (sum, GlDetail) => sum + (GlDetail.amount || 0),
             0
         );
-        setValue(`invoiceDetails.${nestIndex}.invoiceTotal`, currentInvoiceTotal)
+        setValue(`invoiceDetails.${nestIndex}.invoiceTotal`, Number(currentInvoiceTotal.toFixed(2)))
     }
 
     const handleGlAmountChange = (GlAmount: number, GLIndex: number) => {
