@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { PvValues } from '@/lib/PvSchema';
-import { MultiplePVServerResponseType } from '@/lib/MyTypes';
-import { Eye, Printer, SquarePen, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { PvValues } from "@/lib/PvSchema";
+import { FilterType, MultiplePVServerResponseType } from "@/lib/MyTypes";
+import { Eye, Loader2, Printer, SquarePen, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,158 +17,232 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import PvForm from '@/components/PvForm';
-import Popup from '@/components/Popup';
-import Filter from '@/components/Filter';
-import { removeDuplicates } from '@/lib/helpers';
-
+import Filter from "@/components/Filter";
+import { removeDuplicates } from "@/lib/helpers";
+import Search from "@/components/PvRegister/Search";
+import ExportPVs from "@/components/PvRegister/ExportPVs";
 
 const page = () => {
-  const router = useRouter()
-  const [pvs, setPvs] = useState<PvValues[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const router = useRouter();
+  const [pvs, setPvs] = useState<PvValues[]>([]);
+  const [filteredPvs, setFilteredPvs] = useState<PvValues[]>([]);
 
-  const [vendors, setVendors] = useState<string[]>([])
-  const [selectedVendor, setSelectedVendor] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const [selectedStatus, setSelectedStatus] = useState<string>("")
+  const [query, setQuery] = useState<string>("");
 
-  const [popup, setPopup] = useState(false)
-  const [popupInfo, setPopupInfo] = useState({
-    title: "",
-    detail: ""
-  })
+  const [filters, setFilters] = useState<FilterType>({
+    year: new Date().getFullYear(),
+    vendor: "",
+    status: "",
+    gl: 0,
+  });
+
+  const [vendors, setVendors] = useState<string[]>([]);
 
   async function get_pvs() {
     try {
-      const response = await fetch("http://10.12.29.68:8000/pvs")
-      const data: MultiplePVServerResponseType = await response.json()
-      setPvs(data.result.reverse())
+      // const response = await fetch("http://10.12.29.68:8000/pvs")
+      const response = await fetch(
+        `http://10.12.29.68:8000/pv/year/${filters.year}`
+      );
+      const data: MultiplePVServerResponseType = await response.json();
+      setPvs(data.result.reverse());
+      setFilteredPvs(data.result.reverse());
 
       // Sort the vendors and remove the duplicates
-      let tempVendors = data.result.map(item => item.vendor).sort();
-      const finalvendors: string[] = removeDuplicates(tempVendors)
+      let tempVendors = data.result.map((item) => item.vendor).sort();
+      const finalvendors: string[] = removeDuplicates(tempVendors);
       setVendors(finalvendors);
 
       // let tempDates = data.result.map(item => new Date(item.date).getFullYear() === 2026 ? item.pvNum : null)
       // const pvYears = removeDuplicates(tempDates)
       // console.log(tempDates)
 
-      setLoading(false)
+      setLoading(false);
     } catch (error: any) {
-      setLoading(true)
-      console.log(error)
+      setLoading(true);
+      console.log(error);
     }
   }
 
   useEffect(() => {
-    if (pvs.length <= 0) get_pvs()
-  }, [pvs, loading, vendors])
+    if (pvs.length <= 0) get_pvs();
+  }, [pvs, loading, filters]);
 
-  const filteredPvs = selectedVendor ? pvs.filter((item) => item.vendor === selectedVendor)
-    : selectedStatus ? pvs.filter((item) => selectedStatus === "pending" ? item.transferNum === "" : item.transferNum != "") 
-    : pvs
+  // useEffect(() => {
+  //   get_pvs()
+  // }, [filters])
+
+  // const filteredPvs = filters.vendor ? pvs.filter((item) => item.vendor === filters.vendor)
+  //   : filters.status ? pvs.filter((item) => filters.status === "pending" ? item.transferNum === "" : item.transferNum != "")
+  //   : pvs
+
+  const handleFilter = () => {
+    if (filters.year) {
+      get_pvs();
+    }
+
+    const result = filters.vendor
+      ? pvs.filter((item) => item.vendor === filters.vendor)
+      : filters.status
+      ? pvs.filter((item) =>
+          filters.status === "pending"
+            ? item.transferNum === ""
+            : item.transferNum != ""
+        )
+      : pvs;
+
+    setFilteredPvs(result);
+  };
+
+  const handleSearch = () => {
+    if (query) {
+      const updatedQuery = query.trim().toLocaleLowerCase();
+      const result = pvs.filter(
+        (item) =>
+          item.pvNum.includes(updatedQuery) ||
+          item.notes.toLocaleLowerCase().includes(updatedQuery) ||
+          item.vendor.toLocaleLowerCase().includes(updatedQuery)
+      );
+      setFilteredPvs(result);
+    } else {
+      setFilteredPvs(pvs);
+    }
+  };
 
   const handlePrintClick = (pv: PvValues) => {
-    localStorage.setItem("pvNum", pv.pvNum)
-    router.push("/print")
-  }
+    localStorage.setItem("pvNum", pv.pvNum);
+    router.push("/print");
+  };
 
   const handleDeleteClick = async (pvNum: string) => {
     try {
-      await axios.delete(`http://10.12.29.68:8000/pvs/${pvNum}`)
-      await get_pvs()
+      await axios.delete(`http://10.12.29.68:8000/pvs/${pvNum}`);
+      await get_pvs();
     } catch (error: any) {
-      console.log(error.message)
+      console.log(error.message);
     }
-  }
+  };
 
   return (
-    <div className='font-poppins w-full'>
-      <div>
-        <h1 className='font-bold text-2xl'>PV Register</h1>
+    <div className="font-poppins w-full">
+      <div className="flex justify-between place-items-center">
+        <div className="flex flex-col gap-1">
+          <h1 className="font-bold text-2xl">PV Register</h1>
+          <div className="text-sm text-stone-400 mt-1 italic">
+            Track and manage all payment vouchers (PVs) in one place with
+            detailed records and statuses.
+          </div>
+        </div>
+
+        {/* Export button */}
+        <ExportPVs year={filters.year} />
       </div>
 
-      {/* Search & Filtering */}
-      <Filter 
-      vendors={vendors}
-      selectedVendor={selectedVendor}
-      setVendor={setSelectedVendor}
-      selectedStatus={selectedStatus}
-      setSelectedStatus={setSelectedStatus}
-      />
+      <div className="mt-4 flex place-items-center gap-4">
+        <Search query={query} setQuery={setQuery} handleSearch={handleSearch} />
+
+        {/* Filtering */}
+        <Filter
+          vendors={vendors}
+          filters={filters}
+          setFilters={setFilters}
+          handleFilter={handleFilter}
+        />
+      </div>
 
       <br />
-      <div className='grid gap-8'>
-        { loading ? <div className='italic'>Loading...</div>
-        :
-        <>
-          <Popup open={popup} setOpen={setPopup} info={popupInfo} />
-          {filteredPvs.map((pv, index) => (
-              <div key={index} className={`flex border rounded-lg p-5 w-full drop-shadow-sm`}>
-                
-                <div className='flex gap-8 w-full'>
+      <div className="grid gap-8 h-full">
+        {loading ? (
+          <div className="w-full h-full flex place-items-center justify-center my-10">
+            <Loader2 className="animate-spin size-14" />
+          </div>
+        ) : (
+          <>
+            {filteredPvs.map((pv, index) => (
+              <div
+                key={index}
+                className={`flex border rounded-lg p-5 w-full drop-shadow-sm`}
+              >
+                <div className="flex gap-8 w-full">
                   {/* PV Number */}
-                  <div className='flex place-items-center justify-center font-bold'>{pv.pvNum}</div>
-                  
-                  <div className='flex flex-col'>
-                    <div>{pv.notes}</div>
-                    <div className='italic opacity-60 text-sm'>{pv.vendor}</div>
+                  <div className="flex place-items-center justify-center font-bold">
+                    {pv.pvNum}
                   </div>
-                  
+
+                  <div className="flex flex-col">
+                    <div>{pv.notes}</div>
+                    <div className="italic opacity-60 text-sm">{pv.vendor}</div>
+                  </div>
                 </div>
 
-                <div className='flex gap-8 place-items-center child:transition-all child:duration-200'>
+                <div className="flex gap-8 place-items-center child:transition-all child:duration-200">
                   {/* Status of the PV */}
-                  <div className='flex gap-2 place-items-center justify-start'>
-                    <div className={`w-[15px] h-[15px] ${pv.transferNum != "" ? "bg-green-700" : "bg-gray-700"} rounded-full`}></div>
-                    <div className='opacity-60 text-sm'>{pv.transferNum != "" ? "Processed" : "Pending"}</div>
+                  <div className="flex gap-2 place-items-center justify-start">
+                    <div
+                      className={`w-[15px] h-[15px] ${
+                        pv.transferNum != "" ? "bg-green-700" : "bg-gray-700"
+                      } rounded-full`}
+                    ></div>
+                    <div className="opacity-60 text-sm">
+                      {pv.transferNum != "" ? "Processed" : "Pending"}
+                    </div>
                   </div>
-                  
+
                   {/* View Button */}
-                  <Eye className='hover:text-green-600 hover:cursor-pointer' />
+                  <Eye className="hover:text-green-600 hover:cursor-pointer" />
 
                   {/* Edit Popup */}
-                  <SquarePen 
-                  onClick={() => router.push(`/edit/${pv.pvNum}`)}
-                  className='hover:text-blue-600 hover:cursor-pointer'
+                  <SquarePen
+                    onClick={() => router.push(`/edit/${pv.pvNum}`)}
+                    className="hover:text-blue-600 hover:cursor-pointer"
                   />
-                
-                  <Printer className='hover:text-purple-600 hover:cursor-pointer' onClick={() => handlePrintClick(pv)} />
-                  
+
+                  <Printer
+                    className="hover:text-purple-600 hover:cursor-pointer"
+                    onClick={() => handlePrintClick(pv)}
+                  />
+
                   {/* Delete Popup */}
                   <AlertDialog>
-                    <AlertDialogTrigger><Trash2 className='hover:text-red-600 hover:cursor-pointer' /></AlertDialogTrigger>
-                    <AlertDialogContent className='bg-white'>
+                    <AlertDialogTrigger>
+                      <Trash2 className="hover:text-red-600 hover:cursor-pointer" />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-white">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete the PV from the register.
+                          This action cannot be undone. This will permanently
+                          delete the PV from the register.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <AlertDialogFooter className='gap-4'>
-                        <AlertDialogCancel className=''>
+                      <AlertDialogFooter className="gap-4">
+                        <AlertDialogCancel className="">
                           Cancel
                         </AlertDialogCancel>
 
-                        <AlertDialogAction onClick={() => handleDeleteClick(pv.pvNum)} className='bg-red-800 hover:bg-red-700'>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteClick(pv.pvNum)}
+                          className="bg-red-800 hover:bg-red-700"
+                        >
                           Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
-                </div>
+              </div>
             ))}
-          
-          {pvs.length === 0 && 
-            <div>No PVs</div>
-          }
-        </>
-        }
+
+            {filteredPvs.length === 0 && <div className="italic text-center text-slate-400 mt-10">Sorry, No PVs found.</div>}
+          </>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

@@ -66,12 +66,12 @@ export function AppSidebar() {
         <div className="mx-4 mt-6 mb-2 flex gap-2 place-items-center">
           <Image
             src={"/logo.png"}
-            className={`w-8 h-fit justify-center`}
+            className={`w-9 h-fit justify-center`}
             width={50}
             height={50}
             alt="Logo"
           />
-          <h1 className="text-sm font-semibold">National Archives</h1>
+          <h1 className="text-sm font-semibold">Arusheefee Bandeyri</h1>
         </div>
         <SidebarGroup>
           {/* <SidebarGroupLabel>

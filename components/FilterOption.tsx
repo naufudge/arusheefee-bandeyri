@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react'
-import { CircleX } from 'lucide-react'
+import React from 'react'
 import {
     Select,
     SelectContent,
@@ -14,36 +13,26 @@ interface FilterOptionProps {
     label: string;
     placeholder: string;
     selectItems?: string[];
-    setSelect: Dispatch<SetStateAction<string>>;
+    setSelect: (value: string) => void;
     selectedValue: string;
 }
 
 const FilterOption: React.FC<FilterOptionProps> = ({ label, placeholder, setSelect, selectedValue, selectItems }) => {
-    const xCircleSize = 25;
     return (
         <div className='gap-1'>
-            <Label>{label}</Label>
+            <Label htmlFor={label}>{label}</Label>
             <div className='flex gap-2 place-items-center'>
-                <Select onValueChange={setSelect}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder={selectedValue ? selectedValue : placeholder} />
+                <Select onValueChange={setSelect} value={selectedValue}>
+                    <SelectTrigger id={label} className={`w-[180px] ${selectedValue && 'border-black border-2'}`} onClick={(e) => e.stopPropagation()}>
+                        <SelectValue placeholder={placeholder} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent id={label} onClick={(e) => e.stopPropagation()}>
                         {selectItems?.map((item, index) => (
                             <SelectItem key={index} value={item} className='hover:cursor-pointer'>{capitalizeFirstLetter(item)}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
 
-                {/* Clear selection button */}
-                { selectedValue &&
-                <CircleX 
-                onClick={() => setSelect("")}
-                color='white' 
-                width={xCircleSize} 
-                height={xCircleSize} 
-                className='hover:cursor-pointer hover:fill-red-600 fill-red-700 transition-all' />
-                }
             </div>
         </div>
     )

@@ -5,6 +5,13 @@ export type PopupInfoType = {
     detail: string
 }
 
+export type FilterType = {
+    year: number | string,
+    vendor: string,
+    status: string,
+    gl: number,
+}
+
 export type SinglePVServerResponseType = {
     success: boolean,
     result: PvValues
