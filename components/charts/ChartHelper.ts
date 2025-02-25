@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { capitalizeFirstLetter } from "@/lib/helpers";
 import { ChartConfig } from "../ui/chart";
 

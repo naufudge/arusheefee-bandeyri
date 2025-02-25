@@ -1,11 +1,8 @@
 import {
   BookText,
-  Calendar,
   ChevronRight,
   Home,
-  Inbox,
   NotebookPen,
-  Search,
   Settings,
 } from "lucide-react";
 
@@ -14,7 +11,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,

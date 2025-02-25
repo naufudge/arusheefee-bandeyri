@@ -9,12 +9,12 @@ export const metadata: Metadata = {
     description: "Print view for PVs",
 };
   
-export const faruma = localFont({
+const faruma = localFont({
     src: "../fonts/Faruma.ttf",
     variable: "--font-faruma"
 })
   
-export const waheed = localFont({
+const waheed = localFont({
     src: "../fonts/MVWaheed.otf",
     variable: "--font-waheed"
 })

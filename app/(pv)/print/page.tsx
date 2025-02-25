@@ -5,7 +5,7 @@ import PrintView from '@/components/PrintView'
 import axios from 'axios';
 import { PvValues } from '@/lib/PvSchema';
 
-const page = () => {
+const PrintPage = () => {
   const [pv, setPv] = useState<PvValues>()
 
   useEffect(() => {
@@ -14,11 +14,14 @@ const page = () => {
       if (pvNum) {
         try {
           const response = await axios.get(`http://10.12.29.68:8000/pvs/${pvNum}`)
-          let tempPv = response.data.result
+          const tempPv = response.data.result
           tempPv.date = new Date(response.data.result.date)
           setPv(tempPv)
-        } catch (error: any) {
-          console.log(error.message)
+        } catch (error: unknown) {
+          // let errorMessage = "";
+          if (error instanceof Error) {
+            console.log(error.message)
+          } else { console.log("An unknown error occurred") }
         }
       }
     }
@@ -27,9 +30,9 @@ const page = () => {
 
   return (
     <div>
-      {pv ? <PrintView pv={pv} /> : <div className='text-center my-10'>Please use the PV register to view print.</div>}
+      {pv ? <PrintView pv={pv} /> : <div className='text-center my-10'>Please use the PV register to view printable version of the PV.</div>}
     </div>
   )
 }
 
-export default page
+export default PrintPage

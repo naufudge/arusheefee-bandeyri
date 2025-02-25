@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import {
-  Form,
   FormControl,
   FormDescription,
   FormField,
@@ -33,6 +32,7 @@ import { z } from "zod";
 
 interface PvInputFieldProps {
   control: Control<PvValues>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   name: any;
   label: string;
   disabled?: boolean;
@@ -133,7 +133,7 @@ export const PvInputField: React.FC<PvInputFieldProps> = ({
   );
 };
 
-type DropDownFieldProps = PvInputFieldProps & {
+type DropDownFieldProps = Partial<PvInputFieldProps> & {
   options: string[];
   placeholder: string;
   customHandler?: (value: string) => void;
@@ -143,10 +143,7 @@ export const PVDropDownField: React.FC<DropDownFieldProps> = ({
   control,
   name,
   label,
-  disabled,
   className,
-  required,
-  register,
   description,
   options,
   placeholder,
@@ -191,17 +188,14 @@ export const PVDropDownField: React.FC<DropDownFieldProps> = ({
 type StaffDropDownProps = Omit<PvInputFieldProps, "name"> & {
     name: "preparedBy" | "verifiedBy" | "authorisedByOne" | "authorisedByTwo"
     staffs: Staff[];
-  formSetValue: UseFormSetValue<z.infer<typeof PvSchema>>;
+    formSetValue: UseFormSetValue<z.infer<typeof PvSchema>>;
 };
 
 export const StaffDropDownField: React.FC<StaffDropDownProps> = ({
   control,
   name,
   label,
-  disabled,
   className,
-  required,
-  register,
   description,
   staffs,
   formSetValue

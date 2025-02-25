@@ -1,7 +1,3 @@
-import Image from "next/image";
-import PrintView from "@/components/PrintView";
-import PvForm from "@/components/PvForm";
-
 export default function Home() {
   return (
     <div>

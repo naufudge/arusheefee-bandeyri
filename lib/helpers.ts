@@ -21,7 +21,7 @@ export function numberToWords(num: number, currency: string = "Rufiyaa") {
     if (num === 0) return "Zero";
 
     let integerPart = Math.floor(num);
-    let decimalPart = Math.round((num - integerPart) * 100);
+    const decimalPart = Math.round((num - integerPart) * 100);
 
     let words = "";
     let i = 0;
@@ -34,7 +34,7 @@ export function numberToWords(num: number, currency: string = "Rufiyaa") {
         i++;
     }
 
-    let decimalWords = decimalPart > 0 ? helper(decimalPart) : "";
+    const decimalWords = decimalPart > 0 ? helper(decimalPart) : "";
 
     return `${words.trim()} ${currency}` + (decimalWords ? ", " + `${decimalWords.trim()} Laari` : "");
 }
@@ -45,7 +45,7 @@ export function formatNumberWithCommas(num: number | string, withDecimals: boole
     const numWithDecimal = result.includes(".") && result.split(".")
 
     if (numWithDecimal) {
-        let numArray = numWithDecimal[0].split("")
+        const numArray = numWithDecimal[0].split("")
 
         switch (numArray.length) {
             case 1:
@@ -69,7 +69,7 @@ export function formatNumberWithCommas(num: number | string, withDecimals: boole
                 return
         }
     } else {
-        let numArray = result.split("")
+        const numArray = result.split("")
         switch (numArray.length) {
             case 1:
             case 2:

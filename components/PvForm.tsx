@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -18,7 +18,6 @@ import {
 import axios from "axios";
 import {
   ExchangeRates,
-  PopupInfoType,
   SinglePVServerResponseType,
   Staff,
 } from "@/lib/MyTypes";
@@ -26,11 +25,10 @@ import { Currencies } from "@/lib/data";
 
 interface PvFormProps {
   pv?: PvValues;
-  showPopup?: Dispatch<SetStateAction<boolean>>;
-  setPopupInfo?: Dispatch<SetStateAction<PopupInfoType>>;
 }
 
-function getForm(pv?: PvValues | null) {
+function usePvForm(pv?: PvValues | null) {
+  let formConfig = {};
   if (pv) {
     const vals = {
       pvNum: pv.pvNum,
@@ -60,13 +58,13 @@ function getForm(pv?: PvValues | null) {
       transferNum: pv.transferNum,
     };
 
-    return useForm<z.infer<typeof PvSchema>>({
+    formConfig = {
       resolver: zodResolver(PvSchema),
       defaultValues: vals,
       values: vals,
-    });
+    };
   } else {
-    return useForm<z.infer<typeof PvSchema>>({
+    formConfig = {
       resolver: zodResolver(PvSchema),
       defaultValues: {
         pvNum: "",
@@ -110,11 +108,12 @@ function getForm(pv?: PvValues | null) {
         clearingDoc: { num: "", date: null },
         transferNum: "",
       },
-    });
+    };
   }
+  return useForm<z.infer<typeof PvSchema>>(formConfig)
 }
 
-const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
+const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>();
   const [staff, setStaff] = useState<Staff[]>();
@@ -189,24 +188,28 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
       console.log(errorMessage);
     }
   }
-
+  
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!exchangeRates) getExchangeRates();
     if (!staff) getStaff();
     if (!pv && !latestPVnum) getLatestPV();
   }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
-  const form = getForm(pv);
+  const form = usePvForm(pv);
 
   const control = form.control;
   const register = form.register;
   const setValue = form.setValue;
   const getValue = form.getValues;
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!pv && latestPVnum)
       setValue("pvNum", `2025-${latestPVnum.toString().padStart(3, "0")}`);
-  }, [latestPVnum]);
+  }, [latestPVnum, pv]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Handles currency dropdown selection
   const handleCurrencyChange = (currency: string) => {
@@ -230,11 +233,11 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
     if (!pv) {
       // When submiting a new PV
       try {
-        const response = await axios.post(
+        await axios.post(
           "http://10.12.29.68:8000/pvs/",
           values
         );
-        const serverResponse: SinglePVServerResponseType = response.data;
+        // const serverResponse: SinglePVServerResponseType = response.data;
         toast({
           title: "Success",
           description: "Successfully created a new PV!",
@@ -267,8 +270,12 @@ const PvForm: React.FC<PvFormProps> = ({ pv, showPopup, setPopupInfo }) => {
             ? `Successfully updated PV ${values.pvNum}!`
             : "Encountered a server error.",
         });
-      } catch (error: any) {
-        console.log(error.message);
+      } catch (error: unknown) {
+        // let errorMessage = "";
+        if (error instanceof Error) {
+          console.log(error.message)
+        } else { console.log("An unknown error occurred") }
+
         toast({
           title: "Error",
           description: "There was an error. Please try again later.",

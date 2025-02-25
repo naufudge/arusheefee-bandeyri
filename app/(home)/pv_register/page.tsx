@@ -21,9 +21,13 @@ import Filter from "@/components/Filter";
 import { removeDuplicates } from "@/lib/helpers";
 import Search from "@/components/PvRegister/Search";
 import ExportPVs from "@/components/PvRegister/ExportPVs";
+import { useToast } from "@/hooks/use-toast";
 
-const page = () => {
+const PvRegisterPage = () => {
   const router = useRouter();
+  
+  const { toast } = useToast();
+
   const [pvs, setPvs] = useState<PvValues[]>([]);
   const [filteredPvs, setFilteredPvs] = useState<PvValues[]>([]);
 
@@ -51,7 +55,7 @@ const page = () => {
       setFilteredPvs(data.result.reverse());
 
       // Sort the vendors and remove the duplicates
-      let tempVendors = data.result.map((item) => item.vendor).sort();
+      const tempVendors = data.result.map((item) => item.vendor).sort();
       const finalvendors: string[] = removeDuplicates(tempVendors);
       setVendors(finalvendors);
 
@@ -60,14 +64,22 @@ const page = () => {
       // console.log(tempDates)
 
       setLoading(false);
-    } catch (error: any) {
-      setLoading(true);
-      console.log(error);
+    } catch (error: unknown) {
+      // let errorMessage = "";
+      if (error instanceof Error) {
+        console.log(error.message)
+      } else { console.log("An unknown error occurred") }
+
+      toast({
+        title: "Error",
+        description: "There was an error when trying to fetch PVs.",
+      });
     }
   }
 
   useEffect(() => {
     if (pvs.length <= 0) get_pvs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pvs, loading, filters]);
 
   // useEffect(() => {
@@ -120,8 +132,11 @@ const page = () => {
     try {
       await axios.delete(`http://10.12.29.68:8000/pvs/${pvNum}`);
       await get_pvs();
-    } catch (error: any) {
-      console.log(error.message);
+    } catch (error: unknown) {
+      // let errorMessage = "";
+      if (error instanceof Error) {
+        console.log(error.message)
+      } else { console.log("An unknown error occurred") }
     }
   };
 
@@ -245,4 +260,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default PvRegisterPage;

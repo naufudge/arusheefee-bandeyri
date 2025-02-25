@@ -1,43 +1,35 @@
 'use client';
 
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
 import { PvValues } from '@/lib/PvSchema'
 import axios from 'axios';
 import { SinglePVServerResponseType } from '@/lib/MyTypes';
 import PvForm from '@/components/PvForm';
-import Popup from '@/components/Popup';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 
-interface EditPageProps {
-  pvNum: string
-}
-
-const PvEditPage = ({params}: {
+const PvEditPage = ({ params }: {
   params: {pvNum: string}
 }) => {
   const router = useRouter()
   const [requestState, setRequestState] = useState(false)
   const [pvDetails, setPvDetails] = useState<PvValues | null>()
 
-  const [popup, setPopup] = useState(false)
-  const [popupInfo, setPopupInfo] = useState({
-    title: "",
-    detail: ""
-  })
-
   useEffect(() => {
     async function getPv() {
-      console.log(params.pvNum)
       try {
         const response = await axios.get(`http://10.12.29.68:8000/pvs/${params.pvNum}`)
         const data: SinglePVServerResponseType = response.data
         console.log(data)
         setPvDetails(data.result)
 
-      } catch (error: any) {
-        console.log(error.message)
+      } catch (error: unknown) {
+        // let errorMessage = "";
+        if (error instanceof Error) {
+          console.log(error.message)
+        } else { console.log("An unknown error occurred") }
+
         setPvDetails(null)
       } finally {
         setRequestState(true)
@@ -51,22 +43,25 @@ const PvEditPage = ({params}: {
   return (
     <div className='w-full'>
       <div>
-        <Button onClick={() => {router.push("/pv_register")}} variant={"outline"} className='justify-evenly flex gap-1'>
+        <Button onClick={router.back} variant={"outline"} className='justify-evenly flex gap-1'>
           <ChevronLeft />
           Back
         </Button>
       </div>
       <div className='text-center mt-4 mb-12 flex flex-col gap-3'>
         <h1 className='text-2xl font-bold'>Edit Payment Voucher</h1>
-        <p className='text-sm italic opacity-50'>You can edit the PV below. Be sure to press "Save" after bringing necessary changes.</p>
+        <p className='text-sm italic opacity-50'>You can edit the PV below. Be sure to press &quot;Save&quot; after bringing necessary changes.</p>
       </div>
 
-      <Popup open={popup} setOpen={setPopup} info={popupInfo} />
       <div className='mx-auto max-w-[700px]'>
-        <PvForm pv={pvDetails!!} showPopup={setPopup} setPopupInfo={setPopupInfo} />
+        {pvDetails ? 
+          <PvForm pv={pvDetails} />
+        :
+          <div><Loader2 className='animate-spin size-14' /></div>
+        }
       </div>
     </div>
   )
 }
 
-export default PvEditPage
+export default PvEditPage;

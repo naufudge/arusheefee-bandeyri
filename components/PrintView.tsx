@@ -14,7 +14,7 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
     if (date) {
         try {
             return date.toLocaleDateString("en-GB", dateOptions).replace(/ /g, '-')
-        } catch (error: any) {
+        } catch {
             const newDate = new Date(date)
             return newDate.toLocaleDateString("en-GB", dateOptions).replace(/ /g, '-')
         }
