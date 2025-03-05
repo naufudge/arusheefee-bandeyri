@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import Filter from "@/components/Filter";
 import { removeDuplicates } from "@/lib/helpers";
 import Search from "@/components/PvRegister/Search";
@@ -46,13 +47,14 @@ const PvRegisterPage = () => {
 
   async function get_pvs() {
     try {
-      // const response = await fetch("http://10.12.29.68:8000/pvs")
       const response = await fetch(
         `http://10.12.29.68:8000/pv/year/${filters.year}`
       );
       const data: MultiplePVServerResponseType = await response.json();
-      setPvs(data.result.reverse());
-      setFilteredPvs(data.result.reverse());
+      data.result.reverse()
+      
+      setPvs(data.result);
+      setFilteredPvs(data.result);
 
       // Sort the vendors and remove the duplicates
       const tempVendors = data.result.map((item) => item.vendor).sort();
@@ -194,16 +196,12 @@ const PvRegisterPage = () => {
 
                 <div className="flex gap-8 place-items-center child:transition-all child:duration-200">
                   {/* Status of the PV */}
-                  <div className="flex gap-2 place-items-center justify-start">
-                    <div
-                      className={`w-[15px] h-[15px] ${
-                        pv.transferNum != "" ? "bg-green-700" : "bg-gray-700"
-                      } rounded-full`}
-                    ></div>
-                    <div className="opacity-60 text-sm">
+                  <Badge
+                    variant={"default"}
+                    className={`rounded-md ${pv.transferNum != "" ? "bg-green-700 hover:bg-green-800" : "bg-gray-700/75 hover:bg-gray-800/75"}`}
+                  >
                       {pv.transferNum != "" ? "Processed" : "Pending"}
-                    </div>
-                  </div>
+                  </Badge>
 
                   {/* View Button */}
                   <Eye className="hover:text-green-600 hover:cursor-pointer" />
