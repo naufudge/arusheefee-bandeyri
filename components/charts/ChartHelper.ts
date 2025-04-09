@@ -9,6 +9,19 @@ type ChartDataType = {
   fill: string;
 };
 
+const GlResult = {
+  "223005": 230000,
+  "223001": 1367.9,
+  "223002": 26283.91,
+  "223008": 2285.99,
+  "228007": 21923.98,
+  "223004": 35684.06,
+  "223016": 50000,
+  "223003": 2931.31,
+  "221004": 300,
+  "223017": 1800
+}
+
 const colors = [
   "#A16AE8",
   "#4120A9",
@@ -35,7 +48,7 @@ const colors = [
 //   );
 // }
 
-// function getFormattedDataset(data: Collection[], records: Record[]) {
+// function getFormattedDataset(data: test, records: Record[]) {
 //   return data.reduce<ChartDataType[]>((result, collection) => {
 //     const filteredRecords = records.filter((record) => {
 //       if (record.collectionId === collection.id) return record;
@@ -51,3 +64,47 @@ const colors = [
 //     return result;
 //   }, []);
 // }
+
+export function getFormattedDataset(data: {[key: string]: number}) {
+  return Object.keys(data).map((GL) => ({
+    code: GL,
+    value: data[GL]
+  }))
+}
+
+
+
+// export function getChartConfig(data: {[key: string]: number}) {
+//   return {
+//     data: Object.keys(data).map((key) => ({
+//       code: key,
+//       value: data[key],
+//     })),
+//     xKey: "code",
+//     yKey: "value",
+//     chartProps: {
+//       margin: { top: 20, right: 30, left: 20, bottom: 30 },
+//     },
+//     xAxisProps: {
+//       tickFormatter: (value: string) => value,
+//     },
+//     yAxisProps: {
+//       tickFormatter: (value: number) => new Intl.NumberFormat().format(value),
+//     },
+//     tooltipFormatter: (value: number) => new Intl.NumberFormat().format(value),
+//   } as ChartConfig;
+// }
+
+export function getChartConfig(data: { [key: string]: number }): ChartConfig {
+  const chartConfig: ChartConfig = {};
+
+  // Assuming you want to dynamically assign labels and colors based on the data
+  Object.keys(data).forEach((key, index) => {
+    chartConfig[key] = {
+      label: key, // You can modify the label format as needed
+      color: colors[index], // A random color for each category (you could use a fixed set of colors)
+    };
+  });
+
+  return chartConfig;
+}

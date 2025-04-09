@@ -53,7 +53,7 @@ export default function RootLayout({
           <AppSidebar />
           <main className="w-full">
             <SidebarTrigger className="mx-5 mt-5" />
-            <div className="py-5 px-10">
+            <div className="py-5 px-10 h-full">
               {children}
             </div>
           </main>

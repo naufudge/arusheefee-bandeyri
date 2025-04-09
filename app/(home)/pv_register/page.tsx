@@ -52,7 +52,7 @@ const PvRegisterPage = () => {
       );
       const data: MultiplePVServerResponseType = await response.json();
       data.result.reverse()
-      
+
       setPvs(data.result);
       setFilteredPvs(data.result);
 
