@@ -38,7 +38,7 @@ const PvEditPage = ({ params }: {
 
     if (!requestState) getPv();
 
-  }, [requestState, pvDetails])
+  }, [requestState, pvDetails, params.pvNum])
 
   return (
     <div className='w-full'>

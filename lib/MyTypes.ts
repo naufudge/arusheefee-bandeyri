@@ -22,6 +22,11 @@ export type MultiplePVServerResponseType = {
     result: PvValues[]
 }
 
+export type NormalServerResponseType = {
+    success: boolean,
+    result: string,
+}
+
 export type ExchangeRates = {
     USD: number,
     AUD: number,

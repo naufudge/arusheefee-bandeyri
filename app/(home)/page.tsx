@@ -20,7 +20,8 @@ import { formatNumberWithCommas } from "@/lib/helpers";
 import RecentPvs from "@/components/Dashboard/RecentPvs";
 
 export default function Home() {
-  const [year, setYear] = useState(2025);
+  // const [year, setYear] = useState(2025);
+  const year = 2025;
   const [pvs, setPvs] = useState<PvValues[]>();
   const [expenditure, setExpenditure] = useState(0);
   const [uniqueVendors, setUniqueVendors] = useState(0);
@@ -57,7 +58,13 @@ export default function Home() {
       if (response.data.success) setGlData(response.data.result);
       console.log("Got GL Data!");
     } catch (error: unknown) {
-      console.log("An unknown error occurred.");
+      let errorMessage = "";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = "An unknown error occurred.";
+      };
+      console.log(errorMessage);
     }
   }
 
@@ -112,10 +119,10 @@ export default function Home() {
               <div className="font-semibold text-xl">{uniqueVendors}</div>
             </div>
 
-            <div className="home-stats-card border-l-green-500">
+            <div className="home-stats-card border-l-[#4CBB17]">
               <div className="flex justify-between place-items-center">
                 <span>Total Expenditure</span>
-                <CircleDollarSign className="text-green-500" />
+                <CircleDollarSign className="text-[#4CBB17]" />
               </div>
               <div className="font-semibold text-xl">
                 MVR {formatNumberWithCommas(expenditure)}

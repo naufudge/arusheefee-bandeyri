@@ -6,15 +6,12 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MultiplePVServerResponseType } from "@/lib/MyTypes";
-import { formatNumberWithCommas, removeDuplicates } from "@/lib/helpers";
+import { formatNumberWithCommas } from "@/lib/helpers";
 import { PvValues } from "@/lib/PvSchema";
-import { useToast } from "@/hooks/use-toast";
 
 interface RecentPvsProps {
     pvs: PvValues[];
@@ -22,10 +19,8 @@ interface RecentPvsProps {
 
 const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
   const [recentPvsData, setRecentPvsData] = useState<PvValues[]>([]);
-  const [loading, setLoading] = useState(true);
-  const year = new Date().getFullYear();
-
-  const { toast } = useToast();
+  // const [loading, setLoading] = useState(true);
+  // const year = new Date().getFullYear();
 
   useEffect(() => {
     if (recentPvsData.length <= 0) {
