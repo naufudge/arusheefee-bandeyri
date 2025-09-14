@@ -9,7 +9,7 @@ interface ExportPVsProps {
 const ExportPVs: React.FC<ExportPVsProps> = ({ year }) => {
     const handleExportClick = async () => {
         try {
-            const url = `http://10.12.29.68:8000/pv/export/${year}`
+            const url = `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/export/${year}`
             const link = document.createElement("a");
             link.href = url;
             link.setAttribute("download", "pv_register.xlsx");

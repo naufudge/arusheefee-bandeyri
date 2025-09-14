@@ -13,7 +13,7 @@ const PrintPage = () => {
       const pvNum = localStorage.getItem("pvNum")
       if (pvNum) {
         try {
-          const response = await axios.get(`http://10.12.29.68:8000/pvs/${pvNum}`)
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/${pvNum}`)
           const tempPv = response.data.result
           tempPv.date = new Date(response.data.result.date)
           setPv(tempPv)

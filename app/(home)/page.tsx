@@ -34,7 +34,7 @@ export default function Home() {
 
   async function getPvs() {
     try {
-      const response = await fetch(`http://10.12.29.68:8000/pv/year/${year}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ARCHIVA_API}pv/year/${year}`);
       const data: MultiplePVServerResponseType = await response.json();
       const pvData = data.result.reverse();
       setPvs(pvData);
@@ -54,7 +54,7 @@ export default function Home() {
 
   async function getGlData() {
     try {
-      const response = await axios.get(`http://10.12.29.68:8000/pv/gl/${year}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/gl/${year}`);
       if (response.data.success) setGlData(response.data.result);
       console.log("Got GL Data!");
     } catch (error: unknown) {

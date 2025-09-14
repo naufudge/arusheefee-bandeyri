@@ -38,7 +38,7 @@ const StaffPage = () => {
   // Get all staff available in the DB
   async function getStaff() {
     try {
-      const response = await axios.get("http://10.12.29.68:8000/staff");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff`);
       if (response.data.success) {
         const data: Staff[] = response.data.result;
         const sortedStaffs = data.sort((a, b) => a.name.localeCompare(b.name));
@@ -67,7 +67,7 @@ const StaffPage = () => {
   
   const handleDeleteClick = async (staffId : string) => {
     try {
-      const response = await axios.delete(`http://10.12.29.68:8000/staff/${staffId}`)
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff/${staffId}`)
       if (response.data) {
         toast({
           title: "Success",
@@ -98,12 +98,12 @@ const StaffPage = () => {
           <div>
             <h1 className="font-bold text-[1.5rem]">Manage Staff</h1>
             <div className="text-sm text-stone-400 mt-1 italic">
-              Add new staff or edit existing staff, which you can then select when
-              creating PVs.
+              Add new staff or edit existing staff, which you can then select
+              when creating PVs.
             </div>
           </div>
 
-          <AddStaff 
+          <AddStaff
             button={
               <Button className="ml-10">
                 <Plus />
@@ -136,10 +136,14 @@ const StaffPage = () => {
                     <TableCell className="text-right">
                       <div className="flex gap-8 place-items-center justify-end child:transition-all child:duration-200">
                         {/* Edit Popup */}
-                        <SquarePen
-                          // onClick={() => router.push(`/edit/${pv.pvNum}`)}
-                          className="hover:text-blue-600 hover:cursor-pointer"
+                        <AddStaff
+                          button={
+                            <SquarePen className="hover:text-blue-600 hover:cursor-pointer" />
+                          }
+                          refetchStaffs={getStaff}
+                          staff={staff}
                         />
+                        
 
                         {/* Delete Popup */}
                         <AlertDialog>

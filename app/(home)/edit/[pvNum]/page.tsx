@@ -19,7 +19,7 @@ const PvEditPage = ({ params }: {
   useEffect(() => {
     async function getPv() {
       try {
-        const response = await axios.get(`http://10.12.29.68:8000/pvs/${params.pvNum}`)
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/${params.pvNum}`)
         const data: SinglePVServerResponseType = response.data
         console.log(data)
         setPvDetails(data.result)

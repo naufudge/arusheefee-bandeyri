@@ -125,7 +125,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   async function getExchangeRates() {
     try {
       const response = await axios.get(
-        "http://10.12.29.68:8000/exchange_rates"
+        `${process.env.NEXT_PUBLIC_ARCHIVA_API}/exchange_rates`
       );
       if (response.data.success) {
         const data: ExchangeRates = response.data.result;
@@ -147,7 +147,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   // Get all staff available in the DB
   async function getStaff() {
     try {
-      const response = await axios.get("http://10.12.29.68:8000/staff");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff`);
       if (response.data.success) {
         const data: Staff[] = response.data.result;
         const sortedStaffs = data.sort((a, b) => a.name.localeCompare(b.name));
@@ -169,7 +169,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   // Get latest PV
   async function getLatestPV() {
     try {
-      const response = await axios.get("http://10.12.29.68:8000/pv/latest");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/latest`);
       if (response.data.success) {
         const pv: z.infer<typeof PvSchema> = response.data.result;
         const pvNum = pv.pvNum.split("-")[1];
@@ -234,7 +234,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
       // When submiting a new PV
       try {
         await axios.post(
-          "http://10.12.29.68:8000/pvs/",
+          `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/`,
           values
         );
         // const serverResponse: SinglePVServerResponseType = response.data;
@@ -260,7 +260,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
       // When editing an existing PV
       try {
         const response = await axios.put(
-          "http://10.12.29.68:8000/pvs/",
+          `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/`,
           values
         );
         const serverResponse: SinglePVServerResponseType = response.data;

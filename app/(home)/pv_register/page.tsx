@@ -48,7 +48,7 @@ const PvRegisterPage = () => {
   async function get_pvs() {
     try {
       const response = await fetch(
-        `http://10.12.29.68:8000/pv/year/${filters.year}`
+        `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/year/${filters.year}`
       );
       const data: MultiplePVServerResponseType = await response.json();
       data.result.reverse()
@@ -132,7 +132,7 @@ const PvRegisterPage = () => {
 
   const handleDeleteClick = async (pvNum: string) => {
     try {
-      await axios.delete(`http://10.12.29.68:8000/pvs/${pvNum}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/${pvNum}`);
       await get_pvs();
     } catch (error: unknown) {
       // let errorMessage = "";
