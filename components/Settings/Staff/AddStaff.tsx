@@ -47,34 +47,37 @@ const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => 
     })
 
     const onSubmit = async (values: z.infer<typeof staffFormSchema>) => {
+      try {
+        console.log(process.env.NEXT_PUBLIC_ARCHIVA_API)
         if (staff) {
-            // Edit Staff
-            
+          // Edit Staff
+          const response: AxiosResponse<NormalServerResponseType> = await axios.patch(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff/${staff._id}`, values)
+          toast({
+            title: response.data.success ? "Updated!" : "Failed!",
+            description: response.data.result,
+          })
         } else {
-            // Add Staff
-            try {
-                const response: AxiosResponse<NormalServerResponseType> = await axios.post("http://10.12.29.68:8000/staff", values)
-                toast({
-                    title: response.data.success ? "Success" : "Failed",
-                    description: response.data.result,
-                })
-
-            } catch (error: unknown) {
-                let errorMessage = "";
-                if (error instanceof Error) {
-                    errorMessage = error.message
-                } else {
-                    errorMessage = "An unknown error occurred."
-                }
-                toast({
-                    title: "Error",
-                    description: errorMessage,
-                })
-                console.log(errorMessage)
-            }
+          // Add Staff
+          const response: AxiosResponse<NormalServerResponseType> = await axios.post(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff`, values)
+          toast({
+              title: response.data.success ? "Success!" : "Failed!",
+              description: response.data.result,
+          })
         }
-
-        await refetchStaffs();
+      } catch (error) {
+        let errorMessage = "";
+        if (error instanceof Error) {
+            errorMessage = error.message
+        } else {
+            errorMessage = "An unknown error occurred."
+        }
+        toast({
+            title: "Error",
+            description: errorMessage,
+        })
+        console.log(errorMessage)
+      }
+      await refetchStaffs();
     }
 
   return (
