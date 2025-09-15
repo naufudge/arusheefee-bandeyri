@@ -48,7 +48,7 @@ const PvRegisterPage = () => {
   async function get_pvs() {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/year/${filters.year}`
+        `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/`
       );
       const data: MultiplePVServerResponseType = await response.json();
       data.result.reverse()
