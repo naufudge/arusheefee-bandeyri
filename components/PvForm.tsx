@@ -304,7 +304,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
             control={control}
             name={"pvNum"}
             label="PV Number"
-            disabled={pv ? true : latestPVnum ? false : true}
+            // disabled={pv ? true : latestPVnum ? false : true}
             required={pv ? false : true}
             register={register}
             description={pv ? "" : "PV Number Eg: 2024-03"}
