@@ -1,8 +1,12 @@
 import { router } from "../trpc";
+import { staffRouter } from "./staff";
+import { pvRouter } from "./pv";
+import { exchangeRatesRouter } from "./exchangeRates";
 
 export const appRouter = router({
-  // Add your routers here
-  // Example: staff: staffRouter,
+  staff: staffRouter,
+  pv: pvRouter,
+  exchangeRates: exchangeRatesRouter,
 });
 
 // Export type router type signature,
