@@ -2,9 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import { PvValues } from "@/lib/PvSchema";
-import { FilterType, MultiplePVServerResponseType } from "@/lib/MyTypes";
+import { FilterType } from "@/lib/MyTypes";
 import { Eye, Loader2, Printer, SquarePen, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -23,16 +21,14 @@ import { removeDuplicates } from "@/lib/helpers";
 import Search from "@/components/PvRegister/Search";
 import ExportPVs from "@/components/PvRegister/ExportPVs";
 import { useToast } from "@/hooks/use-toast";
+import { useTRPC } from "@/lib/trpc";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const PvRegisterPage = () => {
   const router = useRouter();
-  
   const { toast } = useToast();
-
-  const [pvs, setPvs] = useState<PvValues[]>([]);
-  const [filteredPvs, setFilteredPvs] = useState<PvValues[]>([]);
-
-  const [loading, setLoading] = useState<boolean>(true);
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const [query, setQuery] = useState<string>("");
 
@@ -43,103 +39,86 @@ const PvRegisterPage = () => {
     gl: 0,
   });
 
-  const [vendors, setVendors] = useState<string[]>([]);
+  // Fetch all PVs
+  const {
+    data: pvs,
+    isLoading: loading,
+    error,
+  } = useQuery(trpc.pv.list.queryOptions());
 
-  async function get_pvs() {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/`
-      );
-      const data: MultiplePVServerResponseType = await response.json();
-      data.result.reverse()
+  // Delete PV mutation
+  const deleteMutation = useMutation(
+    trpc.pv.delete.mutationOptions({
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "Successfully deleted the PV.",
+        });
+        queryClient.invalidateQueries({ queryKey: trpc.pv.list.queryKey() });
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message || "An unknown error occurred.",
+        });
+      },
+    })
+  );
 
-      setPvs(data.result);
-      setFilteredPvs(data.result);
+  // Compute vendors from PVs
+  const vendors = pvs
+    ? removeDuplicates(pvs.map((item) => item.vendor).sort())
+    : [];
 
-      // Sort the vendors and remove the duplicates
-      const tempVendors = data.result.map((item) => item.vendor).sort();
-      const finalvendors: string[] = removeDuplicates(tempVendors);
-      setVendors(finalvendors);
+  // Filter PVs based on filters and search query
+  const filteredPvs = React.useMemo(() => {
+    if (!pvs) return [];
 
-      // let tempDates = data.result.map(item => new Date(item.date).getFullYear() === 2026 ? item.pvNum : null)
-      // const pvYears = removeDuplicates(tempDates)
-      // console.log(tempDates)
+    let result = [...pvs];
 
-      setLoading(false);
-    } catch (error: unknown) {
-      // let errorMessage = "";
-      if (error instanceof Error) {
-        console.log(error.message)
-      } else { console.log("An unknown error occurred") }
-
-      toast({
-        title: "Error",
-        description: "There was an error when trying to fetch PVs.",
-      });
+    // Apply vendor filter
+    if (filters.vendor) {
+      result = result.filter((item) => item.vendor === filters.vendor);
     }
-  }
 
-  useEffect(() => {
-    if (pvs.length <= 0) get_pvs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pvs, loading, filters]);
+    // Apply status filter
+    if (filters.status) {
+      result = result.filter((item) =>
+        filters.status === "pending"
+          ? !item.transferNum || item.transferNum === ""
+          : item.transferNum && item.transferNum !== ""
+      );
+    }
 
-  // useEffect(() => {
-  //   get_pvs()
-  // }, [filters])
+    // Apply search query
+    if (query) {
+      const updatedQuery = query.trim().toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.pvNum.toLowerCase().includes(updatedQuery) ||
+          item.notes.toLowerCase().includes(updatedQuery) ||
+          item.vendor.toLowerCase().includes(updatedQuery)
+      );
+    }
 
-  // const filteredPvs = filters.vendor ? pvs.filter((item) => item.vendor === filters.vendor)
-  //   : filters.status ? pvs.filter((item) => filters.status === "pending" ? item.transferNum === "" : item.transferNum != "")
-  //   : pvs
+    return result;
+  }, [pvs, filters, query]);
 
   const handleFilter = () => {
-    if (filters.year) {
-      get_pvs();
-    }
-
-    const result = filters.vendor
-      ? pvs.filter((item) => item.vendor === filters.vendor)
-      : filters.status
-      ? pvs.filter((item) =>
-          filters.status === "pending"
-            ? item.transferNum === ""
-            : item.transferNum != ""
-        )
-      : pvs;
-
-    setFilteredPvs(result);
+    // Filters are applied reactively via useMemo
   };
 
   const handleSearch = () => {
-    if (query) {
-      const updatedQuery = query.trim().toLocaleLowerCase();
-      const result = pvs.filter(
-        (item) =>
-          item.pvNum.includes(updatedQuery) ||
-          item.notes.toLocaleLowerCase().includes(updatedQuery) ||
-          item.vendor.toLocaleLowerCase().includes(updatedQuery)
-      );
-      setFilteredPvs(result);
-    } else {
-      setFilteredPvs(pvs);
-    }
+    // Search is applied reactively via useMemo
   };
 
-  const handlePrintClick = (pv: PvValues) => {
-    localStorage.setItem("pvNum", pv.pvNum);
+  const handlePrintClick = (pvNum: string) => {
+    localStorage.setItem("pvNum", pvNum);
     router.push("/print");
   };
 
-  const handleDeleteClick = async (pvNum: string) => {
-    try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/${pvNum}`);
-      await get_pvs();
-    } catch (error: unknown) {
-      // let errorMessage = "";
-      if (error instanceof Error) {
-        console.log(error.message)
-      } else { console.log("An unknown error occurred") }
-    }
+  const handleDeleteClick = (pvNum: string) => {
+    deleteMutation.mutate({ pvNum });
   };
 
   return (
@@ -214,7 +193,7 @@ const PvRegisterPage = () => {
 
                   <Printer
                     className="hover:text-purple-600 hover:cursor-pointer"
-                    onClick={() => handlePrintClick(pv)}
+                    onClick={() => handlePrintClick(pv.pvNum)}
                   />
 
                   {/* Delete Popup */}

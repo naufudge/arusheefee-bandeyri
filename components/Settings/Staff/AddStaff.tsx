@@ -8,12 +8,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,64 +21,84 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import axios, { AxiosResponse } from "axios";
-import { NormalServerResponseType, Staff } from "@/lib/MyTypes";
+import { Staff } from "@/lib/MyTypes";
+import { useTRPC } from "@/lib/trpc";
+import { useMutation } from "@tanstack/react-query";
 
 interface AddStaffProps {
-    button: React.ReactNode;
-    refetchStaffs: () => Promise<void>;
-    staff?: Staff;
+  button: React.ReactNode;
+  refetchStaffs: () => void;
+  staff?: Staff;
 }
 
 const staffFormSchema = z.object({
-    name: z.string().min(8, "Please write the full name of the staff."),
-    designation: z.string().min(3, "Please write a valid designation.")
-})
+  name: z.string().min(8, "Please write the full name of the staff."),
+  designation: z.string().min(3, "Please write a valid designation."),
+});
 
 const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => {
-    const { toast } = useToast();
+  const { toast } = useToast();
+  const trpc = useTRPC();
 
-    const form = useForm<z.infer<typeof staffFormSchema>>({
-        resolver: zodResolver(staffFormSchema),
-        defaultValues: {
-          name: staff?.name ?? "",
-          designation: staff?.designation ?? ""
-        },
-    })
+  const form = useForm<z.infer<typeof staffFormSchema>>({
+    resolver: zodResolver(staffFormSchema),
+    defaultValues: {
+      name: staff?.name ?? "",
+      designation: staff?.designation ?? "",
+    },
+  });
 
-    const onSubmit = async (values: z.infer<typeof staffFormSchema>) => {
-      try {
-        console.log(process.env.NEXT_PUBLIC_ARCHIVA_API)
-        if (staff) {
-          // Edit Staff
-          const response: AxiosResponse<NormalServerResponseType> = await axios.patch(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff/${staff._id}`, values)
-          toast({
-            title: response.data.success ? "Updated!" : "Failed!",
-            description: response.data.result,
-          })
-        } else {
-          // Add Staff
-          const response: AxiosResponse<NormalServerResponseType> = await axios.post(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff`, values)
-          toast({
-              title: response.data.success ? "Success!" : "Failed!",
-              description: response.data.result,
-          })
-        }
-      } catch (error) {
-        let errorMessage = "";
-        if (error instanceof Error) {
-            errorMessage = error.message
-        } else {
-            errorMessage = "An unknown error occurred."
-        }
+  // Create staff mutation
+  const createMutation = useMutation(
+    trpc.staff.create.mutationOptions({
+      onSuccess: () => {
         toast({
-            title: "Error",
-            description: errorMessage,
-        })
-        console.log(errorMessage)
-      }
-      await refetchStaffs();
+          title: "Success!",
+          description: "Successfully added new staff!",
+        });
+        refetchStaffs();
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message || "An unknown error occurred.",
+        });
+      },
+    })
+  );
+
+  // Update staff mutation
+  const updateMutation = useMutation(
+    trpc.staff.update.mutationOptions({
+      onSuccess: () => {
+        toast({
+          title: "Updated!",
+          description: "Successfully updated staff!",
+        });
+        refetchStaffs();
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message || "An unknown error occurred.",
+        });
+      },
+    })
+  );
+
+  const onSubmit = (values: z.infer<typeof staffFormSchema>) => {
+    if (staff) {
+      // Edit Staff
+      updateMutation.mutate({
+        id: staff._id,
+        name: values.name,
+        designation: values.designation,
+      });
+    } else {
+      // Add Staff
+      createMutation.mutate(values);
     }
+  };
 
   return (
     <Dialog>

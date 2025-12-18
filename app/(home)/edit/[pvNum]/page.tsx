@@ -1,44 +1,28 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation';
-import { PvValues } from '@/lib/PvSchema'
-import axios from 'axios';
-import { SinglePVServerResponseType } from '@/lib/MyTypes';
-import PvForm from '@/components/PvForm';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, Loader2 } from 'lucide-react';
+import React, { use } from "react";
+import { useRouter } from "next/navigation";
+import PvForm from "@/components/PvForm";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import { useTRPC } from "@/lib/trpc";
+import { useQuery } from "@tanstack/react-query";
 
-const PvEditPage = ({ params }: {
-  params: {pvNum: string}
+const PvEditPage = ({
+  params,
+}: {
+  params: Promise<{ pvNum: string }>;
 }) => {
-  const router = useRouter()
-  const [requestState, setRequestState] = useState(false)
-  const [pvDetails, setPvDetails] = useState<PvValues | null>()
+  const { pvNum } = use(params);
+  const router = useRouter();
+  const trpc = useTRPC();
 
-  useEffect(() => {
-    async function getPv() {
-      try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/${params.pvNum}`)
-        const data: SinglePVServerResponseType = response.data
-        console.log(data)
-        setPvDetails(data.result)
-
-      } catch (error: unknown) {
-        // let errorMessage = "";
-        if (error instanceof Error) {
-          console.log(error.message)
-        } else { console.log("An unknown error occurred") }
-
-        setPvDetails(null)
-      } finally {
-        setRequestState(true)
-      }
-    }
-
-    if (!requestState) getPv();
-
-  }, [requestState, pvDetails, params.pvNum])
+  // Fetch PV by number
+  const {
+    data: pvDetails,
+    isLoading,
+    error,
+  } = useQuery(trpc.pv.getByNum.queryOptions({ pvNum }));
 
   return (
     <div className='w-full'>
@@ -53,12 +37,18 @@ const PvEditPage = ({ params }: {
         <p className='text-sm italic opacity-50'>You can edit the PV below. Be sure to press &quot;Save&quot; after bringing necessary changes.</p>
       </div>
 
-      <div className='mx-auto max-w-[700px]'>
-        {pvDetails ? 
+      <div className="mx-auto max-w-[700px]">
+        {isLoading ? (
+          <div className="flex justify-center">
+            <Loader2 className="animate-spin size-14" />
+          </div>
+        ) : pvDetails ? (
           <PvForm pv={pvDetails} />
-        :
-          <div><Loader2 className='animate-spin size-14' /></div>
-        }
+        ) : (
+          <div className="text-center text-red-500">
+            {error?.message || "Failed to load PV"}
+          </div>
+        )}
       </div>
     </div>
   )

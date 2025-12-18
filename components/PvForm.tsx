@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -15,13 +15,10 @@ import {
   PvInputField,
   StaffDropDownField,
 } from "@/components/PvInputField";
-import axios from "axios";
-import {
-  ExchangeRates,
-  SinglePVServerResponseType,
-  Staff,
-} from "@/lib/MyTypes";
+import { ExchangeRates, Staff } from "@/lib/MyTypes";
 import { Currencies } from "@/lib/data";
+import { useTRPC } from "@/lib/trpc";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 interface PvFormProps {
   pv?: PvValues;
@@ -115,87 +112,31 @@ function usePvForm(pv?: PvValues | null) {
 
 const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true);
-  const [exchangeRates, setExchangeRates] = useState<ExchangeRates>();
-  const [staff, setStaff] = useState<Staff[]>();
-  const [latestPVnum, setLatestPVnum] = useState<number>();
 
   const { toast } = useToast();
+  const trpc = useTRPC();
 
-  // Fetch the current exchange rates from the MMA website
-  async function getExchangeRates() {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_ARCHIVA_API}/exchange_rates`
-      );
-      if (response.data.success) {
-        const data: ExchangeRates = response.data.result;
-        setExchangeRates(data);
-      } else {
-        console.log("Error fetching exchange rates.");
-      }
-    } catch (error: unknown) {
-      let errorMessage = "";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = "An unknown error occurred.";
-      }
-      console.log(errorMessage);
-    }
-  }
+  // Fetch exchange rates
+  const { data: exchangeRates } = useQuery(
+    trpc.exchangeRates.get.queryOptions()
+  );
 
-  // Get all staff available in the DB
-  async function getStaff() {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff`);
-      if (response.data.success) {
-        const data: Staff[] = response.data.result;
-        const sortedStaffs = data.sort((a, b) => a.name.localeCompare(b.name));
-        setStaff(sortedStaffs);
-      } else {
-        console.log("Error fetching exchange rates.");
-      }
-    } catch (error: unknown) {
-      let errorMessage = "";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = "An unknown error occurred.";
-      }
-      console.log(errorMessage);
-    }
-  }
+  // Fetch staff list
+  const { data: staffData } = useQuery(trpc.staff.list.queryOptions());
+  const staff: Staff[] | undefined = staffData?.map((s) => ({
+    _id: s.id,
+    name: s.name,
+    designation: s.designation,
+  }));
 
-  // Get latest PV
-  async function getLatestPV() {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/latest`);
-      if (response.data.success) {
-        const pv: z.infer<typeof PvSchema> = response.data.result;
-        const pvNum = pv.pvNum.split("-")[1];
-        console.log(pvNum);
-        setLatestPVnum(Number(pvNum) + 1);
-      } else {
-        console.log("Error fetching exchange rates.");
-      }
-    } catch (error: unknown) {
-      let errorMessage = "";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = "An unknown error occurred.";
-      }
-      console.log(errorMessage);
-    }
-  }
-  
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    if (!exchangeRates) getExchangeRates();
-    if (!staff) getStaff();
-    if (!pv && !latestPVnum) getLatestPV();
-  }, []);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  // Fetch latest PV (only when creating new PV)
+  const { data: latestPV } = useQuery({
+    ...trpc.pv.latest.queryOptions(),
+    enabled: !pv,
+  });
+  const latestPVnum = latestPV
+    ? Number(latestPV.pvNum.split("-")[1]) + 1
+    : undefined;
 
   const form = usePvForm(pv);
 
@@ -228,61 +169,104 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
     name: "invoiceDetails",
   });
 
-  const onSubmit = async (values: z.infer<typeof PvSchema>) => {
-    setSubmitBtnState(false);
-    if (!pv) {
-      // When submiting a new PV
-      try {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/`,
-          values
-        );
-        // const serverResponse: SinglePVServerResponseType = response.data;
+  // Create PV mutation
+  const createMutation = useMutation(
+    trpc.pv.create.mutationOptions({
+      onSuccess: () => {
         toast({
           title: "Success",
           description: "Successfully created a new PV!",
         });
-      } catch (error: unknown) {
-        let errorMessage = "";
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        } else {
-          errorMessage = "An unknown error occurred.";
-        }
+        setSubmitBtnState(true);
+      },
+      onError: (error) => {
         toast({
           title: "Error",
-          description: "There was an error. Please try again later.",
+          description: error.message || "There was an error. Please try again later.",
         });
+        setSubmitBtnState(true);
+      },
+    })
+  );
 
-        console.log(errorMessage);
-      }
+  // Update PV mutation
+  const updateMutation = useMutation(
+    trpc.pv.update.mutationOptions({
+      onSuccess: (data) => {
+        toast({
+          title: "Success",
+          description: `Successfully updated PV ${data.pvNum}!`,
+        });
+        setSubmitBtnState(true);
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message || "There was an error. Please try again later.",
+        });
+        setSubmitBtnState(true);
+      },
+    })
+  );
+
+  // Helper function to find staff ID by name
+  const findStaffId = (staffName: string | undefined): string | null => {
+    if (!staffName || !staffData) return null;
+    const found = staffData.find((s) => s.name === staffName);
+    return found?.id ?? null;
+  };
+
+  const onSubmit = (values: z.infer<typeof PvSchema>) => {
+    setSubmitBtnState(false);
+
+    // Transform form values to match tRPC schema
+    // The form uses embedded staff objects, but API expects staff IDs
+    const transformedData = {
+      pvNum: values.pvNum,
+      businessArea: values.businessArea,
+      agency: values.agency,
+      vendor: values.vendor,
+      date: values.date,
+      notes: values.notes,
+      currency: values.currency,
+      exchangeRate: values.exchangeRate,
+
+      // Map staff names to IDs
+      preparedById: findStaffId(values.preparedBy?.name),
+      verifiedById: findStaffId(values.verifiedBy?.name),
+      authorisedByOneId: findStaffId(values.authorisedByOne?.name),
+      authorisedByTwoId: findStaffId(values.authorisedByTwo?.name),
+
+      // Transform invoiceDetails to invoices
+      invoices: values.invoiceDetails.map((invoice) => ({
+        comments: invoice.comments,
+        documentNum: null,
+        invoiceNumber: invoice.invoiceNumber || null,
+        invoiceDate: invoice.invoiceDate,
+        invoiceTotal: invoice.invoiceTotal,
+        glDetails: invoice.glDetails.map((gl) => ({
+          code: gl.code,
+          fund: gl.fund,
+          amount: gl.amount,
+        })),
+      })),
+
+      poNum: values.poNum || null,
+      paymentMethod: values.paymentMethod,
+      parkedDate: values.parkedDate,
+      postingDate: values.postingDate,
+      clearingDocNum: values.clearingDoc?.num || null,
+      clearingDocDate: values.clearingDoc?.date,
+      transferNum: values.transferNum || null,
+    };
+
+    if (!pv) {
+      // Create new PV
+      createMutation.mutate(transformedData);
     } else {
-      // When editing an existing PV
-      try {
-        const response = await axios.put(
-          `${process.env.NEXT_PUBLIC_ARCHIVA_API}/pvs/`,
-          values
-        );
-        const serverResponse: SinglePVServerResponseType = response.data;
-        toast({
-          title: serverResponse.success ? "Success" : "Error",
-          description: serverResponse.success
-            ? `Successfully updated PV ${values.pvNum}!`
-            : "Encountered a server error.",
-        });
-      } catch (error: unknown) {
-        // let errorMessage = "";
-        if (error instanceof Error) {
-          console.log(error.message)
-        } else { console.log("An unknown error occurred") }
-
-        toast({
-          title: "Error",
-          description: "There was an error. Please try again later.",
-        });
-      }
+      // Update existing PV
+      updateMutation.mutate(transformedData);
     }
-    setSubmitBtnState(true);
   };
 
   return (
