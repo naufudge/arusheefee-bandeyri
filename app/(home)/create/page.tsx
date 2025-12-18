@@ -1,5 +1,5 @@
 import React from 'react'
-import PvForm from '@/components/PvForm'
+import PvForm from '@/components/pv/PvForm'
 
 const CreatePV = () => {
   return (

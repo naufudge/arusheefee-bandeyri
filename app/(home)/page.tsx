@@ -3,7 +3,7 @@
 import {
   getChartConfig,
   getFormattedDataset,
-} from "@/components/charts/ChartHelper";
+} from "@/utils/ChartHelper";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartTooltip,
@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/chart";
 import { CircleDollarSign, ReceiptText, Store } from "lucide-react";
 import { useEffect, useState } from "react";
-import { formatNumberWithCommas } from "@/lib/helpers";
-import RecentPvs from "@/components/Dashboard/RecentPvs";
+import { formatNumberWithCommas } from "@/utils/helpers";
+import RecentPvs from "@/components/dashboard/RecentPvs";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
 

@@ -8,15 +8,15 @@ import { z } from "zod";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { PvSchema } from "@/lib/PvSchema";
-import GLForm from "@/components/GLForm";
+import { PvSchema } from "@/schemas/PvSchema";
+import GLForm from "@/components/pv/GLForm";
 import {
   PVDropDownField,
   PvInputField,
   StaffDropDownField,
-} from "@/components/PvInputField";
-import { ExchangeRates, Staff } from "@/lib/MyTypes";
-import { Currencies } from "@/lib/data";
+} from "@/components/pv/PvInputField";
+import { ExchangeRates, Staff } from "@/types";
+import { Currencies } from "@/lib/constants/currencies";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation } from "@tanstack/react-query";
 

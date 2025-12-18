@@ -1,7 +1,7 @@
 /* eslint-disable */
 
-import { capitalizeFirstLetter } from "@/lib/helpers";
-import { ChartConfig } from "../ui/chart";
+import { capitalizeFirstLetter } from "@/utils/helpers";
+import { ChartConfig } from "@/components/ui/chart";
 
 type ChartDataType = {
   collection: string;

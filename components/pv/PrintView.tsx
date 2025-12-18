@@ -1,7 +1,7 @@
 import React from 'react'
-import { PvValues } from '@/lib/PvSchema'
-import { formatNumberWithCommas, numberToWords } from '@/lib/helpers'
-import { CurrencyNames } from '@/lib/data'
+import { PvValues } from '@/schemas/PvSchema'
+import { formatNumberWithCommas, numberToWords } from '@/utils/helpers'
+import { CurrencyNames } from '@/lib/constants/currencies'
 
 interface PrintProps {
     pv: PvValues

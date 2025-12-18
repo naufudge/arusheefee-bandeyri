@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FilterType } from "@/lib/MyTypes";
+import { FilterType } from "@/types";
 import { Eye, Loader2, Printer, SquarePen, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -16,10 +16,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import Filter from "@/components/Filter";
-import { removeDuplicates } from "@/lib/helpers";
-import Search from "@/components/PvRegister/Search";
-import ExportPVs from "@/components/PvRegister/ExportPVs";
+import Filter from "@/components/shared/Filter";
+import { removeDuplicates } from "@/utils/helpers";
+import Search from "@/components/pv/Search";
+import ExportPVs from "@/components/pv/ExportPVs";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

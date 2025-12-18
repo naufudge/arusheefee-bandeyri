@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import PvForm from "@/components/PvForm";
+import PvForm from "@/components/pv/PvForm";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { useTRPC } from "@/lib/trpc";

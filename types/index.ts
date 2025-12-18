@@ -1,4 +1,4 @@
-import { PvValues } from "@/lib/PvSchema"
+import { PvValues } from "@/schemas/PvSchema"
 
 export type PopupInfoType = {
     title: string,

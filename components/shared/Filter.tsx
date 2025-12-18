@@ -7,7 +7,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import FilterOption from "./FilterOption";
-import { FilterType } from "@/lib/MyTypes";
+import { FilterType } from "@/types";
 
 interface FilterProps {
   vendors?: string[];

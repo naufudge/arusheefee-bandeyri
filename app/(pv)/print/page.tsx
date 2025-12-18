@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import PrintView from "@/components/PrintView";
+import PrintView from "@/components/pv/PrintView";
 import { Loader2 } from "lucide-react";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";

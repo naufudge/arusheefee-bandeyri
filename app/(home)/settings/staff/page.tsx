@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import AddStaff from "@/components/Settings/Staff/AddStaff";
+import AddStaff from "@/components/settings/staff/AddStaff";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC } from "@/lib/trpc";

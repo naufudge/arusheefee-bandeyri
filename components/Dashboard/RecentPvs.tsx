@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatNumberWithCommas } from "@/lib/helpers";
+import { formatNumberWithCommas } from "@/utils/helpers";
 
 // Type for PV data from tRPC API
 interface PvData {
