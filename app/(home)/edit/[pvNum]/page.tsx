@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import PvForm from "@/components/PvForm";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,8 @@ import { ChevronLeft, Loader2 } from "lucide-react";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
 
-const PvEditPage = ({
-  params,
-}: {
-  params: Promise<{ pvNum: string }>;
-}) => {
-  const { pvNum } = use(params);
+const PvEditPage = ({ params }: { params: { pvNum: string } }) => {
+  const { pvNum } = params;
   const router = useRouter();
   const trpc = useTRPC();
 

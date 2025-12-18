@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { PvSchema, PvValues } from "@/lib/PvSchema";
+import { PvSchema } from "@/lib/PvSchema";
 import GLForm from "@/components/GLForm";
 import {
   PVDropDownField,
@@ -21,12 +21,36 @@ import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 interface PvFormProps {
-  pv?: PvValues;
+  // Accept either the form schema type or the tRPC response type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pv?: any;
 }
 
-function usePvForm(pv?: PvValues | null) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function usePvForm(pv?: any) {
   let formConfig = {};
   if (pv) {
+    // Transform tRPC response format to form format
+    // tRPC returns: invoices, clearingDocNum/Date, preparedBy as Staff relation
+    // Form expects: invoiceDetails, clearingDoc.num/date, preparedBy as {name, designation}
+    const invoiceDetails = (pv.invoices || pv.invoiceDetails || []).map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (inv: any) => ({
+        comments: inv.comments,
+        invoiceNumber: inv.invoiceNumber || "",
+        invoiceDate: inv.invoiceDate ? new Date(inv.invoiceDate) : null,
+        invoiceTotal: inv.invoiceTotal,
+        glDetails: inv.glDetails.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (gl: any) => ({
+            code: gl.code,
+            fund: gl.fund,
+            amount: gl.amount,
+          })
+        ),
+      })
+    );
+
     const vals = {
       pvNum: pv.pvNum,
       businessArea: pv.businessArea,
@@ -37,22 +61,41 @@ function usePvForm(pv?: PvValues | null) {
       currency: pv.currency,
       exchangeRate: pv.exchangeRate,
 
-      invoiceDetails: pv.invoiceDetails,
+      invoiceDetails,
 
-      preparedBy: pv.preparedBy,
-      verifiedBy: pv.verifiedBy,
-      authorisedByOne: pv.authorisedByOne,
-      authorisedByTwo: pv.authorisedByTwo,
+      preparedBy: {
+        name: pv.preparedBy?.name || "",
+        designation: pv.preparedBy?.designation || "",
+      },
+      verifiedBy: {
+        name: pv.verifiedBy?.name || "",
+        designation: pv.verifiedBy?.designation || "",
+      },
+      authorisedByOne: {
+        name: pv.authorisedByOne?.name || "",
+        designation: pv.authorisedByOne?.designation || "",
+      },
+      authorisedByTwo: {
+        name: pv.authorisedByTwo?.name || "",
+        designation: pv.authorisedByTwo?.designation || "",
+      },
 
-      poNum: pv.poNum,
+      poNum: pv.poNum || "",
       paymentMethod: pv.paymentMethod,
       parkedDate: pv.parkedDate ? new Date(pv.parkedDate) : null,
       postingDate: pv.postingDate ? new Date(pv.postingDate) : null,
       clearingDoc: {
-        num: pv.clearingDoc.num?.toString(),
-        date: pv.clearingDoc.date ? new Date(pv.clearingDoc.date) : null,
+        num:
+          pv.clearingDocNum?.toString() ||
+          pv.clearingDoc?.num?.toString() ||
+          "",
+        date: pv.clearingDocDate
+          ? new Date(pv.clearingDocDate)
+          : pv.clearingDoc?.date
+            ? new Date(pv.clearingDoc.date)
+            : null,
       },
-      transferNum: pv.transferNum,
+      transferNum: pv.transferNum || "",
     };
 
     formConfig = {

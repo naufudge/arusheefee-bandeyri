@@ -175,9 +175,9 @@ const PvRegisterPage = () => {
                   {/* Status of the PV */}
                   <Badge
                     variant={"default"}
-                    className={`rounded-md ${pv.transferNum != "" ? "bg-green-700 hover:bg-green-800" : "bg-gray-700/75 hover:bg-gray-800/75"}`}
+                    className={`rounded-md ${pv.transferNum ? "bg-green-700 hover:bg-green-800" : "bg-gray-700/75 hover:bg-gray-800/75"}`}
                   >
-                      {pv.transferNum != "" ? "Processed" : "Pending"}
+                    {pv.transferNum ? "Processed" : "Pending"}
                   </Badge>
 
                   {/* View Button */}
