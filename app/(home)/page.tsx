@@ -55,8 +55,7 @@ export default function Home() {
       setChartData(data);
 
       // Calculate the total expenditure
-      const amounts = Object.keys(glData).map((code) => glData[code]);
-      const total = amounts.reduce(
+      const total = Object.values(glData).reduce(
         (accumulator, currentValue) => accumulator + currentValue,
         0
       );

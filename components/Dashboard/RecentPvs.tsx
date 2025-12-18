@@ -11,25 +11,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatNumberWithCommas } from "@/lib/helpers";
-import { PvValues } from "@/lib/PvSchema";
+
+// Type for PV data from tRPC API
+interface PvData {
+  pvNum: string;
+  notes: string;
+  invoices: {
+    invoiceTotal: number;
+  }[];
+}
 
 interface RecentPvsProps {
-    pvs: PvValues[];
+  pvs: PvData[];
 }
 
 const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
-  const [recentPvsData, setRecentPvsData] = useState<PvValues[]>([]);
-  // const [loading, setLoading] = useState(true);
-  // const year = new Date().getFullYear();
+  const [recentPvsData, setRecentPvsData] = useState<PvData[]>([]);
 
   useEffect(() => {
     if (recentPvsData.length <= 0) {
-      setRecentPvsData(pvs.toSpliced(7, pvs.length))
+      setRecentPvsData(pvs.toSpliced(7, pvs.length));
     }
   }, [pvs, recentPvsData]);
 
-  const getInvoiceTotal = (pv: PvValues) => {
-    const invoiceTotal = pv.invoiceDetails.reduce(
+  const getInvoiceTotal = (pv: PvData) => {
+    const invoiceTotal = pv.invoices.reduce(
       (sum, invoice) => sum + invoice.invoiceTotal,
       0
     );

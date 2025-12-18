@@ -130,13 +130,11 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   }));
 
   // Fetch latest PV (only when creating new PV)
-  const { data: latestPV } = useQuery({
+  // Note: latestPV can be used for auto-generating PV numbers if needed
+  useQuery({
     ...trpc.pv.latest.queryOptions(),
     enabled: !pv,
   });
-  const latestPVnum = latestPV
-    ? Number(latestPV.pvNum.split("-")[1]) + 1
-    : undefined;
 
   const form = usePvForm(pv);
 

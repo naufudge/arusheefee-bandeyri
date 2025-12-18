@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FilterType } from "@/lib/MyTypes";
 import { Eye, Loader2, Printer, SquarePen, Trash2 } from "lucide-react";
@@ -40,11 +40,9 @@ const PvRegisterPage = () => {
   });
 
   // Fetch all PVs
-  const {
-    data: pvs,
-    isLoading: loading,
-    error,
-  } = useQuery(trpc.pv.list.queryOptions());
+  const { data: pvs, isLoading: loading } = useQuery(
+    trpc.pv.list.queryOptions()
+  );
 
   // Delete PV mutation
   const deleteMutation = useMutation(

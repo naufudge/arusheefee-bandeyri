@@ -35,11 +35,7 @@ const StaffPage = () => {
   const queryClient = useQueryClient();
 
   // Get all staff available in the DB
-  const {
-    data: staffs,
-    isLoading,
-    error,
-  } = useQuery(trpc.staff.list.queryOptions());
+  const { data: staffs, isLoading } = useQuery(trpc.staff.list.queryOptions());
 
   // Delete staff mutation
   const deleteMutation = useMutation(
