@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Staff table - referenced by PVs for signatories
+model Staff {
+  id          String   @id @default(cuid())
+  name        String
+  designation String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations - Staff can be referenced in multiple roles across PVs
+  preparedPVs      PV[] @relation("PreparedBy")
+  verifiedPVs      PV[] @relation("VerifiedBy")
+  authorisedOnePVs PV[] @relation("AuthorisedByOne")
+  authorisedTwoPVs PV[] @relation("AuthorisedByTwo")
+
+  @@map("staff")
+}
+
+// Main Payment Voucher table
+model PV {
+  id           String    @id @default(cuid())
+  pvNum        String    @unique
+  businessArea Int       @default(1506)
+  agency       String    @default("National Archives of Maldives")
+  vendor       String
+  date         DateTime
+  notes        String
+  currency     String    @default("MVR")
+  exchangeRate Float     @default(1)
+
+  // Payment details
+  poNum         String?
+  paymentMethod String
+  parkedDate    DateTime?
+  postingDate   DateTime?
+  transferNum   String?
+
+  // Clearing document (embedded as fields since it's 1:1)
+  clearingDocNum  String?
+  clearingDocDate DateTime?
+
+  // Staff relations (foreign keys)
+  preparedById      String?
+  verifiedById      String?
+  authorisedByOneId String?
+  authorisedByTwoId String?
+
+  preparedBy      Staff? @relation("PreparedBy", fields: [preparedById], references: [id])
+  verifiedBy      Staff? @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  authorisedByOne Staff? @relation("AuthorisedByOne", fields: [authorisedByOneId], references: [id])
+  authorisedByTwo Staff? @relation("AuthorisedByTwo", fields: [authorisedByTwoId], references: [id])
+
+  // Invoice relation (one-to-many)
+  invoices Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pvs")
+}
+
+// Invoice line items within a PV
+model Invoice {
+  id            String    @id @default(cuid())
+  comments      String
+  documentNum   String?
+  invoiceNumber String?
+  invoiceDate   DateTime?
+  invoiceTotal  Float
+
+  // Parent PV relation
+  pvId String
+  pv   PV     @relation(fields: [pvId], references: [id], onDelete: Cascade)
+
+  // GL Details relation (one-to-many)
+  glDetails GLDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("invoices")
+}
+
+// GL (General Ledger) account distribution
+model GLDetail {
+  id     String @id @default(cuid())
+  code   Int
+  fund   String @default("C-GOM")
+  amount Float
+
+  // Parent Invoice relation
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("gl_details")
+}
