@@ -36,7 +36,7 @@ const items = [
   },
   {
     title: "PV Register",
-    url: "/pv_register",
+    url: "/pv-register",
     icon: BookText,
   },
   {
