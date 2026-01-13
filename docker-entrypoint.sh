@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+echo "Generating Prisma Client with runtime DATABASE_URL..."
+npx prisma generate
+
 echo "Running Prisma migrations..."
 npx prisma migrate deploy
 
