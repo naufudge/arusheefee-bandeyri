@@ -14,7 +14,7 @@ import {
 import { CircleDollarSign, ReceiptText, Store } from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatNumberWithCommas } from "@/utils/helpers";
-import RecentPvs from "@/components/dashboard/RecentPvs";
+import RecentPvs from "@/components/Dashboard/RecentPvs";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
 
