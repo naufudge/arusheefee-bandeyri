@@ -50,9 +50,57 @@ const PrintPage = () => {
     );
   }
 
+  // Transform Prisma data to match PvValues schema
+  const transformedPv = {
+    pvNum: pv.pvNum,
+    businessArea: pv.businessArea,
+    agency: pv.agency,
+    vendor: pv.vendor,
+    date: new Date(pv.date),
+    notes: pv.notes,
+    currency: pv.currency,
+    exchangeRate: pv.exchangeRate,
+    paymentMethod: pv.paymentMethod,
+    preparedBy: {
+      name: pv.preparedBy?.name,
+      designation: pv.preparedBy?.designation,
+    },
+    verifiedBy: {
+      name: pv.verifiedBy?.name,
+      designation: pv.verifiedBy?.designation,
+    },
+    authorisedByOne: {
+      name: pv.authorisedByOne?.name,
+      designation: pv.authorisedByOne?.designation,
+    },
+    authorisedByTwo: {
+      name: pv.authorisedByTwo?.name,
+      designation: pv.authorisedByTwo?.designation,
+    },
+    invoiceDetails: pv.invoices.map((invoice) => ({
+      comments: invoice.comments,
+      invoiceNumber: invoice.invoiceNumber ?? undefined,
+      invoiceDate: invoice.invoiceDate ? new Date(invoice.invoiceDate) : null,
+      invoiceTotal: invoice.invoiceTotal,
+      glDetails: invoice.glDetails.map((gl) => ({
+        code: gl.code,
+        fund: gl.fund,
+        amount: gl.amount,
+      })),
+    })),
+    poNum: pv.poNum ?? undefined,
+    parkedDate: pv.parkedDate ? new Date(pv.parkedDate) : null,
+    postingDate: pv.postingDate ? new Date(pv.postingDate) : null,
+    clearingDoc: {
+      num: pv.clearingDocNum ?? undefined,
+      date: pv.clearingDocDate ? new Date(pv.clearingDocDate) : undefined,
+    },
+    transferNum: pv.transferNum ?? undefined,
+  };
+
   return (
     <div>
-      <PrintView pv={pv} />
+      <PrintView pv={transformedPv} />
     </div>
   );
 };
