@@ -12,8 +12,6 @@ FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Set a dummy DATABASE_URL for Prisma generate (not used at build time)
