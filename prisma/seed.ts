@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import 'dotenv/config';
 
 const staffData = [
   { name: "Sharumeela Abdul Fatah", designation: "Accounts Officer" },
