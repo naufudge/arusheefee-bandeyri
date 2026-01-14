@@ -1,36 +1,17 @@
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
 RUN npm ci --legacy-peer-deps
 
-# Stage 2: Builder
-FROM node:20-alpine AS builder
-RUN apk add --no-cache libc6-compat openssl
-WORKDIR /app
-
 COPY . .
 
-# Set a dummy DATABASE_URL for Prisma generate (not used at build time)
-ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-
-# Generate Prisma Client
-RUN npx prisma generate
-
 # Build Next.js application
-ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
-# Stage 3: Runner
-FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl
-WORKDIR /app
-
 ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
