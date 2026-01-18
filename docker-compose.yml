@@ -11,5 +11,17 @@ services:
     env_file:
       - .env
     volumes:
-      # Mount prisma directory for migrations
       - ./prisma:/app/prisma
+
+    caddy:
+      image: caddy:latest
+      restart: unless-stopped
+      command: caddy reverse-proxy --from $HOST --to app:3000
+      ports:
+        - 80:80
+        - 433:433
+        - 433:433/udp
+      volumes:
+        - .:/data
+      environment:
+        - HOST=${HOST}
