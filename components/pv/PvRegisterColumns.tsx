@@ -1,6 +1,6 @@
 "use client"
 
-import { PvValues } from "@/lib/PvSchema"
+import { PvValues } from "@/schemas/PvSchema"
 import { ColumnDef } from "@tanstack/react-table"
 
 // This type is used to define the shape of our data.

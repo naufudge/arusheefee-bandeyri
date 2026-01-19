@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Poppins } from 'next/font/google'
 import "@/app/globals.css";
+import { TRPCReactProvider } from "@/providers/trpc-provider";
 
 export const metadata: Metadata = {
     title: "PV Printing - Arusheefee Bandeyri",
@@ -29,7 +30,9 @@ export default function PrintLayout({
     return(
         <html lang="en" className={`${faruma.variable} ${waheed.variable} ${poppins.variable}`}>
         <body>
-            {children}
+            <TRPCReactProvider>
+                {children}
+            </TRPCReactProvider>
         </body>
         </html>
     )

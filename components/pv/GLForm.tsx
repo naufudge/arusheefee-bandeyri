@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Control, useFieldArray, UseFormGetValues, UseFormSetValue } from 'react-hook-form'
-import { PvSchema, PvValues } from "@/lib/PvSchema";
+import { PvSchema, PvValues } from "@/schemas/PvSchema";
 import { z } from 'zod'
 
 interface GLFormProps {

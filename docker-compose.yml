@@ -1,0 +1,27 @@
+services:
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arusheefee-bandeyri
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./prisma:/app/prisma
+
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    command: caddy reverse-proxy --from $HOST --to app:3000
+    ports:
+      - 80:80
+      - 433:433
+      - 433:433/udp
+    volumes:
+      - .:/data
+    environment:
+      - HOST=${HOST}

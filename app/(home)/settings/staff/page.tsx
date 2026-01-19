@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus, SquarePen, Trash2 } from "lucide-react";
-import { Staff } from "@/lib/MyTypes";
-import axios from "axios";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,69 +25,44 @@ import {
 import AddStaff from "@/components/Settings/Staff/AddStaff";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
-
+import { useTRPC } from "@/lib/trpc";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const StaffPage = () => {
-  const [staffs, setStaff] = useState<Staff[] | null>([]);
-
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   // Get all staff available in the DB
-  async function getStaff() {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff`);
-      if (response.data.success) {
-        const data: Staff[] = response.data.result;
-        const sortedStaffs = data.sort((a, b) => a.name.localeCompare(b.name));
-        setStaff(sortedStaffs);
+  const { data: staffs, isLoading } = useQuery(trpc.staff.list.queryOptions());
 
-        console.log(sortedStaffs);
-      } else {
-        console.log("Error fetching exchange rates.");
-        setStaff(null);
-      }
-    } catch (error: unknown) {
-      let errorMessage = "";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = "An unknown error occurred.";
-      }
-      console.log(errorMessage);
-      setStaff(null);
-    }
-  }
-
-  useEffect(() => {
-    if (staffs && staffs.length === 0 && staffs !== null) getStaff();
-  }, [staffs]);
-  
-  const handleDeleteClick = async (staffId : string) => {
-    try {
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/staff/${staffId}`)
-      if (response.data) {
+  // Delete staff mutation
+  const deleteMutation = useMutation(
+    trpc.staff.delete.mutationOptions({
+      onSuccess: () => {
         toast({
           title: "Success",
-          description: "Successfully deleted the staff."
-        })
-      }
-    } catch (error) {
-      let errorMessage = "";
-      if (error instanceof Error) {
-          errorMessage = error.message
-      } else {
-          errorMessage = "An unknown error occurred."
-      }
-      toast({
+          description: "Successfully deleted the staff.",
+        });
+        queryClient.invalidateQueries({ queryKey: trpc.staff.list.queryKey() });
+      },
+      onError: (error) => {
+        toast({
           title: "Error",
-          description: errorMessage,
-      })
-      console.log(errorMessage)
-    } finally {
-      getStaff();
-    }
-  }
+          description: error.message || "An unknown error occurred.",
+        });
+      },
+    })
+  );
+
+  const handleDeleteClick = (staffId: string) => {
+    deleteMutation.mutate({ id: staffId });
+  };
+
+  const refetchStaffs = () => {
+    queryClient.invalidateQueries({ queryKey: trpc.staff.list.queryKey() });
+  };
 
   return (
     <div className="flex justify-center w-full">
@@ -110,12 +83,12 @@ const StaffPage = () => {
                 {isMobile ? "" : `Add Staff`}
               </Button>
             }
-            refetchStaffs={getStaff}
+            refetchStaffs={refetchStaffs}
           />
         </div>
 
         <div>
-          {staffs && staffs.length > 0 ? (
+          {!isLoading && staffs && staffs.length > 0 ? (
             <Table>
               {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
               <TableHeader>
@@ -129,7 +102,7 @@ const StaffPage = () => {
 
               <TableBody>
                 {staffs?.map((staff, index) => (
-                  <TableRow key={staff._id}>
+                  <TableRow key={staff.id}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>{staff.name}</TableCell>
                     <TableCell>{staff.designation}</TableCell>
@@ -140,10 +113,9 @@ const StaffPage = () => {
                           button={
                             <SquarePen className="hover:text-blue-600 hover:cursor-pointer" />
                           }
-                          refetchStaffs={getStaff}
-                          staff={staff}
+                          refetchStaffs={refetchStaffs}
+                          staff={{ _id: staff.id, name: staff.name, designation: staff.designation }}
                         />
-                        
 
                         {/* Delete Popup */}
                         <AlertDialog>
@@ -157,7 +129,7 @@ const StaffPage = () => {
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 This action cannot be undone. This will
-                                permanently delete the PV from the register.
+                                permanently delete the staff from the register.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter className="gap-4">
@@ -166,7 +138,7 @@ const StaffPage = () => {
                               </AlertDialogCancel>
 
                               <AlertDialogAction
-                                onClick={() => handleDeleteClick(staff._id)}
+                                onClick={() => handleDeleteClick(staff.id)}
                                 className="bg-red-600 hover:bg-red-500"
                               >
                                 Delete

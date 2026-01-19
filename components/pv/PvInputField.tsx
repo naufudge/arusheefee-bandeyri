@@ -26,8 +26,8 @@ import { Input } from "@/components/ui/input";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Control, UseFormRegister, UseFormSetValue } from "react-hook-form";
-import { PvSchema, PvValues } from "@/lib/PvSchema";
-import { Staff } from "@/lib/MyTypes";
+import { PvSchema, PvValues } from "@/schemas/PvSchema";
+import { Staff } from "@/types";
 import { z } from "zod";
 
 interface PvInputFieldProps {

@@ -3,7 +3,7 @@
 import {
   getChartConfig,
   getFormattedDataset,
-} from "@/components/charts/ChartHelper";
+} from "@/utils/ChartHelper";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartTooltip,
@@ -11,68 +11,42 @@ import {
   ChartConfig,
   ChartContainer,
 } from "@/components/ui/chart";
-import axios from "axios";
 import { CircleDollarSign, ReceiptText, Store } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MultiplePVServerResponseType } from "@/lib/MyTypes";
-import { PvValues } from "@/lib/PvSchema";
-import { formatNumberWithCommas } from "@/lib/helpers";
+import { formatNumberWithCommas } from "@/utils/helpers";
 import RecentPvs from "@/components/Dashboard/RecentPvs";
+import { useTRPC } from "@/lib/trpc";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
-  // const [year, setYear] = useState(2025);
-  const year = 2025;
-  const [pvs, setPvs] = useState<PvValues[]>();
+  const year = "2025";
   const [expenditure, setExpenditure] = useState(0);
   const [uniqueVendors, setUniqueVendors] = useState(0);
 
-  const [glData, setGlData] = useState<{ [key: string]: number }>();
   const [chartConfig, setChartConfig] = useState<ChartConfig>();
   const [chartData, setChartData] = useState<{ code: string; value: number }[]>(
     []
   );
 
-  async function getPvs() {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ARCHIVA_API}pv/year/${year}`);
-      const data: MultiplePVServerResponseType = await response.json();
-      const pvData = data.result.reverse();
-      setPvs(pvData);
+  const trpc = useTRPC();
 
-      // Find the number of unique vendors
-      const uniqueVendors = new Set(pvData.map((entry) => entry.vendor));
-      setUniqueVendors(uniqueVendors.size);
-    } catch (error: unknown) {
-      // let errorMessage = "";
-      if (error instanceof Error) {
-        console.log(error.message);
-      } else {
-        console.log("An unknown error occurred");
-      }
-    }
-  }
+  // Fetch PVs by year
+  const { data: pvs } = useQuery(trpc.pv.byYear.queryOptions({ year }));
 
-  async function getGlData() {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_ARCHIVA_API}/pv/gl/${year}`);
-      if (response.data.success) setGlData(response.data.result);
-      console.log("Got GL Data!");
-    } catch (error: unknown) {
-      let errorMessage = "";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else {
-        errorMessage = "An unknown error occurred.";
-      };
-      console.log(errorMessage);
-    }
-  }
+  // Fetch GL totals by year
+  const { data: glData } = useQuery(
+    trpc.pv.glTotalsByYear.queryOptions({ year })
+  );
 
+  // Calculate unique vendors when PVs change
   useEffect(() => {
-    getGlData();
-    getPvs();
-  }, [year]);
+    if (pvs) {
+      const vendors = new Set(pvs.map((entry) => entry.vendor));
+      setUniqueVendors(vendors.size);
+    }
+  }, [pvs]);
 
+  // Process GL data for chart when it changes
   useEffect(() => {
     if (glData) {
       const config = getChartConfig(glData);
@@ -81,8 +55,7 @@ export default function Home() {
       setChartData(data);
 
       // Calculate the total expenditure
-      const amounts = Object.keys(glData).map((code) => glData[code]);
-      const total = amounts.reduce(
+      const total = Object.values(glData).reduce(
         (accumulator, currentValue) => accumulator + currentValue,
         0
       );

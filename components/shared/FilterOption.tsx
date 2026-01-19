@@ -7,7 +7,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Label } from '@/components/ui/label'
-import { capitalizeFirstLetter } from '@/lib/helpers';
+import { capitalizeFirstLetter } from '@/utils/helpers';
 
 interface FilterOptionProps {
     label: string;

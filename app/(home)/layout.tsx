@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Poppins } from "next/font/google";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/layout/AppSidebar"
 import { Toaster } from "@/components/ui/toaster";
+import { TRPCReactProvider } from "@/providers/trpc-provider";
 import "@/app/globals.css";
 
 const geistSans = localFont({
@@ -49,16 +50,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${faruma.variable} ${waheed.variable} ${poppins.variable} antialiased`}
       >
-        <SidebarProvider className="font-poppins">
-          <AppSidebar />
-          <main className="w-full">
-            <SidebarTrigger className="mx-5 mt-5" />
-            <div className="py-5 px-10 h-full">
-              {children}
-            </div>
-          </main>
-          <Toaster />
-        </SidebarProvider>
+        <TRPCReactProvider>
+          <SidebarProvider className="font-poppins">
+            <AppSidebar />
+            <main className="w-full">
+              <SidebarTrigger className="mx-5 mt-5" />
+              <div className="py-5 px-10 h-full">
+                {children}
+              </div>
+            </main>
+            <Toaster />
+          </SidebarProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );
