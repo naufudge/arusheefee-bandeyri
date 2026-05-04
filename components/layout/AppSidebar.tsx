@@ -1,16 +1,23 @@
+"use client";
+
 import {
   BookText,
   ChevronRight,
   Home,
   NotebookPen,
   Settings,
+  Users,
+  FileText,
 } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -19,112 +26,193 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"  
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-// Menu items.
-const items = [
+type NavItem = {
+  title: string;
+  url: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items?: { title: string; url: string; icon?: React.ComponentType<{ className?: string }> }[];
+};
+
+const navGroups: { label: string; items: NavItem[] }[] = [
   {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "PV Register",
-    url: "/pv-register",
-    icon: BookText,
-  },
-  {
-    title: "Create PV",
-    url: "/create",
-    icon: NotebookPen,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    label: "Overview",
     items: [
-      { title: "Manage Staff", url: "/settings/staff" },
-      { title: "Templates", url: "/settings/templates" },
+      { title: "Dashboard", url: "/", icon: Home },
+      { title: "PV Register", url: "/pv-register", icon: BookText },
+    ],
+  },
+  {
+    label: "Vouchers",
+    items: [{ title: "Create PV", url: "/create", icon: NotebookPen }],
+  },
+  {
+    label: "Configure",
+    items: [
+      {
+        title: "Settings",
+        url: "#",
+        icon: Settings,
+        items: [
+          { title: "Manage Staff", url: "/settings/staff", icon: Users },
+          { title: "Templates", url: "/settings/templates", icon: FileText },
+        ],
+      },
     ],
   },
 ];
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export function AppSidebar() {
+  const pathname = usePathname();
+
+  const isActive = (url: string) => {
+    if (url === "/") return pathname === "/";
+    return pathname === url || pathname.startsWith(url + "/");
+  };
+
+  const isParentActive = (item: NavItem) =>
+    item.items?.some((sub) => isActive(sub.url)) ?? false;
+
   return (
-    <Sidebar>
-      <SidebarContent>
-        <div className="mx-4 mt-6 mb-2 flex gap-2 place-items-center">
-          <Image
-            src={"/logo.png"}
-            className={`w-9 h-fit justify-center`}
-            width={50}
-            height={50}
-            alt="Logo"
-          />
-          <h1 className="text-sm font-semibold">Arusheefee Bandeyri</h1>
-        </div>
-        <SidebarGroup>
-          {/* <SidebarGroupLabel>
-            Arusheefee Bandeyri
-          </SidebarGroupLabel> */}
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
-              {items.map((item) => (
-                <div key={item.title}>
-                  {item.items ? (
+    <Sidebar className="border-r">
+      <SidebarHeader className="border-b">
+        <Link
+          href="/"
+          className="mx-2 my-2 flex items-center gap-3 rounded-md px-2 py-2 transition hover:bg-muted"
+        >
+          <div className="flex size-9 items-center justify-center rounded-md border bg-card">
+            <Image
+              src="/logo.png"
+              className="size-6 object-contain"
+              width={32}
+              height={32}
+              alt="Logo"
+            />
+          </div>
+          <div className="flex min-w-0 flex-col leading-tight">
+            <span className="truncate text-sm font-semibold tracking-tight">
+              Arusheefee Bandeyri
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              Budget Portal
+            </span>
+          </div>
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent className="gap-1 px-1 pt-3">
+        {navGroups.map((group) => (
+          <SidebarGroup key={group.label} className="px-2">
+            <SidebarGroupLabel className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {group.items.map((item) =>
+                  item.items ? (
                     <Collapsible
                       key={item.title}
                       asChild
+                      defaultOpen={isParentActive(item)}
                       className="group/collapsible"
                     >
                       <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
-                          <SidebarMenuButton tooltip={item.title}>
-                            {item.icon && <item.icon />}
+                          <SidebarMenuButton
+                            tooltip={item.title}
+                            className="h-9 gap-2.5 rounded-md text-[13px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground data-[state=open]:text-foreground"
+                          >
+                            <item.icon className="size-4" />
                             <span>{item.title}</span>
-                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            <ChevronRight className="ml-auto size-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                          <SidebarMenuSub className="gap-2 mt-2">
-                            {item.items?.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton asChild>
-                                  <Link
-                                    href={subItem.url}
-                                    className="text-[0.79rem]"
+                          <SidebarMenuSub className="ml-3.5 mt-1 gap-0.5 border-l pl-3">
+                            {item.items.map((subItem) => {
+                              const active = isActive(subItem.url);
+                              return (
+                                <SidebarMenuSubItem key={subItem.title}>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    isActive={active}
+                                    className={`h-8 rounded-md text-[12.5px] font-medium transition ${
+                                      active
+                                        ? "bg-muted text-foreground"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    }`}
                                   >
-                                    <span>{subItem.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
+                                    <Link
+                                      href={subItem.url}
+                                      className="flex items-center gap-2"
+                                    >
+                                      {subItem.icon && (
+                                        <subItem.icon className="size-3.5" />
+                                      )}
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              );
+                            })}
                           </SidebarMenuSub>
                         </CollapsibleContent>
                       </SidebarMenuItem>
                     </Collapsible>
                   ) : (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton tooltip={item.title} asChild>
-                        <a href={item.url}>
-                          {item.icon && <item.icon />}
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        asChild
+                        isActive={isActive(item.url)}
+                        className={`relative h-9 gap-2.5 rounded-md text-[13px] font-medium transition ${
+                          isActive(item.url)
+                            ? "bg-muted text-foreground before:absolute before:left-0 before:top-1/2 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r-full before:bg-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  )}
-                </div>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                  )
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
+
+      <SidebarFooter className="border-t">
+        <div className="flex items-center justify-between px-3 py-3">
+          <div className="flex flex-col leading-tight">
+            <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              Fiscal Year
+            </span>
+            <span className="font-mono text-sm tabular-nums">
+              {CURRENT_YEAR}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Live
+            </span>
+          </div>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

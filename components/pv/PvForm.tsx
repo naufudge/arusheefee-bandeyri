@@ -312,83 +312,97 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
-        <div className="grid grid-cols-3 gap-4">
-          {/* Business Area */}
-          <PvInputField
-            control={control}
-            name={"businessArea"}
-            label="Business Area"
-          />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <section className="rounded-md border bg-card p-6">
+          <div className="mb-5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            Voucher Details
+          </div>
 
-          {/* Vendor */}
-          <PvInputField control={control} name={"vendor"} label="Vendor" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <PvInputField
+              control={control}
+              name={"businessArea"}
+              label="Business Area"
+            />
+            <PvInputField control={control} name={"vendor"} label="Vendor" />
+            <PvInputField
+              control={control}
+              name={"pvNum"}
+              label="PV Number"
+              required={pv ? false : true}
+              register={register}
+              description={pv ? "" : "PV Number Eg: 2024-03"}
+            />
+          </div>
 
-          {/* PV Number */}
-          <PvInputField
-            control={control}
-            name={"pvNum"}
-            label="PV Number"
-            // disabled={pv ? true : latestPVnum ? false : true}
-            required={pv ? false : true}
-            register={register}
-            description={pv ? "" : "PV Number Eg: 2024-03"}
-          />
-        </div>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <PvInputField control={control} name={"agency"} label="Agency" />
+            <PvInputField control={control} name={"date"} label="Date" />
+          </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          {/* Agency */}
-          <PvInputField control={control} name={"agency"} label="Agency" />
+          <div className="mt-4">
+            <PvInputField control={control} name={"notes"} label="Note(s)" />
+          </div>
 
-          {/* PV Date */}
-          <PvInputField control={control} name={"date"} label="Date" />
-        </div>
-
-        {/* Notes */}
-        <PvInputField control={control} name={"notes"} label="Note(s)" />
-
-        <div className="grid grid-cols-3 gap-4">
-          {/* PO number */}
-          <PvInputField control={control} name={"poNum"} label="PO Number" />
-
-          {/* Currency */}
-          <PVDropDownField
-            control={control}
-            name={"currency"}
-            label="Currency"
-            options={Currencies.sort()}
-            placeholder="Select a currency"
-            customHandler={handleCurrencyChange}
-            description="All the available currencies in MMA website."
-          />
-
-          {/* Exchange Rate */}
-          <PvInputField
-            control={control}
-            name={"exchangeRate"}
-            label="Exchange Rate"
-            disabled={true}
-            description="Rate is taken from MMA website."
-          />
-        </div>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <PvInputField control={control} name={"poNum"} label="PO Number" />
+            <PVDropDownField
+              control={control}
+              name={"currency"}
+              label="Currency"
+              options={Currencies.sort()}
+              placeholder="Select a currency"
+              customHandler={handleCurrencyChange}
+              description="All the available currencies in MMA website."
+            />
+            <PvInputField
+              control={control}
+              name={"exchangeRate"}
+              label="Exchange Rate"
+              disabled={true}
+              description="Rate is taken from MMA website."
+            />
+          </div>
+        </section>
 
         {/* Invoice Section */}
-        <div className="transition-all duration-150">
+        <section>
+          <div className="mb-4 flex items-baseline justify-between">
+            <div>
+              <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Invoices &amp; GL Distribution
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {fields.length} {fields.length === 1 ? "invoice" : "invoices"} on this voucher
+              </p>
+            </div>
+          </div>
+
+          <div className="transition-all duration-150">
           {fields.map((item, index) => (
             <div
               key={item.id}
-              className="grid grid-cols-4 gap-4 mb-7 bg-slate-50 p-5 pb-8 rounded-xl drop-shadow-md"
+              className="mb-6 grid grid-cols-4 gap-4 rounded-md border bg-card p-6"
             >
-              <div className="flex col-span-4 font-bold text-xl justify-between w-full">
-                <div>Invoice #{index + 1}</div>
-                {/* Show delete button starting from Invoice #2 */}
+              <div className="col-span-4 flex items-center justify-between border-b pb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Invoice
+                  </span>
+                  <span className="font-mono text-sm font-medium tabular-nums">
+                    #{(index + 1).toString().padStart(2, "0")}
+                  </span>
+                </div>
                 {index != 0 && (
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => remove(index)}
+                    className="h-8 gap-1.5 px-2 text-xs text-muted-foreground hover:text-red-600"
                   >
-                    <Trash2 width={20} height={20} />
+                    <Trash2 className="size-3.5" />
+                    Remove
                   </Button>
                 )}
               </div>
@@ -436,10 +450,8 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
             </div>
           ))}
           {/* Add invoice button */}
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="flex gap-2"
             onClick={() => {
               append({
                 comments: "",
@@ -455,16 +467,29 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
                 ],
               });
             }}
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-dashed bg-background px-4 text-sm font-medium text-muted-foreground transition hover:border-solid hover:bg-muted hover:text-foreground"
           >
-            <Plus width={20} height={20} />
-            Invoice
-          </Button>
-        </div>
+            <Plus className="size-4" />
+            Add invoice
+          </button>
+          </div>
+        </section>
 
-        <div className="grid grid-cols-2 gap-6">
+        <section>
+          <div className="mb-4">
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Signatories
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Staff who prepared, verified, and authorised this voucher
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Prepared By Section */}
-          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
-            <div className="font-bold">Prepared By:</div>
+          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Prepared By
+            </div>
             <StaffDropDownField
               control={control}
               name="preparedBy"
@@ -481,8 +506,10 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           </div>
 
           {/* Verified By Section */}
-          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
-            <div className="font-bold">Verified By:</div>
+          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Verified By
+            </div>
             <StaffDropDownField
               control={control}
               name="verifiedBy"
@@ -499,8 +526,10 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           </div>
 
           {/* Authorised By Section One */}
-          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
-            <div className="font-bold">Authorised By:</div>
+          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Authorised By
+            </div>
             <StaffDropDownField
               control={control}
               name="authorisedByOne"
@@ -517,8 +546,10 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           </div>
 
           {/* Authorised By Section Two */}
-          <div className="flex flex-col gap-4 p-5 pb-8 bg-slate-50 rounded-xl drop-shadow-md">
-            <div className="font-bold">Authorised By 2:</div>
+          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Authorised By <span className="font-mono normal-case tracking-normal">· 2</span>
+            </div>
             <StaffDropDownField
               control={control}
               name="authorisedByTwo"
@@ -533,49 +564,62 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
               disabled={true}
             />
           </div>
+          </div>
+        </section>
+
+        <section className="rounded-md border bg-card p-6">
+          <div className="mb-5">
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Payment &amp; Clearing
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Disbursement and document tracking details
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-3">
+            <PvInputField
+              control={control}
+              name={"paymentMethod"}
+              label="Payment Method"
+            />
+            <PvInputField
+              control={control}
+              name={"parkedDate"}
+              label="Parking Date"
+            />
+            <PvInputField
+              control={control}
+              name={"postingDate"}
+              label="Posting Date"
+            />
+            <PvInputField
+              control={control}
+              name={"clearingDoc.num"}
+              label="Clearing Doc. Number"
+            />
+            <PvInputField
+              control={control}
+              name={"clearingDoc.date"}
+              label="Clearing Doc. Date"
+            />
+            <PvInputField
+              control={control}
+              name={"transferNum"}
+              label="Transfer Number"
+            />
+          </div>
+        </section>
+
+        <div className="flex items-center justify-end gap-3 border-t pt-6">
+          <button
+            type="submit"
+            disabled={!submitBtnState}
+            className="inline-flex h-10 items-center gap-2 rounded-md bg-foreground px-6 text-sm font-medium text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pv ? "Save changes" : "Create voucher"}
+          </button>
         </div>
-
-        <div className="grid grid-cols-3 gap-4 gap-y-8">
-          <PvInputField
-            control={control}
-            name={"paymentMethod"}
-            label="Payment Method"
-          />
-
-          <PvInputField
-            control={control}
-            name={"parkedDate"}
-            label="Parking Date"
-          />
-
-          <PvInputField
-            control={control}
-            name={"postingDate"}
-            label="Posting Date"
-          />
-
-          <PvInputField
-            control={control}
-            name={"clearingDoc.num"}
-            label="Clearing Doc. Number"
-          />
-
-          <PvInputField
-            control={control}
-            name={"clearingDoc.date"}
-            label="Clearing Doc. Date"
-          />
-
-          <PvInputField
-            control={control}
-            name={"transferNum"}
-            label="Transfer Number"
-          />
-        </div>
-
-        <Button disabled={!submitBtnState} type="submit">
-          {pv ? "Save" : "Submit"}
-        </Button>
       </form>
     </Form>
   );
