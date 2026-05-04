@@ -141,7 +141,3 @@
   @apply border-collapse p-1
 }
 
-/* Home page */
-.home-stats-card {
-  @apply p-5 rounded-lg shadow border-l-[5px] border flex flex-col gap-5
-}

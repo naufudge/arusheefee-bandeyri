@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -12,13 +13,12 @@ import {
 } from "@/components/ui/table";
 import { formatNumberWithCommas } from "@/utils/helpers";
 
-// Type for PV data from tRPC API
 interface PvData {
   pvNum: string;
   notes: string;
-  invoices: {
-    invoiceTotal: number;
-  }[];
+  vendor: string;
+  transferNum?: string | null;
+  invoices: { invoiceTotal: number }[];
 }
 
 interface RecentPvsProps {
@@ -26,56 +26,102 @@ interface RecentPvsProps {
 }
 
 const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
-  const [recentPvsData, setRecentPvsData] = useState<PvData[]>([]);
+  const recent = useMemo(() => pvs.slice(0, 7), [pvs]);
 
-  useEffect(() => {
-    if (recentPvsData.length <= 0) {
-      setRecentPvsData(pvs.toSpliced(7, pvs.length));
-    }
-  }, [pvs, recentPvsData]);
-
-  const getInvoiceTotal = (pv: PvData) => {
-    const invoiceTotal = pv.invoices.reduce(
-      (sum, invoice) => sum + invoice.invoiceTotal,
-      0
-    );
-    return formatNumberWithCommas(invoiceTotal);
-  };
+  const totalFor = (pv: PvData) =>
+    pv.invoices.reduce((sum, i) => sum + i.invoiceTotal, 0);
 
   return (
-    <div className="p-2">
-      <h2 className="font-semibold">Recent PVs</h2>
-      <br />
+    <div>
+      <div className="flex items-baseline justify-between border-b px-6 py-5">
+        <div>
+          <h2 className="text-base font-semibold">Recent Vouchers</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Latest {recent.length} entries
+          </p>
+        </div>
+        <Link
+          href="/pv-register"
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+        >
+          Register
+          <ArrowUpRight className="size-3.5" />
+        </Link>
+      </div>
+
       <Table>
-        <TableCaption>A list of the recent PVs.</TableCaption>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[110px]">PV #</TableHead>
-            <TableHead>Description</TableHead>
-            {/* <TableHead>Vendor</TableHead> */}
-            <TableHead className="text-right">MVR</TableHead>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="h-9 pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              PV #
+            </TableHead>
+            <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              Description
+            </TableHead>
+            <TableHead className="h-9 pr-6 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              MVR
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {recentPvsData.map((pv) => (
-            <TableRow key={pv.pvNum}>
-              <TableCell className="font-medium">{pv.pvNum}</TableCell>
-              <TableCell className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[190px]">
-                <span title={pv.notes}>{pv.notes}</span>
-              </TableCell>
-              {/* <TableCell>{pv.vendor}</TableCell> */}
-              <TableCell className="text-right">
-                {getInvoiceTotal(pv)}
+          {recent.length === 0 ? (
+            <TableRow className="hover:bg-transparent">
+              <TableCell
+                colSpan={3}
+                className="py-8 text-center text-sm text-muted-foreground"
+              >
+                No vouchers yet.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            recent.map((pv) => {
+              const processed = !!(pv.transferNum && pv.transferNum !== "");
+              return (
+                <TableRow
+                  key={pv.pvNum}
+                  className="cursor-pointer transition hover:bg-muted/40"
+                >
+                  <TableCell className="pl-6">
+                    <Link
+                      href={`/edit/${pv.pvNum}`}
+                      className="block font-mono text-xs"
+                    >
+                      {pv.pvNum}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/edit/${pv.pvNum}`}
+                      className="flex max-w-[180px] flex-col"
+                    >
+                      <span className="truncate text-sm" title={pv.notes}>
+                        {pv.notes}
+                      </span>
+                      <span className="mt-0.5 flex items-center gap-1.5">
+                        <span
+                          className={`size-1.5 rounded-full ${
+                            processed ? "bg-emerald-600" : "bg-amber-500"
+                          }`}
+                        />
+                        <span className="truncate text-[11px] text-muted-foreground">
+                          {pv.vendor}
+                        </span>
+                      </span>
+                    </Link>
+                  </TableCell>
+                  <TableCell className="pr-6 text-right">
+                    <Link
+                      href={`/edit/${pv.pvNum}`}
+                      className="block font-mono text-sm tabular-nums"
+                    >
+                      {formatNumberWithCommas(totalFor(pv))}
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          )}
         </TableBody>
-        {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter> */}
       </Table>
     </div>
   );

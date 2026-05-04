@@ -40,58 +40,13 @@ export function numberToWords(num: number, currency: string = "Rufiyaa") {
 }
 
 export function formatNumberWithCommas(num: number | string, withDecimals: boolean = true) {
-    const result = Number(num).toFixed(2);
+    const n = Number(num);
+    if (!Number.isFinite(n)) return;
 
-    const numWithDecimal = result.includes(".") && result.split(".")
-
-    if (numWithDecimal) {
-        const numArray = numWithDecimal[0].split("")
-
-        switch (numArray.length) {
-            case 1:
-            case 2:
-            case 3:
-                return `${result}`
-            case 4:
-                numArray.splice(1, 0, ",")
-                return numArray.join("") + "." + numWithDecimal[1]
-            case 5:
-                numArray.splice(2, 0, ",")
-                return numArray.join("") + "." + numWithDecimal[1]
-            case 6:
-                numArray.splice(3, 0, ",")
-                return numArray.join("") + "." + numWithDecimal[1]
-            case 7:
-                numArray.splice(3, 0, ",")
-                numArray.splice(1, 0, ",")
-                return numArray.join("") + "." + numWithDecimal[1]
-            default:
-                return
-        }
-    } else {
-        const numArray = result.split("")
-        switch (numArray.length) {
-            case 1:
-            case 2:
-            case 3:
-                return `${result}.00`
-            case 4:
-                numArray.splice(1, 0, ",")
-                return numArray.join("") + (withDecimals ? ".00": "")
-            case 5:
-                numArray.splice(2, 0, ",")
-                return numArray.join("") + (withDecimals ? ".00": "")
-            case 6:
-                numArray.splice(3, 0, ",")
-                return numArray.join("") + (withDecimals ? ".00": "")
-            case 7:
-                numArray.splice(3, 0, ",")
-                numArray.splice(1, 0, ",")
-                return numArray.join("") + (withDecimals ? ".00": "")
-            default:
-                return
-        }
-    }
+    return n.toLocaleString("en-US", {
+        minimumFractionDigits: withDecimals ? 2 : 0,
+        maximumFractionDigits: 2,
+    });
 }
 
 /**

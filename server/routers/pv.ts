@@ -66,29 +66,33 @@ export const pvRouter = router({
     return pv;
   }),
 
-  // GET /pv/year/{year} - Get PVs by year (filter by pvNum containing year)
+  // GET /pv/year/{year} - Get PVs by fiscal year (PV.date within [year-01-01, year+1-01-01))
   byYear: publicProcedure
     .input(yearFilterSchema)
     .query(async ({ ctx, input }) => {
+      const yearNum = Number(input.year);
       return ctx.prisma.pV.findMany({
         where: {
-          pvNum: {
-            contains: input.year,
+          date: {
+            gte: new Date(Date.UTC(yearNum, 0, 1)),
+            lt: new Date(Date.UTC(yearNum + 1, 0, 1)),
           },
         },
         include: pvInclude,
-        orderBy: { pvNum: "asc" },
+        orderBy: { date: "desc" },
       });
     }),
 
-  // GET /pv/gl/{year} - Aggregate GL totals by code for year
+  // GET /pv/gl/{year} - Aggregate GL totals by code for the fiscal year
   glTotalsByYear: publicProcedure
     .input(yearFilterSchema)
     .query(async ({ ctx, input }) => {
+      const yearNum = Number(input.year);
       const pvs = await ctx.prisma.pV.findMany({
         where: {
-          pvNum: {
-            contains: input.year,
+          date: {
+            gte: new Date(Date.UTC(yearNum, 0, 1)),
+            lt: new Date(Date.UTC(yearNum + 1, 0, 1)),
           },
         },
         include: {
