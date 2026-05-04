@@ -28,8 +28,8 @@ export default function PrintLayout({
     children: React.ReactNode;
 }>) {
     return(
-        <html lang="en" className={`${faruma.variable} ${waheed.variable} ${poppins.variable}`}>
-        <body>
+        <html lang="en" className={`${faruma.variable} ${waheed.variable} ${poppins.variable}`} suppressHydrationWarning>
+        <body suppressHydrationWarning>
             <TRPCReactProvider>
                 {children}
             </TRPCReactProvider>

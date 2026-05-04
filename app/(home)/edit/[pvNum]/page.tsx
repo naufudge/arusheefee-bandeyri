@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, AlertCircle } from "lucide-react";
@@ -9,8 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
 
-const PvEditPage = ({ params }: { params: { pvNum: string } }) => {
-  const { pvNum } = params;
+const PvEditPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
+  const { pvNum } = use(params);
   const router = useRouter();
   const trpc = useTRPC();
 

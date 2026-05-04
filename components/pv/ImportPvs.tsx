@@ -341,7 +341,7 @@ function PickStage({
   file: File | null;
   error: string | null;
   dragActive: boolean;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   onSetDragActive: (b: boolean) => void;
   onDrop: (e: React.DragEvent<HTMLLabelElement>) => void;
   onPickFile: (f: File | null) => void;

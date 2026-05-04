@@ -46,6 +46,7 @@ import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FilterType } from "@/types";
 
+
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => CURRENT_YEAR - i);
 
@@ -207,7 +208,7 @@ const PvRegisterPage = () => {
             }
           />
           <ExportPVs year={filters.year} />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" suppressHydrationWarning>
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
               Period
             </span>

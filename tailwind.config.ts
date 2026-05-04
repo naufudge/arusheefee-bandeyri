@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
-import { waheed } from "./app/(home)/layout";
+import type { PluginAPI } from "tailwindcss/types/config";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
     darkMode: ["class"],
@@ -81,11 +82,11 @@ const config: Config = {
   	}
   },
   plugins: [
-    function ({ addVariant }: {addVariant: any}) {
+    function ({ addVariant }: PluginAPI) {
       addVariant('child', '& > *');
       addVariant('child-hover', '& > *:hover');
     },
-      require("tailwindcss-animate")
-],
+    tailwindcssAnimate,
+  ],
 };
 export default config;

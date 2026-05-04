@@ -186,12 +186,10 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const setValue = form.setValue;
   const getValue = form.getValues;
 
-  /* eslint-disable react-hooks/exhaustive-deps */
   // useEffect(() => {
   //   if (!pv && latestPVnum)
   //     setValue("pvNum", `2025-${latestPVnum.toString().padStart(3, "0")}`);
   // }, [latestPVnum, pv]);
-  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Handles currency dropdown selection
   const handleCurrencyChange = (currency: string) => {

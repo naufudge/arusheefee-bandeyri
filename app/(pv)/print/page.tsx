@@ -10,9 +10,11 @@ const PrintPage = () => {
   const [pvNum, setPvNum] = useState<string | null>(null);
   const trpc = useTRPC();
 
-  // Get pvNum from localStorage on mount
+  // Read pvNum from localStorage once on mount. Synchronous setState here is
+  // intentional — we have to wait for mount to access localStorage (SSR-safe).
   useEffect(() => {
     const storedPvNum = localStorage.getItem("pvNum");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPvNum(storedPvNum);
   }, []);
 
