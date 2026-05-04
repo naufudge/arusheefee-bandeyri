@@ -1,6 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { Download } from "lucide-react";
 
 interface ExportPVsProps {
   year: number | string;
@@ -8,7 +7,6 @@ interface ExportPVsProps {
 
 const ExportPVs: React.FC<ExportPVsProps> = ({ year }) => {
   const handleExportClick = () => {
-    // Use the new local API route for Excel export
     const url = `/api/pv/export/${year}`;
     const link = document.createElement("a");
     link.href = url;
@@ -19,19 +17,14 @@ const ExportPVs: React.FC<ExportPVsProps> = ({ year }) => {
   };
 
   return (
-    <Button
+    <button
+      type="button"
       onClick={handleExportClick}
-      className="bg-green-600 hover:bg-green-700 text-white px-2 transition-all duration-200"
+      className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
     >
-      <Image
-        src={"/icons/excel.svg"}
-        alt="excel"
-        width={25}
-        height={0}
-        className="invert"
-      />
-      Export PV Register
-    </Button>
+      <Download className="size-4" />
+      Export
+    </button>
   );
 };
 

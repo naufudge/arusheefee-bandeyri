@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { FilterIcon, FilterX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,81 +13,84 @@ interface FilterProps {
   vendors?: string[];
   filters: FilterType;
   setFilters: Dispatch<SetStateAction<FilterType>>;
-  handleFilter: () => void;
 }
 
-const Filter: React.FC<FilterProps> = ({ vendors, filters, setFilters, handleFilter }) => {
-  const defaultFilters: FilterType = {
-    year: new Date().getFullYear(),
-    vendor: "",
-    status: "",
-    gl: 0,
-  }
+const Filter: React.FC<FilterProps> = ({ vendors, filters, setFilters }) => {
+  const [open, setOpen] = useState(false);
+  const isClean = !filters.vendor && !filters.status;
+  const activeCount = (filters.vendor ? 1 : 0) + (filters.status ? 1 : 0);
 
   const handleClearFilter = () => {
-    setFilters(defaultFilters);
-    
-    setTimeout(
-      () => handleFilter(),
-      1100
-    )
-  }
+    setFilters((prev) => ({ ...prev, vendor: "", status: "" }));
+  };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button className="gap-3" variant={"outline"}>
-          <FilterIcon width={20} height={20} /> Filter
-        </Button>
+        <button
+          type="button"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
+        >
+          <FilterIcon className="size-4" />
+          Filter
+          {activeCount > 0 && (
+            <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1.5 font-mono text-[10px] font-medium tabular-nums text-background">
+              {activeCount}
+            </span>
+          )}
+        </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-96" onClick={(e) => e.stopPropagation()}>
+      <PopoverContent
+        align="end"
+        className="w-80 rounded-md border bg-card p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="grid gap-5">
-          <div className="space-y-2">
-            <h4 className="font-medium leading-none">Filter PVs</h4>
-            <p className="text-sm text-muted-foreground">
-              Filter PVs by specific fields.
+          <div className="space-y-1">
+            <h4 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Filter PVs
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              Narrow vouchers by vendor or status.
             </p>
           </div>
 
-          <div className="grid gap-5">
-            <div className="grid grid-cols-2 gap-5">
-              {/* Vendor Filter */}
-              <FilterOption
-                label="Vendor"
-                placeholder="Select a Vendor"
-                selectItems={vendors}
-                selectedValue={filters.vendor}
-                setSelect={(value) => setFilters({ ...filters, vendor: value })}
-              />
+          <div className="grid gap-4">
+            <FilterOption
+              label="Vendor"
+              placeholder="Any vendor"
+              selectItems={vendors}
+              selectedValue={filters.vendor}
+              setSelect={(value) => setFilters({ ...filters, vendor: value })}
+            />
 
-              {/* Pending or Proccessed Filter */}
-              <FilterOption
-                label="Status"
-                placeholder="Select Status"
-                selectItems={["pending", "processed"]}
-                selectedValue={filters.status}
-                setSelect={(value) => setFilters({ ...filters, status: value })}
-              />
-              
-              {/* Pending or Proccessed Filter */}
-              <FilterOption
-                label="Year"
-                placeholder="Select Year"
-                selectItems={["2024", "2025"]}
-                selectedValue={filters.year.toString()}
-                setSelect={(value) => setFilters({ ...filters, year: value })}
-              />
-            </div>
+            <FilterOption
+              label="Status"
+              placeholder="Any status"
+              selectItems={["pending", "processed"]}
+              selectedValue={filters.status}
+              setSelect={(value) => setFilters({ ...filters, status: value })}
+            />
           </div>
 
-          <div className="flex justify-end gap-4 h-fit">
+          <div className="flex items-center justify-between gap-2 border-t pt-4">
             <Button
-            disabled={filters === defaultFilters} 
-            onClick={handleClearFilter} 
-            variant={"outline"}
-            className="w-fit"><FilterX /> Clear Filter</Button>
-  
-            <Button onClick={handleFilter}>Apply Filter</Button>
+              disabled={isClean}
+              onClick={handleClearFilter}
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              <FilterX className="size-3.5" />
+              Clear
+            </Button>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="inline-flex h-8 items-center rounded-md border bg-background px-3 text-xs font-medium transition hover:bg-muted"
+            >
+              Done
+            </button>
           </div>
         </div>
       </PopoverContent>
