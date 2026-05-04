@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import Filter from "@/components/shared/Filter";
 import ExportPVs from "@/components/pv/ExportPVs";
+import ImportPvs from "@/components/pv/ImportPvs";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import { formatNumberWithCommas, removeDuplicates } from "@/utils/helpers";
 import { useToast } from "@/hooks/use-toast";
@@ -196,6 +197,15 @@ const PvRegisterPage = () => {
             <Plus className="size-4" />
             New PV
           </Link>
+          <ImportPvs
+            onImported={() =>
+              queryClient.invalidateQueries({
+                queryKey: trpc.pv.byYear.queryKey({
+                  year: String(filters.year),
+                }),
+              })
+            }
+          />
           <ExportPVs year={filters.year} />
           <div className="flex items-center gap-2">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
