@@ -1,9 +1,10 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -16,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,9 +36,14 @@ const staffFormSchema = z.object({
   designation: z.string().min(3, "Please write a valid designation."),
 });
 
-const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => {
+const AddStaff: React.FC<AddStaffProps> = ({
+  button,
+  refetchStaffs,
+  staff,
+}) => {
   const { toast } = useToast();
   const trpc = useTRPC();
+  const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof staffFormSchema>>({
     resolver: zodResolver(staffFormSchema),
@@ -48,15 +53,25 @@ const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => 
     },
   });
 
-  // Create staff mutation
+  // Reset form to current staff values whenever the dialog re-opens
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: staff?.name ?? "",
+        designation: staff?.designation ?? "",
+      });
+    }
+  }, [open, staff, form]);
+
   const createMutation = useMutation(
     trpc.staff.create.mutationOptions({
       onSuccess: () => {
         toast({
-          title: "Success!",
-          description: "Successfully added new staff!",
+          title: "Success",
+          description: "Successfully added new staff.",
         });
         refetchStaffs();
+        setOpen(false);
       },
       onError: (error) => {
         toast({
@@ -67,15 +82,15 @@ const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => 
     })
   );
 
-  // Update staff mutation
   const updateMutation = useMutation(
     trpc.staff.update.mutationOptions({
       onSuccess: () => {
         toast({
-          title: "Updated!",
-          description: "Successfully updated staff!",
+          title: "Updated",
+          description: "Successfully updated staff details.",
         });
         refetchStaffs();
+        setOpen(false);
       },
       onError: (error) => {
         toast({
@@ -88,46 +103,58 @@ const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => 
 
   const onSubmit = (values: z.infer<typeof staffFormSchema>) => {
     if (staff) {
-      // Edit Staff
       updateMutation.mutate({
         id: staff._id,
         name: values.name,
         designation: values.designation,
       });
     } else {
-      // Add Staff
       createMutation.mutate(values);
     }
   };
 
-  return (
-    <Dialog>
-      <DialogTrigger asChild>{button}</DialogTrigger>
-      <DialogContent className="bg-white p-8">
-        <DialogHeader>
-          <DialogTitle>
-            {staff ? "Edit Staff Details" : "Add a Staff"}
-          </DialogTitle>
-          <DialogDescription>
-            {staff
-              ? "Edit this existing staff's details."
-              : "Add a new staff to the system."}
-          </DialogDescription>
-        </DialogHeader>
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isEdit = Boolean(staff);
 
-        <div className="mt-4 grid">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{button}</DialogTrigger>
+      <DialogContent className="max-w-md gap-0 p-0 sm:rounded-md">
+        {/* Header */}
+        <div className="border-b px-6 py-5">
+          <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            {isEdit ? "Edit" : "New"}
+          </div>
+          <DialogTitle className="mt-1 text-xl font-semibold tracking-tight">
+            {isEdit ? "Edit staff details" : "Add a staff member"}
+          </DialogTitle>
+          <DialogDescription className="mt-1 text-sm text-muted-foreground">
+            {isEdit
+              ? "Update name or designation."
+              : "They'll be selectable as a signatory on payment vouchers."}
+          </DialogDescription>
+        </div>
+
+        {/* Body */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid gap-5 px-6 py-6">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                      Full Name
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Full Name" {...field} />
+                      <Input
+                        placeholder="e.g. Sharumeela Abdul Fatah"
+                        className="h-9 text-sm"
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -137,19 +164,47 @@ const AddStaff: React.FC<AddStaffProps> = ({ button, refetchStaffs, staff }) => 
                 name="designation"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Designation</FormLabel>
+                    <FormLabel className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                      Designation
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Designation" {...field} />
+                      <Input
+                        placeholder="e.g. Accounts Officer"
+                        className="h-9 text-sm"
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
-              <Button type="submit">{staff ? "Save" : "Add"}</Button>
-            </form>
-          </Form>
-        </div>
+            </div>
 
+            {/* Footer */}
+            <div className="flex items-center justify-between gap-3 border-t bg-muted/30 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-foreground px-4 text-sm font-medium text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting
+                  ? isEdit
+                    ? "Saving..."
+                    : "Adding..."
+                  : isEdit
+                    ? "Save changes"
+                    : "Add staff"}
+              </button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
