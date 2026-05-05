@@ -377,14 +377,17 @@ const PvRegisterPage = () => {
             return (
               <div
                 key={pv.id}
-                className="group flex items-center gap-6 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm"
+                className="group flex min-w-0 items-center gap-6 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm"
               >
                 <Link
                   href={`/edit/${pv.pvNum}`}
                   className="flex flex-1 items-center gap-6 min-w-0"
                 >
                   {/* PV Number */}
-                  <div className="font-mono text-sm font-medium tracking-tight">
+                  <div
+                    className="truncate font-mono text-sm font-medium tracking-tight max-w-[180px]"
+                    title={pv.pvNum}
+                  >
                     {pv.pvNum}
                   </div>
 
