@@ -39,6 +39,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Filter from "@/components/shared/Filter";
 import ExportPVs from "@/components/pv/ExportPVs";
 import ImportPvs from "@/components/pv/ImportPvs";
+import DownloadPdf from "@/components/pv/DownloadPdf";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import { formatNumberWithCommas, removeDuplicates } from "@/utils/helpers";
 import { useToast } from "@/hooks/use-toast";
@@ -424,13 +425,6 @@ const PvRegisterPage = () => {
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <button
                     type="button"
-                    aria-label="View"
-                    className="transition hover:text-emerald-600"
-                  >
-                    <Eye className="size-4" />
-                  </button>
-                  <button
-                    type="button"
                     aria-label="Edit"
                     onClick={() => router.push(`/edit/${pv.pvNum}`)}
                     className="transition hover:text-blue-600"
@@ -445,6 +439,8 @@ const PvRegisterPage = () => {
                   >
                     <Printer className="size-4" />
                   </button>
+
+                  <DownloadPdf pvNum={pv.pvNum} />
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
