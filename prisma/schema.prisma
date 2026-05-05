@@ -13,13 +13,27 @@ datasource db {
   provider = "postgresql"
 }
 
-// Staff table - referenced by PVs for signatories
+// Staff table - unified person model used both for PV signatories
+// and for system login (Azure Entra ID).
 model Staff {
   id          String   @id @default(cuid())
   name        String
   designation String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  // Auth / identity (added when Azure SSO was introduced)
+  email       String?   @unique
+  azureOid    String?   @unique
+  jobTitle    String?
+  department  String?
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  // "legacy" = pre-existing staff before SSO
+  // "login"  = upserted on first sign-in
+  // "sync"   = inserted via tenant sync (may not have logged in yet)
+  source      String    @default("legacy")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations - Staff can be referenced in multiple roles across PVs
   preparedPVs      PV[] @relation("PreparedBy")

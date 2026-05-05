@@ -8,7 +8,9 @@ import {
   Settings,
   Users,
   FileText,
+  LogOut,
 } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 
 import {
   Sidebar,
@@ -70,10 +72,16 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   },
 ];
 
-const CURRENT_YEAR = new Date().getFullYear();
-
 export function AppSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const initials = (user?.name ?? "?")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((s) => s[0]?.toUpperCase() ?? "")
+    .slice(0, 2)
+    .join("") || "?";
 
   const isActive = (url: string) => {
     if (url === "/") return pathname === "/";
@@ -196,22 +204,36 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t">
-        <div className="flex items-center justify-between px-3 py-3">
-          <div className="flex flex-col leading-tight">
-            <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              Fiscal Year
-            </span>
-            <span className="font-mono text-sm tabular-nums">
-              {CURRENT_YEAR}
-            </span>
+        {user ? (
+          <div className="flex items-center gap-2 px-3 py-3">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs font-medium">{user.name}</div>
+              <div className="truncate text-[10px] text-muted-foreground">
+                {user.email}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              aria-label="Sign out"
+              title="Sign out"
+              className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <LogOut className="size-3.5" />
+            </button>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="size-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Live
-            </span>
+        ) : (
+          <div className="flex items-center justify-between px-3 py-3">
+            <div className="flex flex-col leading-tight">
+              <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                Not signed in
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

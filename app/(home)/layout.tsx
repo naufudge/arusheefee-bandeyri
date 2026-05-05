@@ -5,6 +5,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { Toaster } from "@/components/ui/toaster";
 import { TRPCReactProvider } from "@/providers/trpc-provider";
+import AuthSessionProvider from "@/providers/session-provider";
+import { auth } from "@/lib/auth";
 import "@/app/globals.css";
 
 const geistSans = localFont({
@@ -40,29 +42,35 @@ export const metadata: Metadata = {
   description: "Budget portal of Archives.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Server-side fetch the session once so SessionProvider hydrates with
+  // the right initial state (skips a client-side flash of "logged out").
+  const session = await auth();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${faruma.variable} ${waheed.variable} ${poppins.variable} antialiased`}
         suppressHydrationWarning
       >
-        <TRPCReactProvider>
-          <SidebarProvider className="font-poppins">
-            <AppSidebar />
-            <main className="w-full">
-              <SidebarTrigger className="mx-5 mt-5" />
-              <div className="py-5 px-10 h-full">
-                {children}
-              </div>
-            </main>
-            <Toaster />
-          </SidebarProvider>
-        </TRPCReactProvider>
+        <AuthSessionProvider session={session}>
+          <TRPCReactProvider>
+            <SidebarProvider className="font-poppins">
+              <AppSidebar />
+              <main className="w-full">
+                <SidebarTrigger className="mx-5 mt-5" />
+                <div className="py-5 px-10 h-full">
+                  {children}
+                </div>
+              </main>
+              <Toaster />
+            </SidebarProvider>
+          </TRPCReactProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );
