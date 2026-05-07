@@ -16,12 +16,19 @@ services:
   caddy:
     image: caddy:latest
     restart: unless-stopped
-    command: caddy reverse-proxy --from $HOST --to app:3000
-    ports:
-      - 80:80
-      - 433:433
-      - 433:433/udp
+    command: caddy reverse-proxy --from :80 --to app:3000
+    # ports:
+    #   - 80:80
+    #   - 433:433
+    #   - 433:433/udp
     volumes:
       - .:/data
-    environment:
-      - HOST=${HOST}
+    # environment:
+    #   - HOST=${HOST}
+  
+  # Cloudflare Tunnel
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    env_file: .env
