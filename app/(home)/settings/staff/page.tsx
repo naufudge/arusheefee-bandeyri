@@ -9,6 +9,7 @@ import {
   IdCard,
   UserPlus,
   Plus,
+  KeyRound,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -32,6 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AddStaff from "@/components/Settings/Staff/AddStaff";
+import SyncFromTenant from "@/components/Settings/Staff/SyncFromTenant";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC } from "@/lib/trpc";
@@ -91,10 +93,14 @@ const StaffPage = () => {
 
   const stats = useMemo(() => {
     if (!staffs) return null;
-    const designations = new Set(staffs.map((s) => s.designation));
+    const designations = new Set(
+      staffs.map((s) => s.designation).filter((d) => d && d.trim() !== "")
+    );
+    const loggedIn = staffs.filter((s) => s.lastLoginAt != null).length;
     return {
       total: staffs.length,
       designations: designations.size,
+      loggedIn,
     };
   }, [staffs]);
 
@@ -117,6 +123,7 @@ const StaffPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <SyncFromTenant onSynced={refetchStaffs} />
           <AddStaff
             refetchStaffs={refetchStaffs}
             button={
@@ -133,9 +140,9 @@ const StaffPage = () => {
       </header>
 
       {/* KPI strip */}
-      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {isLoading || !stats ? (
-          Array.from({ length: 2 }).map((_, i) => <KpiSkeleton key={i} />)
+          Array.from({ length: 3 }).map((_, i) => <KpiSkeleton key={i} />)
         ) : (
           <>
             <KpiCard
@@ -154,6 +161,16 @@ const StaffPage = () => {
               value={stats.designations.toString()}
               sub={
                 stats.designations === 1 ? "unique role" : "unique roles"
+              }
+            />
+            <KpiCard
+              label="Logged In"
+              icon={KeyRound}
+              value={stats.loggedIn.toString()}
+              sub={
+                stats.total === 0
+                  ? "—"
+                  : `${stats.loggedIn} of ${stats.total} via Microsoft SSO`
               }
             />
           </>
@@ -266,10 +283,24 @@ const StaffPage = () => {
                     {(index + 1).toString().padStart(2, "0")}
                   </TableCell>
                   <TableCell className="text-sm font-medium">
-                    {staff.name}
+                    <div className="flex items-center gap-2">
+                      <span>{staff.name}</span>
+                      {staff.isActive === false && (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                          Inactive
+                        </span>
+                      )}
+                    </div>
+                    {staff.email && (
+                      <div className="mt-0.5 truncate text-[11px] font-normal text-muted-foreground">
+                        {staff.email}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {staff.designation}
+                    {staff.designation && staff.designation.trim() !== ""
+                      ? staff.designation
+                      : (staff.jobTitle ?? "")}
                   </TableCell>
                   <TableCell className="pr-6 text-right">
                     <div className="flex items-center justify-end gap-3 text-muted-foreground">
