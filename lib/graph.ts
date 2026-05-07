@@ -1,19 +1,25 @@
 /**
- * Microsoft Graph helpers for two distinct flows:
- *   1. Per-login enrichment via the user's delegated access token (`/me`)
- *   2. Tenant sync via app-only client_credentials (`/users`)
+ * Microsoft Graph helpers — both flows are now delegated.
  *
- * Both run server-side only. App credentials never leave Node.
+ *   1. Per-login enrichment via the user's delegated access token (`/me`)
+ *      — the token comes straight from `account.access_token` in the
+ *      next-auth jwt callback.
+ *
+ *   2. Tenant sync via the same delegated access token (`/users`)
+ *      — the token is persisted onto the JWT/session at sign-in time
+ *      and read back via `auth()` server-side. Requires the user to have
+ *      consented to the `User.Read.All` scope (admin-consent permission).
+ *
+ * Note on token lifetime: Microsoft delegated access tokens last ~1 hour.
+ * If the user clicks "Sync from tenant" more than an hour after signing
+ * in, Graph will return 401 and the sync will fail. They re-sign-in to
+ * mint a fresh token. Adding refresh-token handling (we already request
+ * `offline_access`) is a future improvement.
  */
 
-const TENANT_ID = process.env.AUTH_MICROSOFT_TENANT_ID!;
-const CLIENT_ID = process.env.AUTH_MICROSOFT_CLIENT_ID!;
-const CLIENT_SECRET = process.env.AUTH_MICROSOFT_CLIENT_SECRET!;
+import { auth } from "@/lib/auth";
 
-const TOKEN_URL = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
-
-let cachedAppToken: { token: string; expiresAt: number } | null = null;
 
 export type GraphProfile = {
   jobTitle: string | null;
@@ -68,46 +74,29 @@ export async function fetchUserProfile(
   }
 }
 
-// ---------- App-only: list the tenant ----------
-
-async function getAppToken(): Promise<string> {
-  // Return cached token if it still has >60s left.
-  if (cachedAppToken && Date.now() < cachedAppToken.expiresAt - 60_000) {
-    return cachedAppToken.token;
-  }
-  const body = new URLSearchParams({
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    scope: "https://graph.microsoft.com/.default",
-    grant_type: "client_credentials",
-  });
-  const res = await fetch(TOKEN_URL, {
-    method: "POST",
-    body,
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Graph app token fetch failed: ${res.status} ${text}`);
-  }
-  const json = (await res.json()) as {
-    access_token: string;
-    expires_in: number;
-  };
-  cachedAppToken = {
-    token: json.access_token,
-    expiresAt: Date.now() + json.expires_in * 1000,
-  };
-  return cachedAppToken.token;
-}
+// ---------- Delegated: list the tenant ----------
 
 /**
- * List all licensed Member users in the tenant. Pages through @odata.nextLink
+ * List all licensed Member users in the tenant. Acts on behalf of the
+ * currently-signed-in user (delegated). Pages through `@odata.nextLink`
  * automatically, then filters to users with at least one assigned license
- * (this is the license-based shared-mailbox filter).
+ * (the license-based shared-mailbox filter).
+ *
+ * Throws if no signed-in session is available, if the access token is
+ * missing, or if Graph returns a non-2xx response.
  */
 export async function listTenantUsers(): Promise<GraphTenantUser[]> {
-  const token = await getAppToken();
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("listTenantUsers: no active session");
+  }
+  const accessToken = session.accessToken;
+  if (!accessToken) {
+    throw new Error(
+      "listTenantUsers: no Microsoft Graph access token on the session — sign out and back in to mint a fresh one.",
+    );
+  }
+
   const select = [
     "id",
     "displayName",
@@ -128,11 +117,13 @@ export async function listTenantUsers(): Promise<GraphTenantUser[]> {
 
   while (url) {
     const res: Response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
       signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      // 401 typically means the access token has expired (1h lifetime).
+      // 403 typically means User.Read.All hasn't been admin-consented yet.
       throw new Error(`Graph /users failed: ${res.status} ${text}`);
     }
     const data = (await res.json()) as {

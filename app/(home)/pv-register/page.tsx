@@ -7,7 +7,6 @@ import {
   Banknote,
   CircleCheck,
   Clock,
-  Eye,
   FileSpreadsheet,
   Plus,
   Printer,

@@ -49,7 +49,16 @@ export default async function RootLayout({
 }>) {
   // Server-side fetch the session once so SessionProvider hydrates with
   // the right initial state (skips a client-side flash of "logged out").
+  // Strip server-only fields (accessToken) so they never reach the
+  // browser via SessionProvider's serialised props.
   const session = await auth();
+  const clientSession = session
+    ? {
+        ...session,
+        accessToken: undefined,
+        accessTokenExpiresAt: undefined,
+      }
+    : null;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -57,7 +66,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${faruma.variable} ${waheed.variable} ${poppins.variable} antialiased`}
         suppressHydrationWarning
       >
-        <AuthSessionProvider session={session}>
+        <AuthSessionProvider session={clientSession}>
           <TRPCReactProvider>
             <SidebarProvider className="font-poppins">
               <AppSidebar />

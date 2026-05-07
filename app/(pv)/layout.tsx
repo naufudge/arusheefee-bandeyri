@@ -30,10 +30,14 @@ export default async function PrintLayout({
     children: React.ReactNode;
 }>) {
     const session = await auth();
+    // Strip server-only fields before serialising to the client.
+    const clientSession = session
+        ? { ...session, accessToken: undefined, accessTokenExpiresAt: undefined }
+        : null;
     return(
         <html lang="en" className={`${faruma.variable} ${waheed.variable} ${poppins.variable}`} suppressHydrationWarning>
         <body suppressHydrationWarning>
-            <AuthSessionProvider session={session}>
+            <AuthSessionProvider session={clientSession}>
                 <TRPCReactProvider>
                     {children}
                 </TRPCReactProvider>

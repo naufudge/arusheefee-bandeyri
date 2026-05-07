@@ -39,13 +39,17 @@ export default async function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
+  // Strip server-only fields before serialising to the client.
+  const clientSession = session
+    ? { ...session, accessToken: undefined, accessTokenExpiresAt: undefined }
+    : null;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${faruma.variable} ${waheed.variable} ${poppins.variable} antialiased`}
         suppressHydrationWarning
       >
-        <AuthSessionProvider session={session}>{children}</AuthSessionProvider>
+        <AuthSessionProvider session={clientSession}>{children}</AuthSessionProvider>
       </body>
     </html>
   );
