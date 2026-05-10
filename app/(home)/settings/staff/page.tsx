@@ -35,6 +35,9 @@ import {
 import AddStaff from "@/components/Settings/Staff/AddStaff";
 import SyncFromTenant from "@/components/Settings/Staff/SyncFromTenant";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
+import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,6 +46,7 @@ const StaffPage = () => {
   const { toast } = useToast();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const hasAccess = useHasPermission(PERMISSIONS.STAFF_READ);
 
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -52,7 +56,10 @@ const StaffPage = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const { data: staffs, isLoading } = useQuery(trpc.staff.list.queryOptions());
+  const { data: staffs, isLoading } = useQuery({
+    ...trpc.staff.list.queryOptions(),
+    enabled: hasAccess,
+  });
 
   const deleteMutation = useMutation(
     trpc.staff.delete.mutationOptions({
@@ -105,6 +112,8 @@ const StaffPage = () => {
   }, [staffs]);
 
   const filtersActive = Boolean(query);
+
+  if (!hasAccess) return <NoAccessCard />;
 
   return (
     <div className="font-poppins h-full">
@@ -268,6 +277,9 @@ const StaffPage = () => {
                 <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                   Designation
                 </TableHead>
+                <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Roles
+                </TableHead>
                 <TableHead className="h-9 pr-6 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                   Actions
                 </TableHead>
@@ -302,6 +314,28 @@ const StaffPage = () => {
                       ? staff.designation
                       : (staff.jobTitle ?? "")}
                   </TableCell>
+                  <TableCell>
+                    {staff.roles && staff.roles.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {staff.roles.map((r) => (
+                          <span
+                            key={r.id}
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+                              r.isSystem
+                                ? "bg-foreground text-background"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {r.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[11px] italic text-muted-foreground/60">
+                        none
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell className="pr-6 text-right">
                     <div className="flex items-center justify-end gap-3 text-muted-foreground">
                       <AddStaff
@@ -310,6 +344,7 @@ const StaffPage = () => {
                           _id: staff.id,
                           name: staff.name,
                           designation: staff.designation,
+                          roleIds: staff.roles?.map((r) => r.id) ?? [],
                         }}
                         button={
                           <button

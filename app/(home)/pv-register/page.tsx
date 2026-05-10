@@ -40,6 +40,9 @@ import ExportPVs from "@/components/pv/ExportPVs";
 import ImportPvs from "@/components/pv/ImportPvs";
 import DownloadPdf from "@/components/pv/DownloadPdf";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
+import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { formatNumberWithCommas, removeDuplicates } from "@/utils/helpers";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC } from "@/lib/trpc";
@@ -55,6 +58,7 @@ const PvRegisterPage = () => {
   const { toast } = useToast();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const hasAccess = useHasPermission(PERMISSIONS.PV_READ);
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [query, setQuery] = useState<string>("");
@@ -72,9 +76,10 @@ const PvRegisterPage = () => {
   }, [searchInput]);
 
   // Fetch PVs for the selected fiscal year (server-side date-range filter)
-  const { data: pvs, isLoading: loading } = useQuery(
-    trpc.pv.byYear.queryOptions({ year: String(filters.year) })
-  );
+  const { data: pvs, isLoading: loading } = useQuery({
+    ...trpc.pv.byYear.queryOptions({ year: String(filters.year) }),
+    enabled: hasAccess,
+  });
 
   const deleteMutation = useMutation(
     trpc.pv.delete.mutationOptions({
@@ -173,6 +178,8 @@ const PvRegisterPage = () => {
   const handleDeleteClick = (pvNum: string) => {
     deleteMutation.mutate({ pvNum });
   };
+
+  if (!hasAccess) return <NoAccessCard />;
 
   return (
     <div className="font-poppins h-full">

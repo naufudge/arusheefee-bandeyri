@@ -5,9 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import PvForm from "@/components/pv/PvForm";
+import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 
 const CreatePV = () => {
   const router = useRouter();
+  const hasAccess = useHasPermission(PERMISSIONS.PV_CREATE);
+
+  if (!hasAccess) return <NoAccessCard />;
 
   return (
     <div className="font-poppins h-full">

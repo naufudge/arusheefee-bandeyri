@@ -1,4 +1,4 @@
-import { router, publicProcedure } from "../trpc";
+import { router, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import * as cheerio from "cheerio";
 import axios from "axios";
@@ -7,8 +7,10 @@ const MMA_CROSSRATES_URL = "http://www.mma.gov.mv/crossrates.php";
 const MVR_TO_DOLLAR = 15.42;
 
 export const exchangeRatesRouter = router({
-  // GET /exchange_rates - Scrape MMA website for live rates
-  get: publicProcedure.query(async () => {
+  // GET /exchange_rates - Scrape MMA website for live rates.
+  // Used by PvForm to fill in the rate when currency changes; gating
+  // behind pv:read keeps it consistent with anyone who can see PVs.
+  get: permissionProcedure("pv:read").query(async () => {
     try {
       const response = await axios.get(MMA_CROSSRATES_URL, {
         headers: {

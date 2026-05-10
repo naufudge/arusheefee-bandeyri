@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import { fetchUserProfile } from "@/lib/graph";
 import { resolveStaff } from "@/lib/staff-resolve";
+import { prisma } from "@/lib/prisma";
 
 const TENANT_ID = process.env.AUTH_MICROSOFT_TENANT_ID!;
 
@@ -85,6 +86,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.staffId = staff.id;
         token.email = staff.email ?? emailNorm;
         token.name = staff.name;
+
+        // Compute the user's effective permissions = union of all
+        // permissions across every Role assigned to this Staff. Cached on
+        // the JWT until next sign-in. Role/permission changes take effect
+        // when the user signs out and back in.
+        const withRoles = await prisma.staff.findUnique({
+          where: { id: staff.id },
+          select: { roles: { select: { permissions: true } } },
+        });
+        const permissions = Array.from(
+          new Set((withRoles?.roles ?? []).flatMap((r) => r.permissions)),
+        );
+        token.permissions = permissions;
       }
       return token;
     },
@@ -95,7 +109,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.email = (token.email as string) ?? session.user.email;
         session.user.name = (token.name as string) ?? session.user.name;
       }
-      // Server-only: never let this reach the browser. The root layouts
+      // Permissions are safe to expose to the client (used by
+      // useHasPermission hook for cosmetic UI gating). Server-side checks
+      // remain authoritative.
+      session.permissions = (token.permissions as string[] | undefined) ?? [];
+      // Server-only: never let these reach the browser. The root layouts
       // strip `accessToken` (and `accessTokenExpiresAt`) before passing
       // the session to <SessionProvider>.
       session.accessToken = token.accessToken;

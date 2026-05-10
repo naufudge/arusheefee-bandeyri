@@ -23,7 +23,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Staff } from "@/types";
 import { useTRPC } from "@/lib/trpc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
+import RoleMultiSelect from "@/components/Settings/Staff/RoleMultiSelect";
+import Link from "next/link";
 
 interface AddStaffProps {
   button: React.ReactNode;
@@ -44,6 +48,21 @@ const AddStaff: React.FC<AddStaffProps> = ({
   const { toast } = useToast();
   const trpc = useTRPC();
   const [open, setOpen] = useState(false);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // Only show role-assignment UI if the current user can manage roles.
+  // Otherwise the section is hidden and existing assignments are
+  // preserved untouched (we don't send roleIds in the mutation).
+  const canManageRoles = useHasPermission(PERMISSIONS.ROLES_MANAGE);
+
+  // Fetch the role list only when the dialog is open *and* the user can
+  // manage roles, so we don't burn a Graph DB read on every dialog mount.
+  const { data: roles } = useQuery({
+    ...trpc.role.list.queryOptions(),
+    enabled: open && canManageRoles,
+  });
 
   const form = useForm<z.infer<typeof staffFormSchema>>({
     resolver: zodResolver(staffFormSchema),
@@ -53,13 +72,17 @@ const AddStaff: React.FC<AddStaffProps> = ({
     },
   });
 
-  // Reset form to current staff values whenever the dialog re-opens
+  // Reset form + role selection to current staff values whenever the dialog
+  // re-opens. Synchronous setState here is intentional — we sync local UI
+  // state to incoming props on the open event; not a re-render cascade.
   useEffect(() => {
     if (open) {
       form.reset({
         name: staff?.name ?? "",
         designation: staff?.designation ?? "",
       });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedRoleIds(new Set(staff?.roleIds ?? []));
     }
   }, [open, staff, form]);
 
@@ -102,14 +125,19 @@ const AddStaff: React.FC<AddStaffProps> = ({
   );
 
   const onSubmit = (values: z.infer<typeof staffFormSchema>) => {
+    const roleIds = canManageRoles ? Array.from(selectedRoleIds) : undefined;
     if (staff) {
       updateMutation.mutate({
         id: staff._id,
         name: values.name,
         designation: values.designation,
+        roleIds,
       });
     } else {
-      createMutation.mutate(values);
+      createMutation.mutate({
+        ...values,
+        roleIds,
+      });
     }
   };
 
@@ -130,7 +158,7 @@ const AddStaff: React.FC<AddStaffProps> = ({
           </DialogTitle>
           <DialogDescription className="mt-1 text-sm text-muted-foreground">
             {isEdit
-              ? "Update name or designation."
+              ? "Update name, designation, or assigned roles."
               : "They'll be selectable as a signatory on payment vouchers."}
           </DialogDescription>
         </div>
@@ -178,6 +206,37 @@ const AddStaff: React.FC<AddStaffProps> = ({
                   </FormItem>
                 )}
               />
+
+              {canManageRoles && (
+                <div className="grid gap-1.5">
+                  <label className="flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    <span>
+                      Roles{" "}
+                      <span className="ml-1 font-mono normal-case tracking-normal">
+                        ({selectedRoleIds.size})
+                      </span>
+                    </span>
+                  </label>
+                  <RoleMultiSelect
+                    roles={roles}
+                    selected={selectedRoleIds}
+                    onChange={setSelectedRoleIds}
+                    placeholder="Select roles…"
+                    emptyMessage={
+                      <>
+                        No roles defined yet.{" "}
+                        <Link
+                          href="/settings/roles"
+                          className="font-medium text-foreground transition hover:underline"
+                        >
+                          Create one
+                        </Link>
+                        .
+                      </>
+                    }
+                  />
+                </div>
+              )}
             </div>
 
             {/* Footer */}

@@ -1,4 +1,4 @@
-import { router, publicProcedure } from "../trpc";
+import { router, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import {
   createPvSchema,
@@ -23,7 +23,7 @@ const pvInclude = {
 
 export const pvRouter = router({
   // GET /pvs - List all PVs with relations
-  list: publicProcedure.query(async ({ ctx }) => {
+  list: permissionProcedure("pv:read").query(async ({ ctx }) => {
     return ctx.prisma.pV.findMany({
       include: pvInclude,
       orderBy: { createdAt: "desc" },
@@ -31,7 +31,7 @@ export const pvRouter = router({
   }),
 
   // GET /pvs/{pvNum} - Get PV by number
-  getByNum: publicProcedure
+  getByNum: permissionProcedure("pv:read")
     .input(getPvByNumSchema)
     .query(async ({ ctx, input }) => {
       const pv = await ctx.prisma.pV.findUnique({
@@ -50,7 +50,7 @@ export const pvRouter = router({
     }),
 
   // GET /pv/latest - Get most recent PV
-  latest: publicProcedure.query(async ({ ctx }) => {
+  latest: permissionProcedure("pv:read").query(async ({ ctx }) => {
     const pv = await ctx.prisma.pV.findFirst({
       orderBy: { createdAt: "desc" },
       include: pvInclude,
@@ -67,7 +67,7 @@ export const pvRouter = router({
   }),
 
   // GET /pv/year/{year} - Get PVs by fiscal year (PV.date within [year-01-01, year+1-01-01))
-  byYear: publicProcedure
+  byYear: permissionProcedure("pv:read")
     .input(yearFilterSchema)
     .query(async ({ ctx, input }) => {
       const yearNum = Number(input.year);
@@ -84,7 +84,7 @@ export const pvRouter = router({
     }),
 
   // GET /pv/gl/{year} - Aggregate GL totals by code for the fiscal year
-  glTotalsByYear: publicProcedure
+  glTotalsByYear: permissionProcedure("pv:read")
     .input(yearFilterSchema)
     .query(async ({ ctx, input }) => {
       const yearNum = Number(input.year);
@@ -127,7 +127,7 @@ export const pvRouter = router({
     }),
 
   // POST /pvs - Create PV with nested invoices/GL details
-  create: publicProcedure
+  create: permissionProcedure("pv:create")
     .input(createPvSchema)
     .mutation(async ({ ctx, input }) => {
       const { invoices, ...pvData } = input;
@@ -170,7 +170,7 @@ export const pvRouter = router({
     }),
 
   // PUT /pvs - Update PV (delete and recreate invoices/GL)
-  update: publicProcedure
+  update: permissionProcedure("pv:update")
     .input(updatePvSchema)
     .mutation(async ({ ctx, input }) => {
       const { invoices, pvNum, ...pvUpdateData } = input;
@@ -222,7 +222,7 @@ export const pvRouter = router({
     }),
 
   // DELETE /pvs/{pvNum} - Delete PV
-  delete: publicProcedure
+  delete: permissionProcedure("pv:delete")
     .input(deletePvSchema)
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.prisma.pV.findUnique({

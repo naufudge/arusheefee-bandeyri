@@ -8,6 +8,7 @@ import {
   Settings,
   Users,
   FileText,
+  ShieldCheck,
   LogOut,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
@@ -36,25 +37,52 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { PERMISSIONS, type Permission } from "@/lib/permissions";
+
+type NavSubItem = {
+  title: string;
+  url: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  /** Permission required to see this item. If unset, item is always visible. */
+  requires?: Permission;
+};
 
 type NavItem = {
   title: string;
   url: string;
   icon: React.ComponentType<{ className?: string }>;
-  items?: { title: string; url: string; icon?: React.ComponentType<{ className?: string }> }[];
+  requires?: Permission;
+  items?: NavSubItem[];
 };
 
 const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Overview",
     items: [
-      { title: "Dashboard", url: "/", icon: Home },
-      { title: "PV Register", url: "/pv-register", icon: BookText },
+      {
+        title: "Dashboard",
+        url: "/",
+        icon: Home,
+        requires: PERMISSIONS.DASHBOARD_READ,
+      },
+      {
+        title: "PV Register",
+        url: "/pv-register",
+        icon: BookText,
+        requires: PERMISSIONS.PV_READ,
+      },
     ],
   },
   {
     label: "Vouchers",
-    items: [{ title: "Create PV", url: "/create", icon: NotebookPen }],
+    items: [
+      {
+        title: "Create PV",
+        url: "/create",
+        icon: NotebookPen,
+        requires: PERMISSIONS.PV_CREATE,
+      },
+    ],
   },
   {
     label: "Configure",
@@ -64,8 +92,23 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         url: "#",
         icon: Settings,
         items: [
-          { title: "Manage Staff", url: "/settings/staff", icon: Users },
-          { title: "Templates", url: "/settings/templates", icon: FileText },
+          {
+            title: "Staff",
+            url: "/settings/staff",
+            icon: Users,
+            requires: PERMISSIONS.STAFF_READ,
+          },
+          {
+            title: "Roles",
+            url: "/settings/roles",
+            icon: ShieldCheck,
+            requires: PERMISSIONS.ROLES_MANAGE,
+          },
+          {
+            title: "Templates",
+            url: "/settings/templates",
+            icon: FileText,
+          },
         ],
       },
     ],
@@ -76,6 +119,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
+  const userPermissions = session?.permissions ?? [];
   const initials = (user?.name ?? "?")
     .split(/\s+/)
     .filter(Boolean)
@@ -90,6 +134,29 @@ export function AppSidebar() {
 
   const isParentActive = (item: NavItem) =>
     item.items?.some((sub) => isActive(sub.url)) ?? false;
+
+  const hasPermission = (perm?: Permission) =>
+    !perm || userPermissions.includes(perm);
+
+  // Filter nav: hide items the user can't access. For collapsible parent
+  // items (Settings), show the parent only if at least one child is visible.
+  const visibleGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items
+        .map((item) => {
+          if (item.items) {
+            const visibleSub = item.items.filter((sub) =>
+              hasPermission(sub.requires),
+            );
+            if (visibleSub.length === 0) return null;
+            return { ...item, items: visibleSub };
+          }
+          return hasPermission(item.requires) ? item : null;
+        })
+        .filter((item): item is NavItem => item !== null),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <Sidebar className="border-r">
@@ -119,7 +186,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="gap-1 px-1 pt-3">
-        {navGroups.map((group) => (
+        {visibleGroups.map((group) => (
           <SidebarGroup key={group.label} className="px-2">
             <SidebarGroupLabel className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
               {group.label}

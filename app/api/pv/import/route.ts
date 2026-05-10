@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { createPvSchema, type CreatePvInput } from "@/server/schemas/pv.schema";
 
 const EXPECTED_HEADERS = [
@@ -285,6 +287,15 @@ function buildPv(rows: RawRow[]): {
 }
 
 export async function POST(request: NextRequest) {
+  // Auth + permission gate
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!hasPermission(session, PERMISSIONS.PV_IMPORT)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   let formData: FormData;
   try {
     formData = await request.formData();

@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, AlertCircle } from "lucide-react";
 import PvForm from "@/components/pv/PvForm";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
 
@@ -13,12 +16,19 @@ const PvEditPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
   const { pvNum } = use(params);
   const router = useRouter();
   const trpc = useTRPC();
+  // Edit page needs both read (to load) and update (to save).
+  const hasAccess = useHasPermission(PERMISSIONS.PV_UPDATE);
 
   const {
     data: pvDetails,
     isLoading,
     error,
-  } = useQuery(trpc.pv.getByNum.queryOptions({ pvNum }));
+  } = useQuery({
+    ...trpc.pv.getByNum.queryOptions({ pvNum }),
+    enabled: hasAccess,
+  });
+
+  if (!hasAccess) return <NoAccessCard />;
 
   return (
     <div className="font-poppins h-full">

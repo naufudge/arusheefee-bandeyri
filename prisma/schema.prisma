@@ -41,7 +41,31 @@ model Staff {
   authorisedOnePVs PV[] @relation("AuthorisedByOne")
   authorisedTwoPVs PV[] @relation("AuthorisedByTwo")
 
+  // RBAC: a Staff can have many Roles
+  roles Role[] @relation("StaffRoles")
+
   @@map("staff")
+}
+
+// RBAC: a Role bundles a set of permission strings and is assigned to staff.
+// Roles are user-managed via the Settings UI. Permissions are app-defined
+// (see lib/permissions.ts). System roles (e.g. "Administrator") cannot be
+// deleted from the UI.
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  // Array of permission keys from the catalog in lib/permissions.ts.
+  // Validation that each entry is a known key is enforced in app code.
+  permissions String[]
+  isSystem    Boolean  @default(false)
+
+  staff Staff[] @relation("StaffRoles")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("roles")
 }
 
 // Main Payment Voucher table

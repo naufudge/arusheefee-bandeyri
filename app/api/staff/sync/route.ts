@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { listTenantUsers } from "@/lib/graph";
 import { resolveStaff } from "@/lib/staff-resolve";
 import { prisma } from "@/lib/prisma";
@@ -19,6 +20,9 @@ export async function POST() {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!hasPermission(session, PERMISSIONS.STAFF_SYNC)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   let tenantUsers;

@@ -52,4 +52,5 @@ export type Staff = {
     _id: string,
     name: string,
     designation: string,
+    roleIds?: string[],
 }

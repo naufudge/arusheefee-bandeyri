@@ -29,6 +29,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import RecentPvs from "@/components/Dashboard/RecentPvs";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
+import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { formatNumberWithCommas } from "@/utils/helpers";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
@@ -39,13 +42,16 @@ const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => CURRENT_YEAR - i);
 export default function Home() {
   const [year, setYear] = useState<string>(CURRENT_YEAR.toString());
   const trpc = useTRPC();
+  const hasAccess = useHasPermission(PERMISSIONS.DASHBOARD_READ);
 
-  const { data: pvs, isLoading: pvsLoading } = useQuery(
-    trpc.pv.byYear.queryOptions({ year })
-  );
-  const { data: glData, isLoading: glLoading } = useQuery(
-    trpc.pv.glTotalsByYear.queryOptions({ year })
-  );
+  const { data: pvs, isLoading: pvsLoading } = useQuery({
+    ...trpc.pv.byYear.queryOptions({ year }),
+    enabled: hasAccess,
+  });
+  const { data: glData, isLoading: glLoading } = useQuery({
+    ...trpc.pv.glTotalsByYear.queryOptions({ year }),
+    enabled: hasAccess,
+  });
 
   const stats = useMemo(() => {
     if (!pvs) return null;
@@ -89,6 +95,8 @@ export default function Home() {
   }, [glData]);
 
   const isEmpty = !pvsLoading && pvs && pvs.length === 0;
+
+  if (!hasAccess) return <NoAccessCard />;
 
   return (
     <div className="h-full">

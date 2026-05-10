@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import ExcelJS from "exceljs";
 
 // Column configuration
@@ -32,6 +34,15 @@ export async function GET(
   { params }: { params: Promise<{ year: string }> }
 ) {
   const { year } = await params;
+
+  // Auth + permission gate
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!hasPermission(session, PERMISSIONS.PV_EXPORT)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   // Validate year
   if (!/^\d{4}$/.test(year)) {
