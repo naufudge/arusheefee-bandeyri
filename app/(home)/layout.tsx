@@ -70,7 +70,7 @@ export default async function RootLayout({
           <TRPCReactProvider>
             <SidebarProvider className="font-poppins">
               <AppSidebar />
-              <main className="w-full">
+              <main className="flex-1 min-w-0">
                 <SidebarTrigger className="mx-5 mt-5" />
                 <div className="py-5 px-10 h-full">
                   {children}

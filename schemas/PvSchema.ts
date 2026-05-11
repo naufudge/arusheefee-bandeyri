@@ -11,7 +11,7 @@ export const PvSchema = z.object({
   agency: z.string().default("National Archives of Maldives"),
   vendor: z.string().min(1),
   date: z.date(),
-  notes: z.string().min(10),
+  notes: z.string().min(1),
   currency: z.string().default("MVR"),
   exchangeRate: z.coerce.number().default(1),
 
@@ -19,7 +19,7 @@ export const PvSchema = z.object({
 
   invoiceDetails: z.array(
     z.object({
-      comments: z.string().min(10),
+      comments: z.string().min(1),
       invoiceNumber: z.string().optional(),
       invoiceDate: z.date().nullable().optional(),
       invoiceTotal: z.coerce.number().gt(0).multipleOf(0.01),

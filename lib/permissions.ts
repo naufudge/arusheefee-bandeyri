@@ -26,6 +26,13 @@ export const PERMISSIONS = {
   PV_EXPORT: "pv:export",
   PV_IMPORT: "pv:import",
 
+  PETTYCASH_READ: "pettycash:read",
+  PETTYCASH_CREATE: "pettycash:create",
+  PETTYCASH_UPDATE: "pettycash:update",
+  PETTYCASH_DELETE: "pettycash:delete",
+  PETTYCASH_EDIT_PARKED_DATE: "pettycash:edit_parked_date",
+  PETTYCASH_EDIT_POSTING_DATE: "pettycash:edit_posting_date",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -95,6 +102,41 @@ export const PERMISSION_GROUPS: {
         key: PERMISSIONS.PV_IMPORT,
         label: "Import Excel",
         description: "Bulk-load vouchers from a .xlsx file.",
+      },
+    ],
+  },
+  {
+    label: "Petty Cash",
+    permissions: [
+      {
+        key: PERMISSIONS.PETTYCASH_READ,
+        label: "View petty cash",
+        description: "Browse the petty cash register and view individual records.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_CREATE,
+        label: "Create petty cash",
+        description: "Add a new petty cash request.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_UPDATE,
+        label: "Edit petty cash",
+        description: "Modify an existing petty cash record (excluding parked / posting dates).",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_DELETE,
+        label: "Delete petty cash",
+        description: "Remove a petty cash record permanently.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_EDIT_PARKED_DATE,
+        label: "Edit parked date",
+        description: "Set or change the parked date on a petty cash record.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_EDIT_POSTING_DATE,
+        label: "Edit posting date",
+        description: "Set or change the posting date on a petty cash record.",
       },
     ],
   },

@@ -1,0 +1,75 @@
+import { z } from "zod";
+
+// One signed/approved role on a petty cash request.
+export const pettyCashStaffSchema = z.object({
+  staffId: z.string().cuid(),
+  amount: z.coerce.number().nonnegative().multipleOf(0.01).optional().nullable(),
+  isApproved: z.coerce.boolean().default(false),
+  date: z.coerce.date(),
+});
+
+// A line item: just qty + name (no price — total is on the parent record).
+export const pettyCashItemSchema = z.object({
+  qty: z.coerce.number().int().positive(),
+  name: z.string().min(1),
+});
+
+// Petty cash numbers are PC/<seq>/<year>, e.g. "PC/01/2025". Enforced on
+// create paths; the update schema below loosens this so legacy records
+// (imported with `PC-N-YYYY` before the format was tightened) can still
+// be edited without first being renamed.
+export const PETTY_CASH_NUM_FORMAT = /^PC\/\d+\/\d{4}$/;
+const pettyCashNumStrict = z
+  .string()
+  .regex(PETTY_CASH_NUM_FORMAT, "Must be in the format PC/01/2025");
+
+// Create petty cash schema. Each role is optional so a draft can be saved
+// before all five signatures land.
+export const createPettyCashSchema = z.object({
+  pettyCashNum: pettyCashNumStrict,
+  date: z.coerce.date(),
+  formNum: z.string().min(1),
+  sectionUnit: z.string().min(1),
+  totalRequiredAmount: z.coerce.number().nonnegative().multipleOf(0.01),
+  glCode: z.coerce.number().int(),
+
+  // Permission-gated on update (see router).
+  parkedDate: z.coerce.date().optional().nullable(),
+  postingDate: z.coerce.date().optional().nullable(),
+
+  handledBy: pettyCashStaffSchema.optional().nullable(),
+  procurementApprovedBy: pettyCashStaffSchema.optional().nullable(),
+  budgetCheckedBy: pettyCashStaffSchema.optional().nullable(),
+  balanceHandedOverBy: pettyCashStaffSchema.optional().nullable(),
+  balanceCollectedBy: pettyCashStaffSchema.optional().nullable(),
+
+  items: z.array(pettyCashItemSchema).min(1),
+});
+
+// Update reuses every create field except the strict format on
+// `pettyCashNum`. The mutation uses pettyCashNum only as the WHERE clause
+// to find the record — it can't actually rename anything — so loosening
+// here is safe and lets edits flow through for legacy entries.
+export const updatePettyCashSchema = createPettyCashSchema.extend({
+  pettyCashNum: z.string().min(1),
+});
+
+export const getPettyCashByNumSchema = z.object({
+  pettyCashNum: z.string().min(1),
+});
+
+export const deletePettyCashSchema = z.object({
+  pettyCashNum: z.string().min(1),
+});
+
+// Reuse the same year filter shape PV uses.
+export const yearFilterSchema = z.object({
+  year: z.string().regex(/^\d{4}$/, "Year must be 4 digits"),
+});
+
+export type PettyCashStaffInput = z.infer<typeof pettyCashStaffSchema>;
+export type PettyCashItemInput = z.infer<typeof pettyCashItemSchema>;
+export type CreatePettyCashInput = z.infer<typeof createPettyCashSchema>;
+export type UpdatePettyCashInput = z.infer<typeof updatePettyCashSchema>;
+export type GetPettyCashByNumInput = z.infer<typeof getPettyCashByNumSchema>;
+export type DeletePettyCashInput = z.infer<typeof deletePettyCashSchema>;

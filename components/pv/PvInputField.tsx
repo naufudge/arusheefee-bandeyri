@@ -200,6 +200,13 @@ export const StaffDropDownField: React.FC<StaffDropDownProps> = ({
   staffs,
   formSetValue
 }) => {
+  // Hide partially-synced tenant users (Azure entries with no jobTitle
+  // come through with designation = ""). The Settings → Staff page still
+  // shows them so an admin can fill in a designation; here they're noise.
+  const selectableStaffs = staffs.filter(
+    (s) => s.designation && s.designation.trim() !== "",
+  );
+
   // Handle Staff Selection
   const hanelStaffSelection = (staffName: string) => {
     const staff = staffs.find((staff) => staff.name === staffName)
@@ -227,7 +234,7 @@ export const StaffDropDownField: React.FC<StaffDropDownProps> = ({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {staffs.map((staff, index) => (
+              {selectableStaffs.map((staff, index) => (
                 <SelectItem key={index} value={staff.name}>
                   {staff.name}
                 </SelectItem>

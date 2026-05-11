@@ -11,7 +11,7 @@ export const glDetailSchema = z.object({
 // Invoice schema
 export const invoiceSchema = z.object({
   id: z.string().cuid().optional(),
-  comments: z.string().min(10),
+  comments: z.string().min(1),
   documentNum: z.string().optional().nullable(),
   invoiceNumber: z.string().optional().nullable(),
   invoiceDate: z.coerce.date().optional().nullable(),
@@ -26,7 +26,7 @@ export const createPvSchema = z.object({
   agency: z.string().default("National Archives of Maldives"),
   vendor: z.string().min(1),
   date: z.coerce.date(),
-  notes: z.string().min(10),
+  notes: z.string().min(1),
   currency: z.string().default("MVR"),
   exchangeRate: z.coerce.number().positive().default(1),
 

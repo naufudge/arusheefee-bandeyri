@@ -16,7 +16,7 @@ datasource db {
 // Staff table - unified person model used both for PV signatories
 // and for system login (Azure Entra ID).
 model Staff {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   name        String
   designation String
 
@@ -32,14 +32,17 @@ model Staff {
   // "sync"   = inserted via tenant sync (may not have logged in yet)
   source      String    @default("legacy")
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations - Staff can be referenced in multiple roles across PVs
   preparedPVs      PV[] @relation("PreparedBy")
   verifiedPVs      PV[] @relation("VerifiedBy")
   authorisedOnePVs PV[] @relation("AuthorisedByOne")
   authorisedTwoPVs PV[] @relation("AuthorisedByTwo")
+
+  // Petty cash role assignments (one row per signed role on one PettyCash)
+  pettyCashRoles PettyCashStaff[]
 
   // RBAC: a Staff can have many Roles
   roles Role[] @relation("StaffRoles")
@@ -70,15 +73,15 @@ model Role {
 
 // Main Payment Voucher table
 model PV {
-  id           String    @id @default(cuid())
-  pvNum        String    @unique
-  businessArea Int       @default(1506)
-  agency       String    @default("National Archives of Maldives")
+  id           String   @id @default(cuid())
+  pvNum        String   @unique
+  businessArea Int      @default(1506)
+  agency       String   @default("National Archives of Maldives")
   vendor       String
   date         DateTime
   notes        String
-  currency     String    @default("MVR")
-  exchangeRate Float     @default(1)
+  currency     String   @default("MVR")
+  exchangeRate Float    @default(1)
 
   // Payment details
   poNum         String?
@@ -145,4 +148,77 @@ model GLDetail {
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@map("gl_details")
+}
+
+// ----- Petty cash request -----
+model PettyCash {
+  id                  String   @id @default(cuid())
+  pettyCashNum        String   @unique
+  date                DateTime
+  formNum             String
+  sectionUnit         String
+  totalRequiredAmount Float
+  glCode              Int
+
+  // gated by separate permissions (see lib/permissions.ts)
+  parkedDate  DateTime?
+  postingDate DateTime?
+
+  // Five staff role FKs; each is a 1:1 to its own PettyCashStaff record
+  handledById             String? @unique
+  procurementApprovedById String? @unique
+  budgetCheckedById       String? @unique
+  balanceHandedOverById   String? @unique
+  balanceCollectedById    String? @unique
+
+  handledBy             PettyCashStaff? @relation("HandledBy", fields: [handledById], references: [id])
+  procurementApprovedBy PettyCashStaff? @relation("ProcurementApprovedBy", fields: [procurementApprovedById], references: [id])
+  budgetCheckedBy       PettyCashStaff? @relation("BudgetCheckedBy", fields: [budgetCheckedById], references: [id])
+  balanceHandedOverBy   PettyCashStaff? @relation("BalanceHandedOverBy", fields: [balanceHandedOverById], references: [id])
+  balanceCollectedBy    PettyCashStaff? @relation("BalanceCollectedBy", fields: [balanceCollectedById], references: [id])
+
+  items PettyCashItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("petty_cash")
+}
+
+// ----- Per-role signature/approval entry -----
+// One row per signed role on one PettyCash. Refers to the underlying Staff
+// member. Lifecycle is owned by the PettyCash: create/update replace these
+// rows wholesale, and delete cleans them up in the same transaction.
+model PettyCashStaff {
+  id         String   @id @default(cuid())
+  staffId    String
+  amount     Float?
+  isApproved Boolean  @default(false)
+  date       DateTime
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  // Back-relations: at most one of these is set per row (the role used).
+  handledFor             PettyCash? @relation("HandledBy")
+  procurementApprovedFor PettyCash? @relation("ProcurementApprovedBy")
+  budgetCheckedFor       PettyCash? @relation("BudgetCheckedBy")
+  balanceHandedOverFor   PettyCash? @relation("BalanceHandedOverBy")
+  balanceCollectedFor    PettyCash? @relation("BalanceCollectedBy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("petty_cash_staff")
+}
+
+// ----- Line items on a petty cash request -----
+model PettyCashItem {
+  id   String @id @default(cuid())
+  qty  Int
+  name String
+
+  pettyCashId String
+  pettyCash   PettyCash @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
+
+  @@map("petty_cash_items")
 }

@@ -10,6 +10,8 @@ import {
   FileText,
   ShieldCheck,
   LogOut,
+  Wallet,
+  Coins,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
@@ -65,22 +67,39 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         icon: Home,
         requires: PERMISSIONS.DASHBOARD_READ,
       },
-      {
-        title: "PV Register",
-        url: "/pv-register",
-        icon: BookText,
-        requires: PERMISSIONS.PV_READ,
-      },
     ],
   },
   {
     label: "Vouchers",
     items: [
       {
+        title: "PV Register",
+        url: "/pv-register",
+        icon: BookText,
+        requires: PERMISSIONS.PV_READ,
+      },
+      {
         title: "Create PV",
         url: "/create",
         icon: NotebookPen,
         requires: PERMISSIONS.PV_CREATE,
+      },
+    ],
+  },
+  {
+    label: "Petty Cash",
+    items: [
+      {
+        title: "Petty Cash Register",
+        url: "/petty-cash-register",
+        icon: Wallet,
+        requires: PERMISSIONS.PETTYCASH_READ,
+      },
+      {
+        title: "Create Petty Cash",
+        url: "/petty-cash/create",
+        icon: Coins,
+        requires: PERMISSIONS.PETTYCASH_CREATE,
       },
     ],
   },

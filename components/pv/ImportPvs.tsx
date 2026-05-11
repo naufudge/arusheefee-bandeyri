@@ -19,26 +19,45 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
+type EntryKind = "pv" | "pc";
+
 type PreviewSummary = {
   totalRows: number;
   pvCount: number;
+  pcCount: number;
   valid: {
-    pvNum: string;
+    kind: EntryKind;
+    num: string;
     vendor: string;
     total: number;
     invoiceCount: number;
     glCount: number;
   }[];
-  invalid: { pvNum: string; error: string; rowNumbers: number[] }[];
-  duplicates: { pvNum: string; vendor: string }[];
+  invalid: {
+    kind: EntryKind;
+    num: string;
+    error: string;
+    rowNumbers: number[];
+  }[];
+  duplicates: { kind: EntryKind; num: string; vendor: string }[];
 };
 
 type CommitResult = {
   inserted: number;
   replaced: number;
   skipped: number;
-  failed: { pvNum: string; error: string }[];
+  failed: { kind: EntryKind; num: string; error: string }[];
 };
+
+function kindLabel(kind: EntryKind): string {
+  return kind === "pv" ? "PV" : "PC";
+}
+
+function kindBadgeClasses(kind: EntryKind): string {
+  return kind === "pv"
+    ? "bg-blue-100 text-blue-700"
+    : "bg-purple-100 text-purple-700";
+}
 
 type Stage = "pick" | "loading-preview" | "preview" | "committing" | "result";
 
@@ -175,12 +194,12 @@ const ImportPvs: React.FC<ImportPvsProps> = ({ onImported }) => {
             <DialogTitle className="mt-1 text-xl font-semibold tracking-tight">
               {stage === "result"
                 ? "Import finished"
-                : "Import PV register"}
+                : "Import register"}
             </DialogTitle>
             <DialogDescription className="mt-1 text-sm text-muted-foreground">
               {stage === "result"
                 ? "Here's what changed."
-                : "Upload an .xlsx file in the same format as the PV register export."}
+                : "Upload an .xlsx file. Rows with \"PC\" in the Voucher No are routed to the petty cash register; the rest become PVs."}
             </DialogDescription>
           </div>
 
@@ -287,8 +306,8 @@ const ImportPvs: React.FC<ImportPvsProps> = ({ onImported }) => {
                   >
                     Import {willImportCount(summary, replaceDuplicates)}{" "}
                     {willImportCount(summary, replaceDuplicates) === 1
-                      ? "voucher"
-                      : "vouchers"}
+                      ? "record"
+                      : "records"}
                   </button>
                 </div>
               </>
@@ -373,7 +392,9 @@ function PickStage({
               Drop your .xlsx here, or click to browse
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
-              Same column layout as the PV register export
+              Same column layout as the PV register export. Rows with{" "}
+              <span className="font-mono">PC</span> in the Voucher No become
+              petty cash entries.
             </div>
           </div>
           <input
@@ -434,8 +455,9 @@ function PreviewStage({ summary }: { summary: PreviewSummary }) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="Found" value={summary.pvCount} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <StatTile label="PVs" value={summary.pvCount} />
+        <StatTile label="PCs" value={summary.pcCount} accent="purple" />
         <StatTile label="New" value={willCreate} accent="emerald" />
         <StatTile
           label="Duplicates"
@@ -475,10 +497,13 @@ function PreviewStage({ summary }: { summary: PreviewSummary }) {
             <ul className="divide-y">
               {summary.duplicates.map((d) => (
                 <li
-                  key={d.pvNum}
-                  className="flex items-center justify-between px-4 py-2 text-xs"
+                  key={`${d.kind}-${d.num}`}
+                  className="flex items-center justify-between gap-2 px-4 py-2 text-xs"
                 >
-                  <span className="font-mono tabular-nums">{d.pvNum}</span>
+                  <span className="flex items-center gap-2">
+                    <KindBadge kind={d.kind} />
+                    <span className="font-mono tabular-nums">{d.num}</span>
+                  </span>
                   <span className="truncate text-muted-foreground">
                     {d.vendor}
                   </span>
@@ -506,9 +531,15 @@ function PreviewStage({ summary }: { summary: PreviewSummary }) {
           <div className="max-h-48 overflow-auto border-t">
             <ul className="divide-y">
               {summary.invalid.map((i) => (
-                <li key={i.pvNum} className="px-4 py-2.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono tabular-nums">{i.pvNum}</span>
+                <li
+                  key={`${i.kind}-${i.num}`}
+                  className="px-4 py-2.5 text-xs"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2">
+                      <KindBadge kind={i.kind} />
+                      <span className="font-mono tabular-nums">{i.num}</span>
+                    </span>
                     <span className="font-mono text-[10px] text-muted-foreground">
                       {i.rowNumbers.length === 1
                         ? `row ${i.rowNumbers[0]}`
@@ -525,6 +556,17 @@ function PreviewStage({ summary }: { summary: PreviewSummary }) {
         </details>
       )}
     </div>
+  );
+}
+
+function KindBadge({ kind }: { kind: EntryKind }) {
+  return (
+    <span
+      className={`inline-flex h-4 items-center rounded-sm px-1.5 text-[9px] font-semibold uppercase tracking-wider ${kindBadgeClasses(kind)}`}
+      title={kind === "pv" ? "Payment Voucher" : "Petty Cash"}
+    >
+      {kindLabel(kind)}
+    </span>
   );
 }
 
@@ -564,8 +606,14 @@ function ResultStage({ result }: { result: CommitResult }) {
           <div className="max-h-40 overflow-auto border-t">
             <ul className="divide-y">
               {result.failed.map((f) => (
-                <li key={f.pvNum} className="px-4 py-2 text-xs">
-                  <span className="font-mono tabular-nums">{f.pvNum}</span>
+                <li
+                  key={`${f.kind}-${f.num}`}
+                  className="px-4 py-2 text-xs"
+                >
+                  <span className="flex items-center gap-2">
+                    <KindBadge kind={f.kind} />
+                    <span className="font-mono tabular-nums">{f.num}</span>
+                  </span>
                   <div className="mt-0.5 text-red-700">{f.error}</div>
                 </li>
               ))}
@@ -584,7 +632,7 @@ function StatTile({
 }: {
   label: string;
   value: number;
-  accent?: "emerald" | "amber" | "red";
+  accent?: "emerald" | "amber" | "red" | "purple";
 }) {
   const valueClass =
     accent === "emerald"
@@ -593,7 +641,9 @@ function StatTile({
         ? "text-amber-700"
         : accent === "red"
           ? "text-red-700"
-          : "";
+          : accent === "purple"
+            ? "text-purple-700"
+            : "";
   return (
     <div className="rounded-md border bg-card p-3">
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">

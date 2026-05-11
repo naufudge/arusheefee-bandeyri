@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { createPvSchema, type CreatePvInput } from "@/server/schemas/pv.schema";
+import {
+  createPettyCashSchema,
+  type CreatePettyCashInput,
+} from "@/server/schemas/pettycash.schema";
 
 const EXPECTED_HEADERS = [
   "Date",
@@ -77,25 +81,55 @@ type RawRow = {
   transferNum: string;
 };
 
+// A voucher row is a petty cash row when its Voucher No contains "PC"
+// (case-insensitive). PV register exports are a flat sheet so PV and PC
+// entries are interleaved; this discriminator routes each row to the right
+// model.
+function isPettyCashRow(voucherNum: string): boolean {
+  return /\bPC\b|PC/i.test(voucherNum);
+}
+
+export type EntryKind = "pv" | "pc";
+
+type ValidEntry = {
+  kind: EntryKind;
+  num: string;
+  // For PCs the section/unit stands in for "vendor" so the preview list has
+  // something meaningful to show.
+  vendor: string;
+  total: number;
+  // PVs have invoices/GL counts; PCs use these for items/0.
+  invoiceCount: number;
+  glCount: number;
+};
+
+type InvalidEntry = {
+  kind: EntryKind;
+  num: string;
+  error: string;
+  rowNumbers: number[];
+};
+
+type DuplicateEntry = {
+  kind: EntryKind;
+  num: string;
+  vendor: string;
+};
+
 type PreviewSummary = {
   totalRows: number;
   pvCount: number;
-  valid: {
-    pvNum: string;
-    vendor: string;
-    total: number;
-    invoiceCount: number;
-    glCount: number;
-  }[];
-  invalid: { pvNum: string; error: string; rowNumbers: number[] }[];
-  duplicates: { pvNum: string; vendor: string }[];
+  pcCount: number;
+  valid: ValidEntry[];
+  invalid: InvalidEntry[];
+  duplicates: DuplicateEntry[];
 };
 
 type CommitResult = {
   inserted: number;
   replaced: number;
   skipped: number;
-  failed: { pvNum: string; error: string }[];
+  failed: { kind: EntryKind; num: string; error: string }[];
 };
 
 function cellToString(value: ExcelJS.CellValue): string {
@@ -150,12 +184,24 @@ function parseDate(value: ExcelJS.CellValue): Date | null {
   return isNaN(iso.getTime()) ? null : iso;
 }
 
-function denormalizePvNum(raw: string): string {
+function denormalizeVoucherNum(raw: string): string {
   const trimmed = raw.trim();
   // Strip leading "1506/" prefix if present
   const withoutPrefix = trimmed.replace(/^1506\//, "");
   // Replace remaining "/" with "-"
   return withoutPrefix.replace(/\//g, "-");
+}
+
+// PC voucher numbers from the exported sheet can arrive in several
+// shapes — `1506/PC/86/2025`, `PC/86/2025`, `PC-86-2025`, etc. Normalise
+// them to the canonical `PC/<seq>/<year>` form. Returns null if the
+// shape can't be recognised, so the caller can flag it as invalid
+// instead of silently miswriting the wrong number.
+function normalizePettyCashNum(raw: string): string | null {
+  const trimmed = raw.trim().replace(/^1506[\s\/_-]+/, "");
+  const match = trimmed.match(/^PC[\s\/_-]+(\d+)[\s\/_-]+(\d{4})$/i);
+  if (!match) return null;
+  return `PC/${match[1]}/${match[2]}`;
 }
 
 function readHeaders(worksheet: ExcelJS.Worksheet): {
@@ -189,13 +235,21 @@ function parseRows(
 
   for (let r = 2; r <= lastRow; r++) {
     const row = worksheet.getRow(r);
-    const pvNumRaw = cellToString(row.getCell(colOf("pvNum")).value).trim();
-    if (!pvNumRaw) continue; // skip blank rows
+    const numRaw = cellToString(row.getCell(colOf("pvNum")).value).trim();
+    if (!numRaw) continue; // skip blank rows
+
+    // PC rows use a slash-normaliser that emits `PC/<seq>/<year>`; PV
+    // rows continue to use the existing dash normaliser. If a PC row
+    // can't be parsed, we keep the raw value so it lands in the invalid
+    // bucket downstream with a meaningful error.
+    const normalized = isPettyCashRow(numRaw)
+      ? (normalizePettyCashNum(numRaw) ?? numRaw)
+      : denormalizeVoucherNum(numRaw);
 
     rows.push({
       rowNumber: r,
       date: parseDate(row.getCell(colOf("date")).value),
-      pvNum: denormalizePvNum(pvNumRaw),
+      pvNum: normalized,
       documentNum: cellToString(row.getCell(colOf("documentNum")).value).trim(),
       poNum: cellToString(row.getCell(colOf("poNum")).value).trim(),
       invoiceNumber: cellToString(
@@ -286,6 +340,47 @@ function buildPv(rows: RawRow[]): {
   };
 }
 
+// Petty cash imports only carry the 7 fields the user spec lists for PC
+// rows in the spreadsheet. The other required PettyCash fields (formNum,
+// sectionUnit) aren't in the export, so default them to a placeholder the
+// user can refine via the edit page. Signatory rows aren't imported.
+function buildPettyCash(rows: RawRow[]): {
+  candidate: Partial<CreatePettyCashInput>;
+  rowNumbers: number[];
+} {
+  const first = rows[0];
+
+  // Each PC row is a single item with qty 1, name = Details. If the spread-
+  // sheet ever lists the same pettyCashNum twice we accumulate them.
+  const items = rows
+    .map((r) => ({ qty: 1, name: r.details }))
+    .filter((it) => it.name.length > 0);
+
+  // Sum any "Total" values across the row group (almost always one row).
+  const totalRequiredAmount =
+    Math.round(rows.reduce((s, r) => s + (r.total ?? 0), 0) * 100) / 100;
+
+  return {
+    candidate: {
+      pettyCashNum: first.pvNum,
+      date: first.date ?? undefined,
+      formNum: first.pvNum, // placeholder — user can edit later
+      sectionUnit: "—",     // placeholder — user can edit later
+      totalRequiredAmount,
+      glCode: first.code ?? 0,
+      parkedDate: first.parkedDate,
+      postingDate: first.postingDate,
+      handledBy: null,
+      procurementApprovedBy: null,
+      budgetCheckedBy: null,
+      balanceHandedOverBy: null,
+      balanceCollectedBy: null,
+      items: items.length > 0 ? items : [{ qty: 1, name: first.details || "—" }],
+    },
+    rowNumbers: rows.map((r) => r.rowNumber),
+  };
+}
+
 export async function POST(request: NextRequest) {
   // Auth + permission gate
   const session = await auth();
@@ -295,6 +390,21 @@ export async function POST(request: NextRequest) {
   if (!hasPermission(session, PERMISSIONS.PV_IMPORT)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  // Capability flags used to gate petty-cash rows row-by-row (rather than
+  // failing the whole import). `canImportPettyCash` is the baseline; the
+  // date flags add finer-grained protection so a user with `pv:import` but
+  // not the parked/posting permissions can't backdoor those values via a
+  // bulk upload.
+  const canImportPettyCash = hasPermission(session, PERMISSIONS.PETTYCASH_CREATE);
+  const canSetPettyCashParkedDate = hasPermission(
+    session,
+    PERMISSIONS.PETTYCASH_EDIT_PARKED_DATE,
+  );
+  const canSetPettyCashPostingDate = hasPermission(
+    session,
+    PERMISSIONS.PETTYCASH_EDIT_POSTING_DATE,
+  );
 
   let formData: FormData;
   try {
@@ -333,8 +443,8 @@ export async function POST(request: NextRequest) {
   // Load workbook
   const workbook = new ExcelJS.Workbook();
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await workbook.xlsx.load(buffer);
+    const arrayBuffer = await file.arrayBuffer();
+    await workbook.xlsx.load(Buffer.from(arrayBuffer) as unknown as Buffer);
   } catch {
     return NextResponse.json(
       { error: "Could not read the file. Is it a valid .xlsx?" },
@@ -362,44 +472,69 @@ export async function POST(request: NextRequest) {
   }
 
   // Parse rows
-  const rows = parseRows(worksheet, headerResult.headerMap);
-  if (rows.length === 0) {
+  const allRows = parseRows(worksheet, headerResult.headerMap);
+  if (allRows.length === 0) {
     return NextResponse.json(
       { error: "No data rows found in the file" },
       { status: 400 }
     );
   }
 
-  // Group by pvNum
+  // Split by kind
+  const pvRows: RawRow[] = [];
+  const pcRows: RawRow[] = [];
+  for (const row of allRows) {
+    if (isPettyCashRow(row.pvNum)) pcRows.push(row);
+    else pvRows.push(row);
+  }
+
+  // Group each kind by its voucher / pettyCashNum
   const pvGroups = new Map<string, RawRow[]>();
-  for (const row of rows) {
+  for (const row of pvRows) {
     const arr = pvGroups.get(row.pvNum) ?? [];
     arr.push(row);
     pvGroups.set(row.pvNum, arr);
   }
 
-  // Existing PV numbers in DB
-  const existingPvs = await prisma.pV.findMany({
-    where: { pvNum: { in: Array.from(pvGroups.keys()) } },
-    select: { pvNum: true, vendor: true },
-  });
-  const existingByNum = new Map(existingPvs.map((p) => [p.pvNum, p]));
+  const pcGroups = new Map<string, RawRow[]>();
+  for (const row of pcRows) {
+    const arr = pcGroups.get(row.pvNum) ?? [];
+    arr.push(row);
+    pcGroups.set(row.pvNum, arr);
+  }
 
-  // Validate each PV via createPvSchema
+  // Existing PV and PettyCash numbers in DB
+  const [existingPvs, existingPcs] = await Promise.all([
+    prisma.pV.findMany({
+      where: { pvNum: { in: Array.from(pvGroups.keys()) } },
+      select: { pvNum: true, vendor: true },
+    }),
+    pcGroups.size > 0
+      ? prisma.pettyCash.findMany({
+          where: { pettyCashNum: { in: Array.from(pcGroups.keys()) } },
+          select: { pettyCashNum: true, sectionUnit: true },
+        })
+      : Promise.resolve([]),
+  ]);
+  const existingPvByNum = new Map(existingPvs.map((p) => [p.pvNum, p]));
+  const existingPcByNum = new Map(
+    existingPcs.map((p) => [p.pettyCashNum, p]),
+  );
+
   const summary: PreviewSummary = {
-    totalRows: rows.length,
+    totalRows: allRows.length,
     pvCount: pvGroups.size,
+    pcCount: pcGroups.size,
     valid: [],
     invalid: [],
     duplicates: [],
   };
 
-  type ValidatedPv = {
-    pvNum: string;
-    data: CreatePvInput;
-  };
-  const validatedPvs: ValidatedPv[] = [];
+  type ValidatedPv = { kind: "pv"; num: string; data: CreatePvInput };
+  type ValidatedPc = { kind: "pc"; num: string; data: CreatePettyCashInput };
+  const validated: (ValidatedPv | ValidatedPc)[] = [];
 
+  // --- Validate PV entries ---
   for (const [pvNum, groupRows] of Array.from(pvGroups.entries())) {
     const { candidate, rowNumbers } = buildPv(groupRows);
     const parsed = createPvSchema.safeParse(candidate);
@@ -408,7 +543,8 @@ export async function POST(request: NextRequest) {
       const firstIssue = parsed.error.issues[0];
       const path = firstIssue.path.join(".") || "(root)";
       summary.invalid.push({
-        pvNum,
+        kind: "pv",
+        num: pvNum,
         error: `${path}: ${firstIssue.message}`,
         rowNumbers,
       });
@@ -417,24 +553,97 @@ export async function POST(request: NextRequest) {
 
     const totalValue = parsed.data.invoices.reduce(
       (s, i) => s + i.invoiceTotal,
-      0
+      0,
     );
     summary.valid.push({
-      pvNum,
+      kind: "pv",
+      num: pvNum,
       vendor: parsed.data.vendor,
       total: totalValue,
       invoiceCount: parsed.data.invoices.length,
       glCount: parsed.data.invoices.reduce(
         (s, i) => s + i.glDetails.length,
-        0
+        0,
       ),
     });
 
-    if (existingByNum.has(pvNum)) {
-      summary.duplicates.push({ pvNum, vendor: parsed.data.vendor });
+    if (existingPvByNum.has(pvNum)) {
+      summary.duplicates.push({
+        kind: "pv",
+        num: pvNum,
+        vendor: parsed.data.vendor,
+      });
     }
 
-    validatedPvs.push({ pvNum, data: parsed.data });
+    validated.push({ kind: "pv", num: pvNum, data: parsed.data });
+  }
+
+  // --- Validate PC entries ---
+  for (const [pcNum, groupRows] of Array.from(pcGroups.entries())) {
+    const { candidate, rowNumbers } = buildPettyCash(groupRows);
+
+    if (!canImportPettyCash) {
+      summary.invalid.push({
+        kind: "pc",
+        num: pcNum,
+        error:
+          "Importing petty cash rows requires the 'create petty cash' permission.",
+        rowNumbers,
+      });
+      continue;
+    }
+    if (candidate.parkedDate && !canSetPettyCashParkedDate) {
+      summary.invalid.push({
+        kind: "pc",
+        num: pcNum,
+        error:
+          "Row sets a parked date — requires the 'edit parked date' permission.",
+        rowNumbers,
+      });
+      continue;
+    }
+    if (candidate.postingDate && !canSetPettyCashPostingDate) {
+      summary.invalid.push({
+        kind: "pc",
+        num: pcNum,
+        error:
+          "Row sets a posting date — requires the 'edit posting date' permission.",
+        rowNumbers,
+      });
+      continue;
+    }
+
+    const parsed = createPettyCashSchema.safeParse(candidate);
+    if (!parsed.success) {
+      const firstIssue = parsed.error.issues[0];
+      const path = firstIssue.path.join(".") || "(root)";
+      summary.invalid.push({
+        kind: "pc",
+        num: pcNum,
+        error: `${path}: ${firstIssue.message}`,
+        rowNumbers,
+      });
+      continue;
+    }
+
+    summary.valid.push({
+      kind: "pc",
+      num: pcNum,
+      vendor: parsed.data.sectionUnit,
+      total: parsed.data.totalRequiredAmount,
+      invoiceCount: parsed.data.items.length,
+      glCount: 0,
+    });
+
+    if (existingPcByNum.has(pcNum)) {
+      summary.duplicates.push({
+        kind: "pc",
+        num: pcNum,
+        vendor: parsed.data.sectionUnit,
+      });
+    }
+
+    validated.push({ kind: "pc", num: pcNum, data: parsed.data });
   }
 
   if (mode === "preview") {
@@ -449,79 +658,150 @@ export async function POST(request: NextRequest) {
     failed: [],
   };
 
-  // Each PV runs in its own transaction so:
-  // (a) a failure on one doesn't roll back successful imports earlier in the batch
-  // (b) we don't blow Prisma's default 5s interactive transaction window when
-  //     bulk-replacing many PVs.
-  for (const { pvNum, data } of validatedPvs) {
-    const exists = existingByNum.has(pvNum);
-
-    if (exists && onConflict === "skip") {
-      result.skipped++;
-      continue;
-    }
-
-    try {
-      await prisma.$transaction(async (tx) => {
-        if (exists) {
-          // Replace: cascade delete then create
-          await tx.pV.delete({ where: { pvNum } });
-        }
-        await tx.pV.create({
-          data: {
-            pvNum: data.pvNum,
-            businessArea: data.businessArea,
-            agency: data.agency,
-            vendor: data.vendor,
-            date: data.date,
-            notes: data.notes,
-            currency: data.currency,
-            exchangeRate: data.exchangeRate,
-            preparedById: data.preparedById ?? null,
-            verifiedById: data.verifiedById ?? null,
-            authorisedByOneId: data.authorisedByOneId ?? null,
-            authorisedByTwoId: data.authorisedByTwoId ?? null,
-            poNum: data.poNum ?? null,
-            paymentMethod: data.paymentMethod,
-            parkedDate: data.parkedDate ?? null,
-            postingDate: data.postingDate ?? null,
-            clearingDocNum: data.clearingDocNum ?? null,
-            clearingDocDate: data.clearingDocDate ?? null,
-            transferNum: data.transferNum ?? null,
-            invoices: {
-              create: data.invoices.map((invoice) => ({
-                comments: invoice.comments,
-                documentNum: invoice.documentNum ?? null,
-                invoiceNumber: invoice.invoiceNumber ?? null,
-                invoiceDate: invoice.invoiceDate ?? null,
-                invoiceTotal: invoice.invoiceTotal,
-                glDetails: {
-                  create: invoice.glDetails.map((gl) => ({
-                    code: gl.code,
-                    fund: gl.fund,
-                    amount: gl.amount,
-                  })),
-                },
-              })),
+  // Each entry runs in its own transaction so:
+  // (a) a failure on one doesn't roll back successful imports earlier in
+  //     the batch, and
+  // (b) we don't blow Prisma's default 5s interactive transaction window
+  //     when bulk-replacing many records.
+  for (const entry of validated) {
+    if (entry.kind === "pv") {
+      const exists = existingPvByNum.has(entry.num);
+      if (exists && onConflict === "skip") {
+        result.skipped++;
+        continue;
+      }
+      try {
+        const data = entry.data;
+        await prisma.$transaction(async (tx) => {
+          if (exists) await tx.pV.delete({ where: { pvNum: entry.num } });
+          await tx.pV.create({
+            data: {
+              pvNum: data.pvNum,
+              businessArea: data.businessArea,
+              agency: data.agency,
+              vendor: data.vendor,
+              date: data.date,
+              notes: data.notes,
+              currency: data.currency,
+              exchangeRate: data.exchangeRate,
+              preparedById: data.preparedById ?? null,
+              verifiedById: data.verifiedById ?? null,
+              authorisedByOneId: data.authorisedByOneId ?? null,
+              authorisedByTwoId: data.authorisedByTwoId ?? null,
+              poNum: data.poNum ?? null,
+              paymentMethod: data.paymentMethod,
+              parkedDate: data.parkedDate ?? null,
+              postingDate: data.postingDate ?? null,
+              clearingDocNum: data.clearingDocNum ?? null,
+              clearingDocDate: data.clearingDocDate ?? null,
+              transferNum: data.transferNum ?? null,
+              invoices: {
+                create: data.invoices.map((invoice) => ({
+                  comments: invoice.comments,
+                  documentNum: invoice.documentNum ?? null,
+                  invoiceNumber: invoice.invoiceNumber ?? null,
+                  invoiceDate: invoice.invoiceDate ?? null,
+                  invoiceTotal: invoice.invoiceTotal,
+                  glDetails: {
+                    create: invoice.glDetails.map((gl) => ({
+                      code: gl.code,
+                      fund: gl.fund,
+                      amount: gl.amount,
+                    })),
+                  },
+                })),
+              },
             },
-          },
+          });
         });
-      });
-
-      if (exists) result.replaced++;
-      else result.inserted++;
-    } catch (err) {
-      result.failed.push({
-        pvNum,
-        error: err instanceof Error ? err.message : "Unknown error",
-      });
+        if (exists) result.replaced++;
+        else result.inserted++;
+      } catch (err) {
+        result.failed.push({
+          kind: "pv",
+          num: entry.num,
+          error: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    } else {
+      // kind === "pc"
+      const exists = existingPcByNum.has(entry.num);
+      if (exists && onConflict === "skip") {
+        result.skipped++;
+        continue;
+      }
+      try {
+        const data = entry.data;
+        await prisma.$transaction(async (tx) => {
+          if (exists) {
+            // PettyCashStaff rows are FK-referenced from PettyCash but
+            // aren't cascade-deleted, so collect their ids first, detach,
+            // delete the parent, then clean them up. (Same dance as the
+            // tRPC delete handler.)
+            const existing = await tx.pettyCash.findUnique({
+              where: { pettyCashNum: entry.num },
+              select: {
+                id: true,
+                handledById: true,
+                procurementApprovedById: true,
+                budgetCheckedById: true,
+                balanceHandedOverById: true,
+                balanceCollectedById: true,
+              },
+            });
+            const roleIds = existing
+              ? [
+                  existing.handledById,
+                  existing.procurementApprovedById,
+                  existing.budgetCheckedById,
+                  existing.balanceHandedOverById,
+                  existing.balanceCollectedById,
+                ].filter((id): id is string => Boolean(id))
+              : [];
+            await tx.pettyCash.delete({
+              where: { pettyCashNum: entry.num },
+            });
+            if (roleIds.length > 0) {
+              await tx.pettyCashStaff.deleteMany({
+                where: { id: { in: roleIds } },
+              });
+            }
+          }
+          await tx.pettyCash.create({
+            data: {
+              pettyCashNum: data.pettyCashNum,
+              date: data.date,
+              formNum: data.formNum,
+              sectionUnit: data.sectionUnit,
+              totalRequiredAmount: data.totalRequiredAmount,
+              glCode: data.glCode,
+              parkedDate: data.parkedDate ?? null,
+              postingDate: data.postingDate ?? null,
+              items: {
+                create: data.items.map((it) => ({
+                  qty: it.qty,
+                  name: it.name,
+                })),
+              },
+            },
+          });
+        });
+        if (exists) result.replaced++;
+        else result.inserted++;
+      } catch (err) {
+        result.failed.push({
+          kind: "pc",
+          num: entry.num,
+          error: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
     }
   }
 
-  // Invalid PVs from preview show as failures in the commit result too,
-  // so the user sees a complete picture.
+  // Surface invalid entries as failures too so the user sees the complete
+  // picture on the result screen.
   for (const inv of summary.invalid) {
-    result.failed.push({ pvNum: inv.pvNum, error: inv.error });
+    result.failed.push({ kind: inv.kind, num: inv.num, error: inv.error });
   }
 
   return NextResponse.json({ result });
