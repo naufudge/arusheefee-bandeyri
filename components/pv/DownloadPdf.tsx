@@ -2,11 +2,9 @@
 
 import React, { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
-import { createRoot, type Root } from "react-dom/client";
 import { useTRPC } from "@/lib/trpc";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import PrintView from "@/components/pv/PrintView";
 import type { PvValues } from "@/schemas/PvSchema";
 
 interface DownloadPdfProps {
@@ -77,138 +75,27 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
     if (busy) return;
     setBusy(true);
 
-    let host: HTMLDivElement | null = null;
-    let root: Root | null = null;
-
     try {
       const data = await queryClient.fetchQuery(
         trpc.pv.getByNum.queryOptions({ pvNum })
       );
       const pv = transformToPv(data);
 
-      // Wait for fonts so Faruma / MVWaheed render in the capture.
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
-
-      // Off-screen container at PrintView's natural width.
-      host = document.createElement("div");
-      host.style.position = "fixed";
-      host.style.left = "-10000px";
-      host.style.top = "0";
-      host.style.width = "950px";
-      host.style.background = "#ffffff";
-      host.style.zIndex = "-1";
-      document.body.appendChild(host);
-
-      root = createRoot(host);
-      root.render(<PrintView pv={pv} />);
-
-      // Two RAFs to let layout/paint settle.
-      await new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-      );
-
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
+      const [{ pdf }, { default: PrintViewPdf }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("@/components/pv/PrintViewPdf"),
       ]);
 
-      const canvas = await html2canvas(host, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-        logging: false,
-        // Capture-only style overrides:
-        //  1. Tailwind's `outline` is not rendered by html2canvas (lives outside
-        //     the box model). Swap it for an equivalent `border`.
-        //  2. Faruma/MVWaheed glyphs render with tight vertical metrics in
-        //     html2canvas, so descenders leak past cell bottoms. Give Dhivehi
-        //     text and bordered cells more line-height + a touch more padding
-        //     to keep them inside their box.
-        // Live page is untouched.
-        onclone: (clonedDoc) => {
-          const style = clonedDoc.createElement("style");
-          style.textContent = `
-            .outline {
-              outline: none !important;
-              border: 1px solid currentColor !important;
-            }
-            .dhivehi,
-            .font-faruma,
-            .font-waheed {
-              line-height: 1.9 !important;
-            }
-            .custom-border-1 div,
-            .custom-border-2 div div,
-            .custom-border-3 div div,
-            .custom-border-4 div div,
-            .GL-table div {
-              line-height: 1.7 !important;
-              padding-top: 4px !important;
-              padding-bottom: 4px !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
-        },
-      });
+      const blob = await pdf(<PrintViewPdf pv={pv} />).toBlob();
 
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-      const pageW = doc.internal.pageSize.getWidth(); // 210
-      const pageH = doc.internal.pageSize.getHeight(); // 297
-      const margin = 8;
-      const imgW = pageW - margin * 2; // 194 mm
-      const imgH = (canvas.height * imgW) / canvas.width;
-      const usableH = pageH - margin * 2; // 281 mm
-
-      if (imgH <= usableH) {
-        // Single page — fits after the down-scale.
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
-        doc.addImage(dataUrl, "JPEG", margin, margin, imgW, imgH);
-      } else {
-        // Multi-page: slice the source canvas into page-height chunks.
-        // Source-canvas pixels per mm of PDF page:
-        const pxPerMm = canvas.width / imgW;
-        const slicePxH = Math.floor(usableH * pxPerMm);
-        let offset = 0;
-        let pageIndex = 0;
-
-        while (offset < canvas.height) {
-          const sliceHeight = Math.min(slicePxH, canvas.height - offset);
-          const sliceCanvas = document.createElement("canvas");
-          sliceCanvas.width = canvas.width;
-          sliceCanvas.height = sliceHeight;
-          const ctx = sliceCanvas.getContext("2d");
-          if (!ctx) throw new Error("Could not create 2D context for slice");
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-          ctx.drawImage(
-            canvas,
-            0,
-            offset,
-            canvas.width,
-            sliceHeight,
-            0,
-            0,
-            canvas.width,
-            sliceHeight
-          );
-          const sliceDataUrl = sliceCanvas.toDataURL("image/jpeg", 0.95);
-          const sliceMmH = (sliceHeight * imgW) / canvas.width;
-
-          if (pageIndex > 0) doc.addPage();
-          doc.addImage(sliceDataUrl, "JPEG", margin, margin, imgW, sliceMmH);
-
-          offset += sliceHeight;
-          pageIndex++;
-        }
-      }
-
-      doc.save(`pv_${pvNum}.pdf`);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pv_${pvNum}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
       toast({
         title: "Could not download PDF",
@@ -216,8 +103,6 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
           err instanceof Error ? err.message : "An unknown error occurred.",
       });
     } finally {
-      if (root) root.unmount();
-      if (host && host.parentNode) host.parentNode.removeChild(host);
       setBusy(false);
     }
   };
