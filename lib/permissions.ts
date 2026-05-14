@@ -40,6 +40,10 @@ export const PERMISSIONS = {
   STAFF_SYNC: "staff:sync",
 
   ROLES_MANAGE: "roles:manage",
+
+  ATTACHMENT_UPLOAD: "attachment:upload",
+  ATTACHMENT_READ: "attachment:read",
+  ATTACHMENT_DELETE: "attachment:delete",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -178,6 +182,26 @@ export const PERMISSION_GROUPS: {
         label: "Manage roles",
         description:
           "Create, edit, and delete roles, and assign them to staff.",
+      },
+    ],
+  },
+  {
+    label: "Attachments",
+    permissions: [
+      {
+        key: PERMISSIONS.ATTACHMENT_UPLOAD,
+        label: "Upload attachments",
+        description: "Upload files to SharePoint and link them to records.",
+      },
+      {
+        key: PERMISSIONS.ATTACHMENT_READ,
+        label: "View / download attachments",
+        description: "View the list of attachments and download files.",
+      },
+      {
+        key: PERMISSIONS.ATTACHMENT_DELETE,
+        label: "Delete attachments",
+        description: "Remove an attachment (deletes both the row and the SharePoint file).",
       },
     ],
   },

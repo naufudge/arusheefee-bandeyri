@@ -44,6 +44,8 @@ model Staff {
   // Petty cash role assignments (one row per signed role on one PettyCash)
   pettyCashRoles PettyCashStaff[]
 
+  attachments Attachment[]
+
   // RBAC: a Staff can have many Roles
   roles Role[] @relation("StaffRoles")
 
@@ -221,4 +223,19 @@ model PettyCashItem {
   pettyCash   PettyCash @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
 
   @@map("petty_cash_items")
+}
+
+model Attachment {
+  id                      Int                @id @default(autoincrement())
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  description             String
+  mimeType                String?
+  originalName            String?
+  sharepointFileName      String?            @unique
+  createdById             String
+  reference_id            String
+  reference_type          String
+  sharepointUrl           String?
+  createdBy               Staff               @relation(fields: [createdById], references: [id])
 }
