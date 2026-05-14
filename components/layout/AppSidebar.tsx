@@ -292,15 +292,21 @@ export function AppSidebar() {
       <SidebarFooter className="border-t">
         {user ? (
           <div className="flex items-center gap-2 px-3 py-3">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
-              {initials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-medium">{user.name}</div>
-              <div className="truncate text-[10px] text-muted-foreground">
-                {user.email}
+            <Link
+              href="/profile"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-md p-1 transition hover:bg-muted"
+              title="View profile"
+            >
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-[11px] font-semibold text-background">
+                {initials}
               </div>
-            </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-xs font-medium">{user.name}</div>
+                <div className="truncate text-[10px] text-muted-foreground">
+                  {user.email}
+                </div>
+              </div>
+            </Link>
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: "/login" })}
