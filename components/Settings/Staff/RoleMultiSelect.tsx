@@ -75,13 +75,32 @@ const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
   const isEmpty = !isLoading && (roles?.length ?? 0) === 0;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    // modal={true}: this Popover is rendered inside a Radix Dialog. Dialog
+    // sets `pointer-events: none` on <body> to lock interaction to its
+    // own content; the portaled popover content gets caught in that lock
+    // even though it sits visually on top. modal makes the Popover its
+    // own pointer-event layer that supersedes the dialog's lock.
+    <Popover open={open} onOpenChange={setOpen} modal>
+      {/*
+        Trigger is a div (not a button) because it contains nested buttons
+        for removing individual chips and clearing all selections. A
+        <button> cannot legally contain another <button> — browsers
+        auto-close the outer one mid-parse, which breaks event delegation
+        on items inside the popover and produces a hydration mismatch.
+      */}
       <PopoverTrigger asChild>
-        <button
-          type="button"
+        <div
+          role="combobox"
+          tabIndex={0}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex min-h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-2 py-1 text-left text-sm ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              (e.currentTarget as HTMLElement).click();
+            }
+          }}
+          className="flex min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-input bg-background px-2 py-1 text-left text-sm ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
             {selectedRoles.length === 0 ? (
@@ -128,7 +147,7 @@ const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
             )}
             <ChevronsUpDown className="size-3.5" />
           </div>
-        </button>
+        </div>
       </PopoverTrigger>
 
       <PopoverContent

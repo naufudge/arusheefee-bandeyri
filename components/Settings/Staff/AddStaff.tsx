@@ -72,9 +72,11 @@ const AddStaff: React.FC<AddStaffProps> = ({
     },
   });
 
-  // Reset form + role selection to current staff values whenever the dialog
-  // re-opens. Synchronous setState here is intentional — we sync local UI
-  // state to incoming props on the open event; not a re-render cascade.
+  // Reset form + role selection to current staff values only on the
+  // open->true transition. The parent passes `staff` as an inline object
+  // literal, so its reference changes on every parent render — depending
+  // on `staff` here would re-fire mid-edit and wipe in-flight changes
+  // (notably role toggles). `open` is the only dep we actually want.
   useEffect(() => {
     if (open) {
       form.reset({
@@ -84,7 +86,8 @@ const AddStaff: React.FC<AddStaffProps> = ({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedRoleIds(new Set(staff?.roleIds ?? []));
     }
-  }, [open, staff, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const createMutation = useMutation(
     trpc.staff.create.mutationOptions({
