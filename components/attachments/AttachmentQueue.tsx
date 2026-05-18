@@ -134,7 +134,7 @@ export const AttachmentQueue = forwardRef<AttachmentQueueHandle>(
             className="h-9"
           >
             <Upload className="size-3.5" />
-            Queue
+            Upload
           </Button>
         </div>
 

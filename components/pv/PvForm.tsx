@@ -24,6 +24,10 @@ import {
   AttachmentQueue,
   type AttachmentQueueHandle,
 } from "@/components/attachments/AttachmentQueue";
+import { TemplatePicker } from "@/components/pv/TemplatePicker";
+import { SaveTemplateDialog } from "@/components/pv/SaveTemplateDialog";
+import type { TemplateValues } from "@/server/schemas/template.schema";
+import { Save } from "lucide-react";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 
@@ -167,6 +171,13 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const canDeleteAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_DELETE);
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true);
 
+  // Most-recently-applied template, so the Save dialog can offer to
+  // overwrite it. Cleared on a fresh page mount (default); sticky once
+  // set so the user can keep iterating on the same template.
+  const [appliedTemplate, setAppliedTemplate] = useState<
+    { id: string; name: string } | null
+  >(null);
+
   const { toast } = useToast();
   const trpc = useTRPC();
 
@@ -281,6 +292,143 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
     return found?.id ?? null;
   };
 
+  // Reverse of findStaffId — used by the template apply flow to turn a
+  // saved staffId back into { name, designation } for the form fields.
+  const findStaffById = (
+    staffId: string | null | undefined,
+  ): { name: string; designation: string } | null => {
+    if (!staffId || !staffData) return null;
+    const found = staffData.find((s) => s.id === staffId);
+    return found
+      ? { name: found.name, designation: found.designation }
+      : null;
+  };
+
+  // Apply a template to the form. "Overwrite only fields the template
+  // defines" rule: we iterate keys present in the template and call
+  // setValue for each; anything the user has already typed but the
+  // template doesn't define is preserved. `pvNum` is never touched
+  // because it isn't part of `TemplateValues`. The `meta` arg (from
+  // the picker) is remembered so the Save dialog can offer an
+  // "update existing" save flow.
+  const applyTemplate = (
+    values: TemplateValues,
+    meta?: { id: string; name: string },
+  ) => {
+    if (meta) setAppliedTemplate(meta);
+    if (values.businessArea != null) setValue("businessArea", values.businessArea, { shouldDirty: true });
+    if (values.agency != null) setValue("agency", values.agency, { shouldDirty: true });
+    if (values.vendor != null) setValue("vendor", values.vendor, { shouldDirty: true });
+    if (values.date != null) setValue("date", new Date(values.date), { shouldDirty: true });
+    if (values.notes != null) setValue("notes", values.notes, { shouldDirty: true });
+    if (values.currency != null) setValue("currency", values.currency, { shouldDirty: true });
+    if (values.exchangeRate != null) setValue("exchangeRate", values.exchangeRate, { shouldDirty: true });
+    if (values.poNum != null) setValue("poNum", values.poNum, { shouldDirty: true });
+    if (values.paymentMethod != null) setValue("paymentMethod", values.paymentMethod, { shouldDirty: true });
+    if (values.parkedDate != null) setValue("parkedDate", new Date(values.parkedDate), { shouldDirty: true });
+    if (values.postingDate != null) setValue("postingDate", new Date(values.postingDate), { shouldDirty: true });
+    if (values.transferNum != null) setValue("transferNum", values.transferNum, { shouldDirty: true });
+
+    // Form nests clearingDoc; template stores it flat — translate.
+    if (values.clearingDocNum != null) setValue("clearingDoc.num", values.clearingDocNum, { shouldDirty: true });
+    if (values.clearingDocDate != null) setValue("clearingDoc.date", new Date(values.clearingDocDate), { shouldDirty: true });
+
+    // Signatories: template stores IDs (stable); form uses name +
+    // designation. Look each one up; skip + count if the staff has
+    // since been deleted.
+    let missing = 0;
+    const applyRole = (
+      id: string | null | undefined,
+      key: "preparedBy" | "verifiedBy" | "authorisedByOne" | "authorisedByTwo",
+    ) => {
+      if (!id) return;
+      const staff = findStaffById(id);
+      if (!staff) {
+        missing++;
+        return;
+      }
+      setValue(key, staff, { shouldDirty: true });
+    };
+    applyRole(values.preparedById, "preparedBy");
+    applyRole(values.verifiedById, "verifiedBy");
+    applyRole(values.authorisedByOneId, "authorisedByOne");
+    applyRole(values.authorisedByTwoId, "authorisedByTwo");
+    if (missing > 0) {
+      toast({
+        title: `${missing} role${missing > 1 ? "s" : ""} skipped`,
+        description: "Template references staff that no longer exist.",
+      });
+    }
+
+    // Invoices: wholesale replace if the template defines any. The
+    // template stores the same nested shape the form uses.
+    if (values.invoiceDetails && values.invoiceDetails.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue("invoiceDetails", values.invoiceDetails as any, {
+        shouldDirty: true,
+      });
+    }
+  };
+
+  // Build the save-template payload from the current form. "Every
+  // non-empty field minus pvNum" — empty strings, null, undefined, and
+  // invoice rows that look like the empty-default are filtered out.
+  const getTemplateValues = (): TemplateValues => {
+    const v = getValue();
+    const result: TemplateValues = {};
+
+    const isNonEmptyStr = (s: string | null | undefined): s is string =>
+      typeof s === "string" && s.trim() !== "";
+
+    if (typeof v.businessArea === "number") result.businessArea = v.businessArea;
+    if (isNonEmptyStr(v.agency)) result.agency = v.agency;
+    if (isNonEmptyStr(v.vendor)) result.vendor = v.vendor;
+    if (v.date instanceof Date) result.date = v.date;
+    if (isNonEmptyStr(v.notes)) result.notes = v.notes;
+    if (isNonEmptyStr(v.currency)) result.currency = v.currency;
+    if (typeof v.exchangeRate === "number") result.exchangeRate = v.exchangeRate;
+    if (isNonEmptyStr(v.poNum)) result.poNum = v.poNum;
+    if (isNonEmptyStr(v.paymentMethod)) result.paymentMethod = v.paymentMethod;
+    if (v.parkedDate instanceof Date) result.parkedDate = v.parkedDate;
+    if (v.postingDate instanceof Date) result.postingDate = v.postingDate;
+    if (isNonEmptyStr(v.transferNum)) result.transferNum = v.transferNum;
+    if (isNonEmptyStr(v.clearingDoc?.num)) result.clearingDocNum = v.clearingDoc.num;
+    if (v.clearingDoc?.date instanceof Date) result.clearingDocDate = v.clearingDoc.date;
+
+    const idFor = (name: string | undefined) => findStaffId(name);
+    const preparedId = idFor(v.preparedBy?.name);
+    if (preparedId) result.preparedById = preparedId;
+    const verifiedId = idFor(v.verifiedBy?.name);
+    if (verifiedId) result.verifiedById = verifiedId;
+    const auth1Id = idFor(v.authorisedByOne?.name);
+    if (auth1Id) result.authorisedByOneId = auth1Id;
+    const auth2Id = idFor(v.authorisedByTwo?.name);
+    if (auth2Id) result.authorisedByTwoId = auth2Id;
+
+    // Invoices: keep only rows the user actually engaged with. The
+    // form's create-mode default is one empty row with code=0/total=0;
+    // filtering out rows with no comments AND no positive total AND no
+    // meaningful GL avoids saving template invoices that boil down to
+    // the empty defaults.
+    const invoices = (v.invoiceDetails ?? []).filter((inv) => {
+      const hasComments = isNonEmptyStr(inv.comments);
+      const hasTotal =
+        typeof inv.invoiceTotal === "number" && inv.invoiceTotal > 0;
+      const hasGL = (inv.glDetails ?? []).some(
+        (g) =>
+          (typeof g.code === "number" && g.code > 100000) ||
+          (typeof g.amount === "number" && g.amount > 0),
+      );
+      return hasComments || hasTotal || hasGL;
+    });
+    if (invoices.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      result.invoiceDetails = invoices as any;
+    }
+
+    return result;
+  };
+
   const onSubmit = (values: z.infer<typeof PvSchema>) => {
     setSubmitBtnState(false);
 
@@ -337,6 +485,29 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* Template picker — only in create mode. Edit mode is for
+            tweaking an existing PV; templates only seed new ones. The
+            "Save as template" trigger lives down in the form footer
+            next to the submit button. */}
+        {!pv && (
+          <div className="flex flex-col gap-2 rounded-md border bg-card p-4">
+            <div>
+              <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Templates
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pick a saved template to pre-fill the form. The PV
+                number is always left blank for you to fill in.
+              </p>
+            </div>
+            <TemplatePicker
+              onApply={applyTemplate}
+              appliedId={appliedTemplate?.id ?? null}
+              onClear={() => setAppliedTemplate(null)}
+            />
+          </div>
+        )}
+
         <section className="rounded-md border bg-card p-6">
           <div className="mb-5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Voucher Details
@@ -651,12 +822,29 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
         )}
 
         <div className="flex items-center justify-end gap-3 border-t pt-6">
+          {!pv && (
+            <SaveTemplateDialog
+              getCurrentValues={getTemplateValues}
+              appliedTemplate={appliedTemplate}
+              trigger={
+                <button
+                  type="button"
+                  className="inline-flex h-10 items-center gap-2 rounded-md border bg-background px-4 text-sm font-medium transition hover:bg-muted"
+                >
+                  <Save className="size-3.5" />
+                  {appliedTemplate
+                    ? `Save "${appliedTemplate.name}"`
+                    : "Save as template"}
+                </button>
+              }
+            />
+          )}
           <button
             type="submit"
             disabled={!submitBtnState}
             className="inline-flex h-10 items-center gap-2 rounded-md bg-foreground px-6 text-sm font-medium text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {pv ? "Save changes" : "Create voucher"}
+            {pv ? "Save changes" : "Create"}
           </button>
         </div>
       </form>

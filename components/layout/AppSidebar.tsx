@@ -144,6 +144,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
             title: "Templates",
             url: "/settings/templates",
             icon: FileText,
+            requires: PERMISSIONS.PV_CREATE,
           },
         ],
       },

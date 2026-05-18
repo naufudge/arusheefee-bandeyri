@@ -51,6 +51,9 @@ model Staff {
 
   attachments Attachment[]
 
+  // Reusable PV templates the staff has saved (shared across the team).
+  pvTemplates PvTemplate[] @relation("PvTemplateCreator")
+
   // RBAC: a Staff can have many Roles
   roles Role[] @relation("StaffRoles")
 
@@ -271,6 +274,29 @@ model Attachment {
   reference_type     String
   sharepointUrl      String?
   createdBy          Staff    @relation(fields: [createdById], references: [id])
+}
+
+// ----- PV Templates -----
+// A reusable set of pre-filled PV values, surfaced on the Create PV form
+// via the template picker. The PV number is intentionally excluded; the
+// stored `values` blob is a partial of the PV create payload, validated
+// in app code by `templateValuesSchema` before persisting.
+model PvTemplate {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  // Partial PV values (jsonb). Shape lives in
+  // server/schemas/template.schema.ts.
+  values Json
+
+  createdById String
+  createdBy   Staff  @relation("PvTemplateCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pv_templates")
 }
 
 // ----- Approval workflow -----
