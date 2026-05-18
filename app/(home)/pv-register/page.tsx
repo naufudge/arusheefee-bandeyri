@@ -7,7 +7,9 @@ import {
   Banknote,
   CircleCheck,
   Clock,
+  Eye,
   FileSpreadsheet,
+  Lock,
   Plus,
   Printer,
   ReceiptText,
@@ -15,6 +17,7 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
+import { StatusPill } from "@/components/approval/StatusPill";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,6 +62,7 @@ const PvRegisterPage = () => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const hasAccess = useHasPermission(PERMISSIONS.PV_READ);
+  const canEditLocked = useHasPermission(PERMISSIONS.PV_EDIT_LOCKED);
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [query, setQuery] = useState<string>("");
@@ -379,14 +383,15 @@ const PvRegisterPage = () => {
           </div>
         ) : (
           filteredPvs.map((pv) => {
-            const processed = !!(pv.transferNum && pv.transferNum !== "");
+            const locked = pv.status !== "DRAFT";
+            const lockEditable = canEditLocked;
             return (
               <div
                 key={pv.id}
                 className="group flex min-w-0 items-center gap-6 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm"
               >
                 <Link
-                  href={`/edit/${pv.pvNum}`}
+                  href={`/pv/${pv.pvNum}`}
                   className="flex flex-1 items-center gap-6 min-w-0"
                 >
                   {/* PV Number */}
@@ -402,12 +407,8 @@ const PvRegisterPage = () => {
                     <span className="truncate text-sm" title={pv.notes}>
                       {pv.notes}
                     </span>
-                    <span className="mt-1 flex items-center gap-1.5">
-                      <span
-                        className={`size-1.5 rounded-full ${
-                          processed ? "bg-emerald-600" : "bg-amber-500"
-                        }`}
-                      />
+                    <span className="mt-1 flex items-center gap-2">
+                      <StatusPill status={pv.status} />
                       <span className="truncate text-[11px] text-muted-foreground">
                         {pv.vendor}
                       </span>
@@ -432,14 +433,39 @@ const PvRegisterPage = () => {
 
                 {/* Action icons */}
                 <div className="flex items-center gap-3 text-muted-foreground">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    onClick={() => router.push(`/edit/${pv.pvNum}`)}
-                    className="transition hover:text-blue-600"
+                  <Link
+                    href={`/pv/${pv.pvNum}`}
+                    aria-label="View"
+                    className="transition hover:text-foreground"
+                    title="View detail"
                   >
-                    <SquarePen className="size-4" />
-                  </button>
+                    <Eye className="size-4" />
+                  </Link>
+                  {locked && !lockEditable ? (
+                    <button
+                      type="button"
+                      aria-label="Edit (locked)"
+                      disabled
+                      className="cursor-not-allowed opacity-50"
+                      title="Locked: not in DRAFT"
+                    >
+                      <Lock className="size-4" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={locked ? "Override edit" : "Edit"}
+                      onClick={() => router.push(`/edit/${pv.pvNum}`)}
+                      title={locked ? "Override edit (locked PV)" : undefined}
+                      className={
+                        locked
+                          ? "text-amber-700 transition hover:text-amber-600 dark:text-amber-400"
+                          : "transition hover:text-blue-600"
+                      }
+                    >
+                      <SquarePen className="size-4" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     aria-label="Print"

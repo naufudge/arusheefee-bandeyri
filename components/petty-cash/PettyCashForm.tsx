@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { Form } from "@/components/ui/form";
+import { AttachmentSection } from "@/components/attachments/AttachmentSection";
+import {
+  AttachmentQueue,
+  type AttachmentQueueHandle,
+} from "@/components/attachments/AttachmentQueue";
 import {
   PettyCashSchema,
   PettyCashCreateSchema,
@@ -122,6 +127,10 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
   const canEditPosting = useHasPermission(
     PERMISSIONS.PETTYCASH_EDIT_POSTING_DATE,
   );
+  // Attachment perms are independent of the petty cash's approval state
+  // now. Server enforces the same.
+  const canUploadAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_UPLOAD);
+  const canDeleteAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_DELETE);
 
   const [submitBtnState, setSubmitBtnState] = useState(true);
 
@@ -170,9 +179,22 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
     };
   };
 
+  // Holds queued attachments while the petty cash doesn't exist yet
+  // (create mode). On successful create we flush the queue against the
+  // new id before navigating away.
+  const attachmentQueueRef = useRef<AttachmentQueueHandle | null>(null);
+
+  // The ref is read inside the post-success callback (event-driven, not
+  // during render); the lint rule's wary of refs in `mutationOptions`
+  // because the options object is constructed during render, but the
+  // callback only runs after the mutation settles.
   const createMutation = useMutation(
+    // eslint-disable-next-line react-hooks/refs
     trpc.pettycash.create.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
+        if (attachmentQueueRef.current && !attachmentQueueRef.current.isEmpty()) {
+          await attachmentQueueRef.current.flush("petty_cash", data.id);
+        }
         toast({
           title: "Created",
           description: `Petty cash ${data.pettyCashNum} saved.`,
@@ -373,6 +395,20 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
               )}
             </div>
           </section>
+        )}
+
+        {/* Reference documents — queued in create mode, live in edit mode.
+            Gated by the generic `attachment:*` permissions; no longer
+            tied to the parent's approval state. */}
+        {pettyCash?.id ? (
+          <AttachmentSection
+            referenceType="petty_cash"
+            referenceId={pettyCash.id}
+            canAdd={canUploadAttachments}
+            canDelete={canDeleteAttachments}
+          />
+        ) : (
+          <AttachmentQueue ref={attachmentQueueRef} />
         )}
 
         <div className="flex items-center justify-end gap-3 border-t pt-6">

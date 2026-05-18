@@ -25,6 +25,11 @@ export const PERMISSIONS = {
   PV_DELETE: "pv:delete",
   PV_EXPORT: "pv:export",
   PV_IMPORT: "pv:import",
+  // Override: edit a PV after it has left DRAFT (sent for verification or
+  // further along the workflow). Holders bypass the lock that normally
+  // shuts down `pv.update` once `status !== DRAFT`. `pv:update` is still
+  // required — this is additive, not a replacement.
+  PV_EDIT_LOCKED: "pv:edit_locked",
 
   PETTYCASH_READ: "pettycash:read",
   PETTYCASH_CREATE: "pettycash:create",
@@ -32,6 +37,10 @@ export const PERMISSIONS = {
   PETTYCASH_DELETE: "pettycash:delete",
   PETTYCASH_EDIT_PARKED_DATE: "pettycash:edit_parked_date",
   PETTYCASH_EDIT_POSTING_DATE: "pettycash:edit_posting_date",
+  // Override: edit a Petty Cash after all five roles have approved.
+  // Same semantics as PV_EDIT_LOCKED — `pettycash:update` is still
+  // required as the base.
+  PETTYCASH_EDIT_LOCKED: "pettycash:edit_locked",
 
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
@@ -40,6 +49,16 @@ export const PERMISSIONS = {
   STAFF_SYNC: "staff:sync",
 
   ROLES_MANAGE: "roles:manage",
+
+  // ----- Attachments -----
+  // Generic CRUD permissions for reference documents (PV docs, petty
+  // cash docs, anything else stored via the polymorphic Attachment
+  // model). Replaces the older parent-resource gating: holding
+  // `attachment:upload` lets you attach to any record regardless of
+  // its PV / petty cash permissions.
+  ATTACHMENT_READ: "attachment:read",
+  ATTACHMENT_UPLOAD: "attachment:upload",
+  ATTACHMENT_DELETE: "attachment:delete",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -103,6 +122,12 @@ export const PERMISSION_GROUPS: {
         label: "Import Excel",
         description: "Bulk-load vouchers from a .xlsx file.",
       },
+      {
+        key: PERMISSIONS.PV_EDIT_LOCKED,
+        label: "Edit locked PV",
+        description:
+          "Override the workflow lock and edit a PV that has been sent for verification or further. Requires \"Edit voucher\" as well.",
+      },
     ],
   },
   {
@@ -137,6 +162,12 @@ export const PERMISSION_GROUPS: {
         key: PERMISSIONS.PETTYCASH_EDIT_POSTING_DATE,
         label: "Edit posting date",
         description: "Set or change the posting date on a petty cash record.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_EDIT_LOCKED,
+        label: "Edit locked petty cash",
+        description:
+          "Override the workflow lock and edit a petty cash record after all five roles have approved. Requires \"Edit petty cash\" as well.",
       },
     ],
   },
@@ -178,6 +209,29 @@ export const PERMISSION_GROUPS: {
         label: "Manage roles",
         description:
           "Create, edit, and delete roles, and assign them to staff.",
+      },
+    ],
+  },
+  {
+    label: "Attachments",
+    permissions: [
+      {
+        key: PERMISSIONS.ATTACHMENT_READ,
+        label: "View attachments",
+        description:
+          "List and download reference documents attached to any record (PVs, petty cash, etc.).",
+      },
+      {
+        key: PERMISSIONS.ATTACHMENT_UPLOAD,
+        label: "Upload attachments",
+        description:
+          "Attach a reference document to any record. Replaces the prior PV/petty cash-tied gating.",
+      },
+      {
+        key: PERMISSIONS.ATTACHMENT_DELETE,
+        label: "Delete attachments",
+        description:
+          "Remove an attachment from any record. Workflow lock no longer applies — anyone with this can delete from locked records too.",
       },
     ],
   },

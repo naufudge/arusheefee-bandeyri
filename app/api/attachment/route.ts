@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 import {
   buildSharePointFileName,
   uploadFile,
 } from "@/lib/sharepoint";
+
+// Reference types governed by the generic `attachment:*` permissions.
+// Other reference types (staff_signature, etc.) are owned by their own
+// routes (e.g. `/api/profile/signature`) and don't pass through here.
+const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash"]);
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -32,6 +38,18 @@ export async function POST(request: NextRequest) {
   }
   if (!originalName?.trim()) {
     return NextResponse.json({ error: "filename is required" }, { status: 400 });
+  }
+
+  // Generic `attachment:upload` gate covers all known reference types.
+  // Unknown types still require the permission as a defensive default.
+  if (
+    GENERIC_REFERENCE_TYPES.has(referenceType) &&
+    !hasPermission(session, "attachment:upload")
+  ) {
+    return NextResponse.json(
+      { error: "Missing permission: attachment:upload" },
+      { status: 403 },
+    );
   }
 
   const mimeType = request.headers.get("content-type") ?? "application/octet-stream";
@@ -95,6 +113,20 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const referenceType = searchParams.get("referenceType");
   const referenceId = searchParams.get("referenceId");
+
+  // Listing generic-type attachments requires `attachment:read`. Lookups
+  // for other reference types (signatures, etc.) are handled by their
+  // own routes and bypass this list endpoint anyway.
+  if (
+    referenceType &&
+    GENERIC_REFERENCE_TYPES.has(referenceType) &&
+    !hasPermission(session, "attachment:read")
+  ) {
+    return NextResponse.json(
+      { error: "Missing permission: attachment:read" },
+      { status: 403 },
+    );
+  }
 
   const attachments = await prisma.attachment.findMany({
     where: {

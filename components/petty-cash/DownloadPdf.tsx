@@ -42,6 +42,7 @@ function transform(record: any): PettyCashPrintData {
         amount: role?.amount ?? null,
         isApproved: !!role?.isApproved,
         date: role?.date ? new Date(role.date) : null,
+        signature: record.signatures?.[key] ?? null,
       };
     }),
   };
@@ -58,7 +59,7 @@ const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
     setBusy(true);
     try {
       const record = await queryClient.fetchQuery(
-        trpc.pettycash.getByNum.queryOptions({ pettyCashNum }),
+        trpc.pettycash.pdfPayload.queryOptions({ pettyCashNum }),
       );
       const transformed = transform(record);
 

@@ -28,6 +28,9 @@ export interface PettyCashPrintData {
     amount: number | null;
     isApproved: boolean;
     date: Date | null;
+    /** `data:` URL when this role has been approved and the staff
+     *  member has a signature on file; null otherwise. */
+    signature?: string | null;
   }[];
 }
 
@@ -274,7 +277,22 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
                 <Cell width="68%">{formatDate(handledBy?.date)}</Cell>
               </View>
             </View>
-            <View style={[styles.cell, { width: "25%" }]} />
+            <View
+              style={[
+                styles.cell,
+                { width: "25%", justifyContent: "center", alignItems: "center" },
+              ]}
+            >
+              {handledBy?.signature ? (
+                // react-pdf's <Image> renders to PDF, not HTML; jsx-a11y
+                // expects an `alt` it never accepts.
+                // eslint-disable-next-line jsx-a11y/alt-text
+                <Image
+                  src={handledBy.signature}
+                  style={{ maxHeight: 60, maxWidth: "100%", objectFit: "contain" }}
+                />
+              ) : null}
+            </View>
           </View>
         </View>
 
@@ -330,6 +348,7 @@ interface SBProps {
         designation: string;
         amount: number | null;
         date: Date | null;
+        signature?: string | null;
       }
     | undefined;
   includeAmount: boolean;
@@ -372,7 +391,16 @@ const SignatureBlock: React.FC<SBProps> = ({
       <Cell width="38%" style={styles.label}>
         Signature
       </Cell>
-      <Cell width="62%" minHeight={32} />
+      <Cell width="62%" minHeight={32}>
+        {role?.signature ? (
+          // react-pdf <Image>; alt isn't supported by the PDF renderer.
+          // eslint-disable-next-line jsx-a11y/alt-text
+          <Image
+            src={role.signature}
+            style={{ maxHeight: 28, maxWidth: "100%", objectFit: "contain" }}
+          />
+        ) : null}
+      </Cell>
     </View>
     <View style={styles.row}>
       <Cell width="38%" style={styles.label}>

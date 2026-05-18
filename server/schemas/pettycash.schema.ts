@@ -67,9 +67,35 @@ export const yearFilterSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be 4 digits"),
 });
 
+// ----- Approval workflow inputs -----
+// Petty Cash approvals are independent per role (any order). The role enum
+// matches the constants in `server/lib/approval.ts`; keep them in sync.
+
+export const pcRoleSchema = z.enum([
+  "handledBy",
+  "procurementApprovedBy",
+  "budgetCheckedBy",
+  "balanceHandedOverBy",
+  "balanceCollectedBy",
+]);
+
+export const approveRoleSchema = z.object({
+  pettyCashNum: z.string().min(1),
+  role: pcRoleSchema,
+});
+
+export const rejectRoleSchema = z.object({
+  pettyCashNum: z.string().min(1),
+  role: pcRoleSchema,
+  comment: z.string().trim().max(1000).optional(),
+});
+
 export type PettyCashStaffInput = z.infer<typeof pettyCashStaffSchema>;
 export type PettyCashItemInput = z.infer<typeof pettyCashItemSchema>;
 export type CreatePettyCashInput = z.infer<typeof createPettyCashSchema>;
 export type UpdatePettyCashInput = z.infer<typeof updatePettyCashSchema>;
 export type GetPettyCashByNumInput = z.infer<typeof getPettyCashByNumSchema>;
 export type DeletePettyCashInput = z.infer<typeof deletePettyCashSchema>;
+export type PCRoleSchemaInput = z.infer<typeof pcRoleSchema>;
+export type ApproveRoleInput = z.infer<typeof approveRoleSchema>;
+export type RejectRoleInput = z.infer<typeof rejectRoleSchema>;

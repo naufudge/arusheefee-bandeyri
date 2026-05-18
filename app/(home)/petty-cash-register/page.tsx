@@ -7,13 +7,16 @@ import {
   Banknote,
   CircleCheck,
   Clock,
+  Eye,
   FileSpreadsheet,
+  Lock,
   Plus,
   ReceiptText,
   Search as SearchIcon,
   SquarePen,
   Trash2,
 } from "lucide-react";
+import { PettyCashStatusPill } from "@/components/approval/StatusPill";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,6 +60,7 @@ const PettyCashRegisterPage = () => {
   const hasAccess = useHasPermission(PERMISSIONS.PETTYCASH_READ);
   const canDelete = useHasPermission(PERMISSIONS.PETTYCASH_DELETE);
   const canCreate = useHasPermission(PERMISSIONS.PETTYCASH_CREATE);
+  const canEditLocked = useHasPermission(PERMISSIONS.PETTYCASH_EDIT_LOCKED);
 
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -337,13 +341,22 @@ const PettyCashRegisterPage = () => {
         ) : (
           filtered.map((record) => {
             const approved = isApproved(record);
+            const roles = [
+              record.handledBy,
+              record.procurementApprovedBy,
+              record.budgetCheckedBy,
+              record.balanceHandedOverBy,
+              record.balanceCollectedBy,
+            ];
+            const approvedCount = roles.filter((r) => r?.isApproved).length;
+            const totalAssigned = roles.filter((r) => r !== null).length;
             return (
               <div
                 key={record.id}
                 className="group flex min-w-0 items-center gap-6 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm"
               >
                 <Link
-                  href={`/petty-cash/edit/${record.pettyCashNum}`}
+                  href={`/petty-cash/${record.pettyCashNum}`}
                   className="flex flex-1 items-center gap-6 min-w-0"
                 >
                   <div
@@ -365,16 +378,13 @@ const PettyCashRegisterPage = () => {
                         </span>
                       );
                     })()}
-                    <span className="mt-1 flex min-w-0 items-center gap-1.5">
-                      <span
-                        className={`size-1.5 shrink-0 rounded-full ${
-                          approved ? "bg-emerald-600" : "bg-amber-500"
-                        }`}
+                    <span className="mt-1 flex min-w-0 items-center gap-2">
+                      <PettyCashStatusPill
+                        approvedCount={approvedCount}
+                        totalAssigned={totalAssigned}
                       />
                       <span className="truncate text-[11px] text-muted-foreground">
-                        Form {record.formNum} &middot; {record.sectionUnit}{" "}
-                        &middot;{" "}
-                        {approved ? "Approved" : "Pending approvals"}
+                        Form {record.formNum} &middot; {record.sectionUnit}
                       </span>
                     </span>
                   </div>
@@ -394,16 +404,43 @@ const PettyCashRegisterPage = () => {
                 </Link>
 
                 <div className="flex items-center gap-3 text-muted-foreground">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    onClick={() =>
-                      router.push(`/petty-cash/edit/${record.pettyCashNum}`)
-                    }
-                    className="transition hover:text-blue-600"
+                  <Link
+                    href={`/petty-cash/${record.pettyCashNum}`}
+                    aria-label="View"
+                    className="transition hover:text-foreground"
+                    title="View detail"
                   >
-                    <SquarePen className="size-4" />
-                  </button>
+                    <Eye className="size-4" />
+                  </Link>
+                  {approved && !canEditLocked ? (
+                    <button
+                      type="button"
+                      aria-label="Edit (locked)"
+                      disabled
+                      className="cursor-not-allowed opacity-50"
+                      title="Locked: fully approved"
+                    >
+                      <Lock className="size-4" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={approved ? "Override edit" : "Edit"}
+                      onClick={() =>
+                        router.push(`/petty-cash/edit/${record.pettyCashNum}`)
+                      }
+                      title={
+                        approved ? "Override edit (fully approved)" : undefined
+                      }
+                      className={
+                        approved
+                          ? "text-amber-700 transition hover:text-amber-600 dark:text-amber-400"
+                          : "transition hover:text-blue-600"
+                      }
+                    >
+                      <SquarePen className="size-4" />
+                    </button>
+                  )}
 
                   <DownloadPdf pettyCashNum={record.pettyCashNum} />
 

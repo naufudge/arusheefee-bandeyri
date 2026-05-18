@@ -67,6 +67,20 @@ export const yearFilterSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be 4 digits"),
 });
 
+// ----- Approval workflow inputs -----
+// All workflow actions identify the target by pvNum; the resolver enforces
+// the state-machine transition + assignee gate. Rejection accepts an
+// optional comment that surfaces in the timeline.
+
+export const pvWorkflowActionSchema = z.object({
+  pvNum: z.string().min(1),
+});
+
+export const rejectPvSchema = z.object({
+  pvNum: z.string().min(1),
+  comment: z.string().trim().max(1000).optional(),
+});
+
 // Types
 export type GLDetailInput = z.infer<typeof glDetailSchema>;
 export type InvoiceInput = z.infer<typeof invoiceSchema>;
@@ -75,3 +89,5 @@ export type UpdatePvInput = z.infer<typeof updatePvSchema>;
 export type GetPvByNumInput = z.infer<typeof getPvByNumSchema>;
 export type DeletePvInput = z.infer<typeof deletePvSchema>;
 export type YearFilterInput = z.infer<typeof yearFilterSchema>;
+export type PvWorkflowActionInput = z.infer<typeof pvWorkflowActionSchema>;
+export type RejectPvInput = z.infer<typeof rejectPvSchema>;

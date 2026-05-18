@@ -6,6 +6,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
@@ -478,7 +479,22 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
                 >
                   {formatDate(row.date)}
                 </Cell>
-                <Cell width="28.58%" minHeight={40} />
+                <Cell width="28.58%" minHeight={40}>
+                  {row.person?.signature ? (
+                    // react-pdf's <Image> doesn't take `alt` (it's PDF,
+                    // not HTML); the jsx-a11y rule is a false positive.
+                    // eslint-disable-next-line jsx-a11y/alt-text
+                    <Image
+                      src={row.person.signature}
+                      style={{
+                        maxHeight: 32,
+                        maxWidth: "100%",
+                        objectFit: "contain",
+                        alignSelf: "center",
+                      }}
+                    />
+                  ) : null}
+                </Cell>
               </View>
             ))}
           </View>

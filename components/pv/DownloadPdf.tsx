@@ -28,18 +28,22 @@ function transformToPv(pv: any): PvValues {
     preparedBy: {
       name: pv.preparedBy?.name,
       designation: pv.preparedBy?.designation,
+      signature: pv.signatures?.preparedBy ?? undefined,
     },
     verifiedBy: {
       name: pv.verifiedBy?.name,
       designation: pv.verifiedBy?.designation,
+      signature: pv.signatures?.verifiedBy ?? undefined,
     },
     authorisedByOne: {
       name: pv.authorisedByOne?.name,
       designation: pv.authorisedByOne?.designation,
+      signature: pv.signatures?.authorisedByOne ?? undefined,
     },
     authorisedByTwo: {
       name: pv.authorisedByTwo?.name,
       designation: pv.authorisedByTwo?.designation,
+      signature: pv.signatures?.authorisedByTwo ?? undefined,
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     invoiceDetails: pv.invoices.map((invoice: any) => ({
@@ -77,7 +81,7 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
 
     try {
       const data = await queryClient.fetchQuery(
-        trpc.pv.getByNum.queryOptions({ pvNum })
+        trpc.pv.pdfPayload.queryOptions({ pvNum })
       );
       const pv = transformToPv(data);
 

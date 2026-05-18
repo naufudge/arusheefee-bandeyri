@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,13 @@ import { ExchangeRates, Staff } from "@/types";
 import { Currencies } from "@/lib/constants/currencies";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { AttachmentSection } from "@/components/attachments/AttachmentSection";
+import {
+  AttachmentQueue,
+  type AttachmentQueueHandle,
+} from "@/components/attachments/AttachmentQueue";
+import { useHasPermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 
 interface PvFormProps {
   // Accept either the form schema type or the tRPC response type
@@ -154,6 +161,10 @@ function usePvForm(pv?: any) {
 }
 
 const PvForm: React.FC<PvFormProps> = ({ pv }) => {
+  // Attachment perms are independent of the PV's workflow status now.
+  // Server enforces the same; this just keeps the UI in sync.
+  const canUploadAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_UPLOAD);
+  const canDeleteAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_DELETE);
   const [submitBtnState, setSubmitBtnState] = useState<boolean>(true);
 
   const { toast } = useToast();
@@ -208,10 +219,25 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
     name: "invoiceDetails",
   });
 
-  // Create PV mutation
+  // Holds queued attachments while the PV doesn't exist yet (create
+  // mode). On successful create we flush the queue against the new id.
+  const attachmentQueueRef = useRef<AttachmentQueueHandle | null>(null);
+
+  // Create PV mutation. The ref is read inside the post-success callback
+  // (not during render); the lint rule's wary of refs in
+  // `mutationOptions` because the options object is constructed during
+  // render, but the callback itself only runs after the mutation
+  // settles. Suppress here rather than route around it with state.
   const createMutation = useMutation(
+    // eslint-disable-next-line react-hooks/refs
     trpc.pv.create.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async (data) => {
+        // Flush any queued reference docs against the new PV id. We toast
+        // success even if some uploads fail — the PV itself was created;
+        // AttachmentQueue.flush will have toasted per-file failures.
+        if (attachmentQueueRef.current && !attachmentQueueRef.current.isEmpty()) {
+          await attachmentQueueRef.current.flush("pv", data.id);
+        }
         toast({
           title: "Success",
           description: "Successfully created a new PV!",
@@ -608,6 +634,21 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
             />
           </div>
         </section>
+
+        {/* Reference documents — queued in create mode (uploaded after the
+            PV is created so we have an id), live in edit mode. Delete is
+            gated server-side; here we surface canDelete based on status
+            so the UI doesn't tempt users into a 403. */}
+        {pv?.id ? (
+          <AttachmentSection
+            referenceType="pv"
+            referenceId={pv.id}
+            canAdd={canUploadAttachments}
+            canDelete={canDeleteAttachments}
+          />
+        ) : (
+          <AttachmentQueue ref={attachmentQueueRef} />
+        )}
 
         <div className="flex items-center justify-end gap-3 border-t pt-6">
           <button

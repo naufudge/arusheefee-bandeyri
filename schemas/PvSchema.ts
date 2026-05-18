@@ -3,6 +3,10 @@ import { z } from 'zod'
 const userSchema = z.object({
   name: z.string().optional(),
   designation: z.string().optional(),
+  // Optional `data:image/...;base64,...` URL embedded by the server when
+  // generating a PDF payload, only set for signatories whose approval
+  // stage has been completed. Not produced by the create/edit form.
+  signature: z.string().optional().nullable(),
 })
 
 export const PvSchema = z.object({

@@ -40,9 +40,14 @@ model Staff {
   verifiedPVs      PV[] @relation("VerifiedBy")
   authorisedOnePVs PV[] @relation("AuthorisedByOne")
   authorisedTwoPVs PV[] @relation("AuthorisedByTwo")
+  rejectedPVs      PV[] @relation("RejectedBy")
 
   // Petty cash role assignments (one row per signed role on one PettyCash)
   pettyCashRoles PettyCashStaff[]
+
+  // Approval timeline: every event this staff member triggered
+  // (sent/verified/authorised/rejected) across PVs and petty cash.
+  approvalEvents ApprovalEvent[] @relation("ApprovalActor")
 
   attachments Attachment[]
 
@@ -107,12 +112,29 @@ model PV {
   authorisedByOne Staff? @relation("AuthorisedByOne", fields: [authorisedByOneId], references: [id])
   authorisedByTwo Staff? @relation("AuthorisedByTwo", fields: [authorisedByTwoId], references: [id])
 
+  // ----- Approval workflow -----
+  // `status` drives the state machine. `*At` columns are load-bearing —
+  // they decide whether the PDF renders the corresponding signature. On
+  // callback or rejection back to DRAFT, the relevant `*At` columns are
+  // cleared (the assignee FKs above stay put).
+  status            PVStatus  @default(DRAFT)
+  verifiedAt        DateTime?
+  authorisedByOneAt DateTime?
+  authorisedByTwoAt DateTime?
+  rejectedAt        DateTime?
+  rejectedById      String?
+  rejectionComment  String?
+
+  rejectedBy     Staff?          @relation("RejectedBy", fields: [rejectedById], references: [id])
+  approvalEvents ApprovalEvent[]
+
   // Invoice relation (one-to-many)
   invoices Invoice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([status])
   @@map("pvs")
 }
 
@@ -181,6 +203,10 @@ model PettyCash {
 
   items PettyCashItem[]
 
+  // Approval timeline events for this petty cash (role approvals, rejects,
+  // and resets-on-edit). Used by the detail page to render history.
+  approvalEvents ApprovalEvent[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -197,6 +223,13 @@ model PettyCashStaff {
   amount     Float?
   isApproved Boolean  @default(false)
   date       DateTime
+
+  // Approval workflow metadata. `date` above is the transaction date the
+  // form captures; `approvedAt` is the actual timestamp of the approve
+  // action (set when `isApproved` flips to true).
+  approvedAt       DateTime?
+  rejectedAt       DateTime?
+  rejectionComment String?
 
   staff Staff @relation(fields: [staffId], references: [id])
 
@@ -226,16 +259,68 @@ model PettyCashItem {
 }
 
 model Attachment {
-  id                      Int                @id @default(autoincrement())
-  createdAt               DateTime           @default(now())
-  updatedAt               DateTime           @updatedAt
-  description             String
-  mimeType                String?
-  originalName            String?
-  sharepointFileName      String?            @unique
-  createdById             String
-  reference_id            String
-  reference_type          String
-  sharepointUrl           String?
-  createdBy               Staff               @relation(fields: [createdById], references: [id])
+  id                 Int      @id @default(autoincrement())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  description        String
+  mimeType           String?
+  originalName       String?
+  sharepointFileName String?  @unique
+  createdById        String
+  reference_id       String
+  reference_type     String
+  sharepointUrl      String?
+  createdBy          Staff    @relation(fields: [createdById], references: [id])
+}
+
+// ----- Approval workflow -----
+
+// Sequential state machine for a Payment Voucher.
+// REJECTED is reachable from any pending state; rejection transitions
+// `status` back to DRAFT in the same write (REJECTED itself is a
+// transient label that lives only in the ApprovalEvent log).
+enum PVStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  PENDING_AUTHORISATION_ONE
+  PENDING_AUTHORISATION_TWO
+  APPROVED
+  REJECTED
+}
+
+// Discriminator for ApprovalEvent rows. PV events are sequential stages;
+// PC events are per-role since PC approvals are out-of-order.
+enum ApprovalEventKind {
+  SENT_FOR_VERIFICATION
+  CALLED_BACK
+  VERIFIED
+  AUTHORISED_ONE
+  AUTHORISED_TWO
+  REJECTED
+  PC_ROLE_APPROVED
+  PC_ROLE_REJECTED
+  PC_ROLE_RESET_ON_EDIT
+}
+
+// Polymorphic timeline table. Exactly one of `pvId` / `pettyCashId` is
+// set per row (mirrors the polymorphism pattern used by Attachment).
+// `pettyCashRole` is populated only for PC events to identify which of
+// the five roles the event refers to.
+model ApprovalEvent {
+  id            String            @id @default(cuid())
+  kind          ApprovalEventKind
+  pvId          String?
+  pettyCashId   String?
+  pettyCashRole String?
+  actorId       String
+  comment       String?
+  createdAt     DateTime          @default(now())
+
+  pv        PV?        @relation(fields: [pvId], references: [id], onDelete: Cascade)
+  pettyCash PettyCash? @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
+  actor     Staff      @relation("ApprovalActor", fields: [actorId], references: [id])
+
+  @@index([pvId, createdAt])
+  @@index([pettyCashId, createdAt])
+  @@map("approval_events")
 }

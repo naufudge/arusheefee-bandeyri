@@ -1,4 +1,4 @@
-import { router, permissionProcedure } from "../trpc";
+import { router, protectedProcedure, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import {
   createPvSchema,
@@ -6,18 +6,32 @@ import {
   getPvByNumSchema,
   deletePvSchema,
   yearFilterSchema,
+  pvWorkflowActionSchema,
+  rejectPvSchema,
 } from "../schemas/pv.schema";
+import {
+  assertActorHasSignature,
+  getSignatureDataUrl,
+} from "../lib/approval";
 
-// Common include for PV queries with all relations
+// Common include for PV queries with all relations. The approvalEvents
+// array drives the timeline on the detail page.
 const pvInclude = {
   preparedBy: true,
   verifiedBy: true,
   authorisedByOne: true,
   authorisedByTwo: true,
+  rejectedBy: true,
   invoices: {
     include: {
       glDetails: true,
     },
+  },
+  approvalEvents: {
+    include: {
+      actor: { select: { id: true, name: true, designation: true } },
+    },
+    orderBy: { createdAt: "asc" },
   },
 } as const;
 
@@ -169,13 +183,14 @@ export const pvRouter = router({
       });
     }),
 
-  // PUT /pvs - Update PV (delete and recreate invoices/GL)
+  // PUT /pvs - Update PV (delete and recreate invoices/GL).
+  // Locked unless the PV is in DRAFT: post-rejection editing is unblocked
+  // automatically because reject sets status back to DRAFT.
   update: permissionProcedure("pv:update")
     .input(updatePvSchema)
     .mutation(async ({ ctx, input }) => {
       const { invoices, pvNum, ...pvUpdateData } = input;
 
-      // Check if PV exists
       const existing = await ctx.prisma.pV.findUnique({
         where: { pvNum },
       });
@@ -184,6 +199,20 @@ export const pvRouter = router({
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `PV ${pvNum} not found`,
+        });
+      }
+
+      // `pv:edit_locked` is an override that bypasses the DRAFT lock.
+      // `pv:update` (the procedure-level gate) is still required; this
+      // just relaxes the workflow check on top.
+      if (
+        existing.status !== "DRAFT" &&
+        !ctx.session.permissions?.includes("pv:edit_locked")
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "PV is locked: callback it back to DRAFT before editing.",
         });
       }
 
@@ -242,5 +271,321 @@ export const pvRouter = router({
       });
 
       return { success: true };
+    }),
+
+  // ----- Approval workflow mutations -----
+
+  // Move DRAFT → PENDING_VERIFICATION. Requires `pv:update` and a verifier
+  // assigned (without one there's no possible next step).
+  send: permissionProcedure("pv:update")
+    .input(pvWorkflowActionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+      if (pv.status !== "DRAFT") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only DRAFT PVs can be sent for verification.",
+        });
+      }
+      if (!pv.verifiedById) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Assign a verifier before sending for verification.",
+        });
+      }
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "SENT_FOR_VERIFICATION",
+            pvId: pv.id,
+            actorId: ctx.session.user.id,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: { status: "PENDING_VERIFICATION" },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // Callback a PENDING_VERIFICATION PV back to DRAFT. Only legal while the
+  // verifier hasn't acted yet — once verified, the flow is past callback.
+  callback: permissionProcedure("pv:update")
+    .input(pvWorkflowActionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+      if (pv.status !== "PENDING_VERIFICATION") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Callback is only allowed while awaiting verification.",
+        });
+      }
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "CALLED_BACK",
+            pvId: pv.id,
+            actorId: ctx.session.user.id,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: { status: "DRAFT" },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // Verifier action. Strict assignee gate. Advances to authorisation stage.
+  verify: protectedProcedure
+    .input(pvWorkflowActionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+      if (pv.status !== "PENDING_VERIFICATION") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PV is not awaiting verification.",
+        });
+      }
+      if (pv.verifiedById !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the assigned verifier can verify this PV.",
+        });
+      }
+      await assertActorHasSignature(ctx.prisma, ctx.session.user.id);
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "VERIFIED",
+            pvId: pv.id,
+            actorId: ctx.session.user.id,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: {
+            status: "PENDING_AUTHORISATION_ONE",
+            verifiedAt: new Date(),
+          },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // Authoriser stage 1. Advances to stage 2 if a second authoriser is
+  // assigned; otherwise jumps straight to APPROVED.
+  authoriseOne: protectedProcedure
+    .input(pvWorkflowActionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+      if (pv.status !== "PENDING_AUTHORISATION_ONE") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PV is not awaiting first authorisation.",
+        });
+      }
+      if (pv.authorisedByOneId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the assigned first authoriser can authorise this PV.",
+        });
+      }
+      await assertActorHasSignature(ctx.prisma, ctx.session.user.id);
+
+      const nextStatus = pv.authorisedByTwoId
+        ? "PENDING_AUTHORISATION_TWO"
+        : "APPROVED";
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "AUTHORISED_ONE",
+            pvId: pv.id,
+            actorId: ctx.session.user.id,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: {
+            status: nextStatus,
+            authorisedByOneAt: new Date(),
+          },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // Authoriser stage 2. Final step → APPROVED.
+  authoriseTwo: protectedProcedure
+    .input(pvWorkflowActionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+      if (pv.status !== "PENDING_AUTHORISATION_TWO") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PV is not awaiting second authorisation.",
+        });
+      }
+      if (pv.authorisedByTwoId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the assigned second authoriser can authorise this PV.",
+        });
+      }
+      await assertActorHasSignature(ctx.prisma, ctx.session.user.id);
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "AUTHORISED_TWO",
+            pvId: pv.id,
+            actorId: ctx.session.user.id,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: {
+            status: "APPROVED",
+            authorisedByTwoAt: new Date(),
+          },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // Reject from any pending stage. The current-stage assignee is the only
+  // one allowed to reject. Drops the PV back to DRAFT, clears the `*At`
+  // columns so the PDF doesn't render stale signatures, and records the
+  // rejection with optional comment.
+  reject: protectedProcedure
+    .input(rejectPvSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+
+      const userId = ctx.session.user.id;
+      let isAllowed = false;
+      if (pv.status === "PENDING_VERIFICATION") {
+        isAllowed = pv.verifiedById === userId;
+      } else if (pv.status === "PENDING_AUTHORISATION_ONE") {
+        isAllowed = pv.authorisedByOneId === userId;
+      } else if (pv.status === "PENDING_AUTHORISATION_TWO") {
+        isAllowed = pv.authorisedByTwoId === userId;
+      }
+
+      if (!isAllowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "Only the assignee for the current stage can reject this PV.",
+        });
+      }
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "REJECTED",
+            pvId: pv.id,
+            actorId: userId,
+            comment: input.comment ?? null,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: {
+            status: "DRAFT",
+            verifiedAt: null,
+            authorisedByOneAt: null,
+            authorisedByTwoAt: null,
+            rejectedAt: new Date(),
+            rejectedById: userId,
+            rejectionComment: input.comment ?? null,
+          },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // PDF payload — same as getByNum plus a base64 signature map for each
+  // signatory whose stage has been approved. Pre-fetching server-side
+  // keeps SharePoint URLs out of the browser and avoids react-pdf doing
+  // blocking HTTP during render.
+  pdfPayload: permissionProcedure("pv:read")
+    .input(getPvByNumSchema)
+    .query(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+        include: pvInclude,
+      });
+      if (!pv) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `PV ${input.pvNum} not found`,
+        });
+      }
+
+      // Prepared-by has no `*At` column — gate on "past DRAFT" instead:
+      // once a PV has been sent, the prepared-by signature is final.
+      const includePrepared = pv.status !== "DRAFT" && !!pv.preparedById;
+
+      const [preparedBy, verifiedBy, authorisedByOne, authorisedByTwo] =
+        await Promise.all([
+          includePrepared
+            ? getSignatureDataUrl(ctx.prisma, pv.preparedById)
+            : Promise.resolve(null),
+          pv.verifiedAt
+            ? getSignatureDataUrl(ctx.prisma, pv.verifiedById)
+            : Promise.resolve(null),
+          pv.authorisedByOneAt
+            ? getSignatureDataUrl(ctx.prisma, pv.authorisedByOneId)
+            : Promise.resolve(null),
+          pv.authorisedByTwoAt
+            ? getSignatureDataUrl(ctx.prisma, pv.authorisedByTwoId)
+            : Promise.resolve(null),
+        ]);
+
+      return {
+        ...pv,
+        signatures: {
+          preparedBy,
+          verifiedBy,
+          authorisedByOne,
+          authorisedByTwo,
+        },
+      };
     }),
 });
