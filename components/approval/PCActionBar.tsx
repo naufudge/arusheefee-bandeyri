@@ -46,6 +46,10 @@ export function PCActionBar({ pettyCashNum, role, visible }: PCActionBarProps) {
     });
     queryClient.invalidateQueries({ queryKey: trpc.pettycash.list.queryKey() });
     queryClient.invalidateQueries({ queryKey: trpc.pettycash.byYear.pathKey() });
+    // Keep the sidebar badge + pending-approvals page in sync.
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pendingCount.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pending.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.history.pathKey() });
   }
 
   const approveMutation = useMutation(

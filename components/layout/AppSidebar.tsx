@@ -4,6 +4,7 @@ import {
   BookText,
   ChevronRight,
   Home,
+  Inbox,
   NotebookPen,
   Settings,
   Users,
@@ -14,6 +15,7 @@ import {
   Coins,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
+import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
 
 import {
   Sidebar,
@@ -55,6 +57,12 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
   requires?: Permission;
   items?: NavSubItem[];
+  /**
+   * Renders a numeric badge in the row driven by a tRPC query. Kept as
+   * a discriminator (not a number) so the sidebar doesn't fetch
+   * unrelated data unconditionally — each badge owns its own query.
+   */
+  badge?: "pending-approvals";
 };
 
 const navGroups: { label: string; items: NavItem[] }[] = [
@@ -66,6 +74,15 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         url: "/",
         icon: Home,
         requires: PERMISSIONS.DASHBOARD_READ,
+      },
+      {
+        title: "Pending Approvals",
+        url: "/pending-approvals",
+        icon: Inbox,
+        // Soft gate: page itself uses `useHasAnyPermission` to also
+        // admit `pettycash:read` users — see /pending-approvals/page.tsx.
+        requires: PERMISSIONS.PV_READ,
+        badge: "pending-approvals",
       },
     ],
   },
@@ -278,6 +295,9 @@ export function AppSidebar() {
                         <Link href={item.url}>
                           <item.icon className="size-4" />
                           <span>{item.title}</span>
+                          {item.badge === "pending-approvals" && (
+                            <PendingApprovalsBadge />
+                          )}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

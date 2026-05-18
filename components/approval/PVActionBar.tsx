@@ -46,6 +46,11 @@ export function PVActionBar({
     queryClient.invalidateQueries({ queryKey: trpc.pv.getByNum.queryKey({ pvNum }) });
     queryClient.invalidateQueries({ queryKey: trpc.pv.list.queryKey() });
     queryClient.invalidateQueries({ queryKey: trpc.pv.byYear.pathKey() });
+    // Keep the sidebar badge + pending-approvals page in sync with
+    // every state change this action bar triggers.
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pendingCount.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pending.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.history.pathKey() });
   }
 
   function handleApprovalError(

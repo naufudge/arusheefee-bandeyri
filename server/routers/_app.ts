@@ -4,6 +4,7 @@ import { pvRouter } from "./pv";
 import { pettyCashRouter } from "./pettyCash";
 import { exchangeRatesRouter } from "./exchangeRates";
 import { roleRouter } from "./role";
+import { approvalsRouter } from "./approvals";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -11,6 +12,7 @@ export const appRouter = router({
   pettycash: pettyCashRouter,
   exchangeRates: exchangeRatesRouter,
   role: roleRouter,
+  approvals: approvalsRouter,
 });
 
 // Export type router type signature,
