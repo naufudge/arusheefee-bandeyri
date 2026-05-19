@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
 import {
   Select,
@@ -11,13 +11,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useTRPC } from "@/lib/trpc";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import type { TemplateValues } from "@/server/schemas/template.schema";
 
 interface AppliedTemplateMeta {
   id: string;
   name: string;
 }
+
+// Narrow local row shapes. Prisma's `JsonValue` on the `values` column
+// is recursive and trips the build-time TS instantiation depth limit
+// when used through tRPC's `queryOptions` inference. We use the raw
+// tRPC client + explicit queryFn return types to keep the type surface
+// shallow at the consumer.
+type TemplateListRow = {
+  id: string;
+  name: string;
+  createdBy: { id: string; name: string } | null;
+};
+
+type TemplateDetailRow = {
+  id: string;
+  name: string;
+  values: TemplateValues;
+};
 
 interface TemplatePickerProps {
   /**
@@ -52,21 +69,24 @@ export function TemplatePicker({
   onClear,
 }: TemplatePickerProps) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const trpcClient = useTRPCClient();
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const { data: templates, isLoading } = useQuery({
-    ...trpc.templates.list.queryOptions(),
+    queryKey: trpc.templates.list.queryKey(),
+    queryFn: async (): Promise<TemplateListRow[]> => {
+      const result = (await trpcClient.templates.list.query()) as unknown;
+      return result as TemplateListRow[];
+    },
   });
 
   async function handleSelect(id: string) {
     setLoadingId(id);
     try {
-      const tpl = await queryClient.fetchQuery(
-        trpc.templates.getById.queryOptions({ id }),
-      );
-      onApply(tpl.values as TemplateValues, { id: tpl.id, name: tpl.name });
+      const result = (await trpcClient.templates.getById.query({ id })) as unknown;
+      const tpl = result as TemplateDetailRow;
+      onApply(tpl.values, { id: tpl.id, name: tpl.name });
       toast({
         title: "Template applied",
         description: `"${tpl.name}" loaded into the form.`,
