@@ -14,6 +14,11 @@ import { SignatureRequiredModal } from "./SignatureRequiredModal";
 
 type PVAction = "verify" | "authoriseOne" | "authoriseTwo";
 
+const APPROVE_CLS =
+  "bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700";
+const REJECT_CLS =
+  "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700";
+
 interface PVActionBarProps {
   pvNum: string;
   status: PVStatus;
@@ -174,6 +179,7 @@ export function PVActionBar({
             size="sm"
             onClick={() => sendMutation.mutate({ pvNum })}
             disabled={anyPending}
+            className={APPROVE_CLS}
           >
             <Send className="size-3.5" />
             Send for verification
@@ -197,6 +203,7 @@ export function PVActionBar({
             size="sm"
             onClick={() => verifyMutation.mutate({ pvNum })}
             disabled={anyPending}
+            className={APPROVE_CLS}
           >
             <CheckCircle2 className="size-3.5" />
             Verify
@@ -208,6 +215,7 @@ export function PVActionBar({
             size="sm"
             onClick={() => authOneMutation.mutate({ pvNum })}
             disabled={anyPending}
+            className={APPROVE_CLS}
           >
             <ShieldCheck className="size-3.5" />
             Authorise
@@ -219,6 +227,7 @@ export function PVActionBar({
             size="sm"
             onClick={() => authTwoMutation.mutate({ pvNum })}
             disabled={anyPending}
+            className={APPROVE_CLS}
           >
             <ShieldCheck className="size-3.5" />
             Authorise (final)
@@ -228,10 +237,9 @@ export function PVActionBar({
           <Button
             type="button"
             size="sm"
-            variant="outline"
             onClick={() => setRejectOpen(true)}
             disabled={anyPending}
-            className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-900/20"
+            className={REJECT_CLS}
           >
             <XCircle className="size-3.5" />
             Reject
