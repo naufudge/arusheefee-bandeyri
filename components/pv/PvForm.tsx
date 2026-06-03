@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -194,11 +194,15 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
     designation: s.designation,
   }));
 
-  // Fetch latest PV (only when creating new PV)
-  // Note: latestPV can be used for auto-generating PV numbers if needed
-  useQuery({
+  // Latest PV — used in create mode to suggest the next pvNum
+  // (`YYYY-NNN` incremented from the highest existing one for the
+  // current year; resets to `YYYY-001` when the year rolls over or the
+  // DB is empty). The query throws NOT_FOUND on an empty DB, hence
+  // `retry: false` + handling the error case as "start from 001".
+  const { data: latestPV, isLoading: isLatestLoading } = useQuery({
     ...trpc.pv.latest.queryOptions(),
     enabled: !pv,
+    retry: false,
   });
 
   const form = usePvForm(pv);
@@ -208,10 +212,30 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const setValue = form.setValue;
   const getValue = form.getValues;
 
-  // useEffect(() => {
-  //   if (!pv && latestPVnum)
-  //     setValue("pvNum", `2025-${latestPVnum.toString().padStart(3, "0")}`);
-  // }, [latestPVnum, pv]);
+  // Auto-fill pvNum in create mode once we know the latest PV. We only
+  // overwrite an empty field, so a user who has already typed something
+  // (or restored a draft) keeps their input.
+  useEffect(() => {
+    if (pv) return;
+    if (isLatestLoading) return;
+    if (getValue("pvNum")) return;
+
+    const currentYear = new Date().getFullYear();
+    let nextNum = 1;
+    if (latestPV?.pvNum) {
+      const match = latestPV.pvNum.match(/^(\d{4})-(\d+)$/);
+      if (match) {
+        const [, yearStr, numStr] = match;
+        if (parseInt(yearStr, 10) === currentYear) {
+          nextNum = parseInt(numStr, 10) + 1;
+        }
+      }
+    }
+    setValue(
+      "pvNum",
+      `${currentYear}-${nextNum.toString().padStart(3, "0")}`,
+    );
+  }, [pv, latestPV, isLatestLoading, getValue, setValue]);
 
   // Handles currency dropdown selection
   const handleCurrencyChange = (currency: string) => {
