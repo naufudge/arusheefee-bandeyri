@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useId, useMemo, useState } from "react";
 import { Check, ChevronsUpDown, Search as SearchIcon, X } from "lucide-react";
 import {
   Popover,
@@ -37,6 +37,7 @@ const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
+  const listboxId = useId();
 
   const selectedRoles = useMemo(
     () => (roles ?? []).filter((r) => selected.has(r.id)),
@@ -94,6 +95,7 @@ const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
           tabIndex={0}
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-controls={listboxId}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
@@ -151,6 +153,7 @@ const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
       </PopoverTrigger>
 
       <PopoverContent
+        id={listboxId}
         align="start"
         sideOffset={4}
         className="w-[--radix-popover-trigger-width] gap-0 p-0"
