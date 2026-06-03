@@ -742,8 +742,22 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
 
           {/* Authorised By Section Two */}
           <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
-            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Authorised By <span className="font-mono normal-case tracking-normal">· 2</span>
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Authorised By <span className="font-mono normal-case tracking-normal">· 2</span>
+              </div>
+              {form.watch("authorisedByTwo.name") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue("authorisedByTwo.name", "", { shouldDirty: true });
+                    setValue("authorisedByTwo.designation", "", { shouldDirty: true });
+                  }}
+                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition hover:text-foreground"
+                >
+                  Clear
+                </button>
+              )}
             </div>
             <StaffDropDownField
               control={control}
