@@ -265,13 +265,14 @@ const StaffPage = () => {
             )}
           </div>
         ) : (
-          <Table>
+          <div className="overflow-x-auto">
+          <Table className="min-w-[560px]">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="h-9 w-[60px] pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="hidden h-9 w-[60px] pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:table-cell">
                   #
                 </TableHead>
-                <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:pl-0">
                   Name
                 </TableHead>
                 <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -291,10 +292,10 @@ const StaffPage = () => {
                   key={staff.id}
                   className="transition hover:bg-muted/40"
                 >
-                  <TableCell className="pl-6 font-mono text-xs tabular-nums text-muted-foreground">
+                  <TableCell className="hidden pl-6 font-mono text-xs tabular-nums text-muted-foreground sm:table-cell">
                     {(index + 1).toString().padStart(2, "0")}
                   </TableCell>
-                  <TableCell className="text-sm font-medium">
+                  <TableCell className="pl-6 text-sm font-medium sm:pl-0">
                     <div className="flex items-center gap-2">
                       <span>{staff.name}</span>
                       {staff.isActive === false && (
@@ -398,6 +399,7 @@ const StaffPage = () => {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </div>
     </div>

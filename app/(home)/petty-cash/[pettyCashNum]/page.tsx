@@ -194,7 +194,7 @@ const PettyCashDetailPage = ({
                 <FileText className="size-4 text-muted-foreground" />
                 <h2 className="text-sm font-semibold">Request</h2>
               </header>
-              <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-4 py-4 text-sm sm:grid-cols-4">
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
                 <Field label="PC #" value={pc.pettyCashNum} mono />
                 <Field label="Form #" value={pc.formNum} mono />
                 <Field

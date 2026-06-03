@@ -148,80 +148,82 @@ const RolesPage = () => {
             />
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="h-9 pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Name
-                </TableHead>
-                <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Description
-                </TableHead>
-                <TableHead className="h-9 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Permissions
-                </TableHead>
-                <TableHead className="h-9 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Staff
-                </TableHead>
-                <TableHead className="h-9 pr-6 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {roles.map((role) => (
-                <TableRow
-                  key={role.id}
-                  className="transition hover:bg-muted/40"
-                >
-                  <TableCell className="pl-6 text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <span>{role.name}</span>
-                      {role.isSystem && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                          System
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    <div className="line-clamp-1 max-w-[420px]">
-                      {role.description ?? (
-                        <span className="italic">No description</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-xs tabular-nums text-muted-foreground">
-                    {role.permissions.length}
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-xs tabular-nums text-muted-foreground">
-                    {role._count.staff}
-                  </TableCell>
-                  <TableCell className="pr-6 text-right">
-                    <div className="flex items-center justify-end gap-3 text-muted-foreground">
-                      <RoleDialog
-                        role={role}
-                        onSaved={refetchRoles}
-                        trigger={
-                          <button
-                            type="button"
-                            aria-label="Edit"
-                            className="transition hover:text-blue-600"
-                          >
-                            <SquarePen className="size-4" />
-                          </button>
-                        }
-                      />
-                      <DeleteRoleButton
-                        role={role}
-                        onDeleted={refetchRoles}
-                      />
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[480px]">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-9 pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Name
+                  </TableHead>
+                  <TableHead className="hidden h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:table-cell">
+                    Description
+                  </TableHead>
+                  <TableHead className="h-9 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Permissions
+                  </TableHead>
+                  <TableHead className="hidden h-9 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:table-cell">
+                    Staff
+                  </TableHead>
+                  <TableHead className="h-9 pr-6 text-right text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Actions
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {roles.map((role) => (
+                  <TableRow
+                    key={role.id}
+                    className="transition hover:bg-muted/40"
+                  >
+                    <TableCell className="pl-6 text-sm font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>{role.name}</span>
+                        {role.isSystem && (
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                            System
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                      <div className="line-clamp-1 max-w-[420px]">
+                        {role.description ?? (
+                          <span className="italic">No description</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-xs tabular-nums text-muted-foreground">
+                      {role.permissions.length}
+                    </TableCell>
+                    <TableCell className="hidden text-right font-mono text-xs tabular-nums text-muted-foreground md:table-cell">
+                      {role._count.staff}
+                    </TableCell>
+                    <TableCell className="pr-6 text-right">
+                      <div className="flex items-center justify-end gap-3 text-muted-foreground">
+                        <RoleDialog
+                          role={role}
+                          onSaved={refetchRoles}
+                          trigger={
+                            <button
+                              type="button"
+                              aria-label="Edit"
+                              className="transition hover:text-blue-600"
+                            >
+                              <SquarePen className="size-4" />
+                            </button>
+                          }
+                        />
+                        <DeleteRoleButton
+                          role={role}
+                          onDeleted={refetchRoles}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
     </div>

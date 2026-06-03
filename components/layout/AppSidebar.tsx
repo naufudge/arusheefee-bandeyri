@@ -31,6 +31,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -155,6 +156,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const closeOnMobile = () => {
+    if (isMobile) setOpenMobile(false);
+  };
   const user = session?.user;
   const userPermissions = session?.permissions ?? [];
   const initials = (user?.name ?? "?")
@@ -200,6 +205,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b">
         <Link
           href="/"
+          onClick={closeOnMobile}
           className="mx-2 my-2 flex items-center gap-3 rounded-md px-2 py-2 transition hover:bg-muted"
         >
           <div className="flex size-9 items-center justify-center rounded-md border bg-card">
@@ -266,6 +272,7 @@ export function AppSidebar() {
                                   >
                                     <Link
                                       href={subItem.url}
+                                      onClick={closeOnMobile}
                                       className="flex items-center gap-2"
                                     >
                                       {subItem.icon && (
@@ -293,7 +300,7 @@ export function AppSidebar() {
                             : "text-muted-foreground hover:bg-muted hover:text-foreground"
                         }`}
                       >
-                        <Link href={item.url}>
+                        <Link href={item.url} onClick={closeOnMobile}>
                           <item.icon className="size-4" />
                           <span>{item.title}</span>
                           {item.badge === "pending-approvals" && (
@@ -315,6 +322,7 @@ export function AppSidebar() {
           <div className="flex items-center gap-2 px-3 py-3">
             <Link
               href="/profile"
+              onClick={closeOnMobile}
               className="flex min-w-0 flex-1 items-center gap-2 rounded-md p-1 transition hover:bg-muted"
               title="View profile"
             >

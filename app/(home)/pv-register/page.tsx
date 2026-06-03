@@ -390,15 +390,15 @@ const PvRegisterPage = () => {
             return (
               <div
                 key={pv.id}
-                className="group flex min-w-0 items-center gap-6 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm"
+                className="group flex min-w-0 items-center gap-3 rounded-md border bg-card p-4 transition-shadow hover:shadow-sm sm:gap-6 sm:p-5"
               >
                 <Link
                   href={`/pv/${pv.pvNum}`}
-                  className="flex flex-1 items-center gap-6 min-w-0"
+                  className="flex min-w-0 flex-1 items-center gap-3 sm:gap-6"
                 >
                   {/* PV Number */}
                   <div
-                    className="truncate font-mono text-sm font-medium tracking-tight max-w-[180px]"
+                    className="max-w-[140px] flex-shrink-0 truncate font-mono text-sm font-medium tracking-tight sm:max-w-[180px]"
                     title={pv.pvNum}
                   >
                     {pv.pvNum}
@@ -434,7 +434,7 @@ const PvRegisterPage = () => {
                 </Link>
 
                 {/* Action icons */}
-                <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="flex flex-shrink-0 items-center gap-2 text-muted-foreground sm:gap-3">
                   <Link
                     href={`/pv/${pv.pvNum}`}
                     aria-label="View"

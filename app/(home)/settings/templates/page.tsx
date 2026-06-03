@@ -215,19 +215,20 @@ const TemplatesPage = () => {
             )}
           </div>
         ) : (
-          <Table>
+          <div className="overflow-x-auto">
+          <Table className="min-w-[520px]">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="h-9 w-[60px] pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="hidden h-9 w-[60px] pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:table-cell">
                   #
                 </TableHead>
-                <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 pl-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:pl-0">
                   Name
                 </TableHead>
-                <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="hidden h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:table-cell">
                   Description
                 </TableHead>
-                <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="hidden h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:table-cell">
                   Created by
                 </TableHead>
                 <TableHead className="h-9 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -244,20 +245,20 @@ const TemplatesPage = () => {
                   key={tpl.id}
                   className="transition hover:bg-muted/40"
                 >
-                  <TableCell className="pl-6 font-mono text-xs tabular-nums text-muted-foreground">
+                  <TableCell className="hidden pl-6 font-mono text-xs tabular-nums text-muted-foreground md:table-cell">
                     {(index + 1).toString().padStart(2, "0")}
                   </TableCell>
-                  <TableCell className="text-sm font-medium">
+                  <TableCell className="pl-6 text-sm font-medium md:pl-0">
                     {tpl.name}
                   </TableCell>
-                  <TableCell className="max-w-[320px] truncate text-sm text-muted-foreground">
+                  <TableCell className="hidden max-w-[320px] truncate text-sm text-muted-foreground md:table-cell">
                     {tpl.description || (
                       <span className="italic text-muted-foreground/60">
                         none
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                     {tpl.createdBy?.name ?? "—"}
                   </TableCell>
                   <TableCell className="font-mono text-xs tabular-nums text-muted-foreground">
@@ -284,6 +285,7 @@ const TemplatesPage = () => {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </div>
     </div>

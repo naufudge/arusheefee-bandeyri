@@ -87,7 +87,7 @@ const PendingApprovalsPage = () => {
       </header>
 
       {/* KPI strip */}
-      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {pendingLoading ? (
           Array.from({ length: 3 }).map((_, i) => <KpiSkeleton key={i} />)
         ) : (
