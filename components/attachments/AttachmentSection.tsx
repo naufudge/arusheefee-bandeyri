@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import {
   Download,
   Eye,
+  FileText,
   Loader2,
   Paperclip,
   Trash2,
@@ -43,6 +44,12 @@ interface AttachmentSectionProps {
    * Server-side delete is also gated; this just avoids confusing UI.
    */
   canDelete?: boolean;
+  /**
+   * If true, render an embedded tabbed PDF viewer (document switcher tabs on
+   * top, scrollable viewer below) instead of the list + click-to-open modal.
+   * Used on the PV detail page; other call sites keep the default list UI.
+   */
+  embedViewer?: boolean;
 }
 
 /**
@@ -58,6 +65,7 @@ export function AttachmentSection({
   referenceId,
   canAdd = true,
   canDelete = true,
+  embedViewer = false,
 }: AttachmentSectionProps) {
   const { toast } = useToast();
   const [items, setItems] = useState<Attachment[]>([]);
@@ -70,6 +78,11 @@ export function AttachmentSection({
   // Only PDF attachments can be viewed; non-PDFs keep the
   // "Open in new tab" behaviour.
   const [viewing, setViewing] = useState<Attachment | null>(null);
+
+  // Embedded-viewer mode: which document is shown in the iframe. Defaults
+  // to the first (most recent) attachment and repairs itself when the
+  // current selection is removed (e.g. after a delete).
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     const qs = new URLSearchParams({
@@ -101,6 +114,15 @@ export function AttachmentSection({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+
+  useEffect(() => {
+    // Keep the embedded viewer's selection valid: pick the first
+    // attachment when nothing is selected or the selected one is gone.
+    if (!embedViewer) return;
+    if (selectedId !== null && items.some((i) => i.id === selectedId)) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedId(items[0]?.id ?? null);
+  }, [embedViewer, items, selectedId]);
 
   async function handleFile(file: File) {
     const desc = description.trim() || file.name;
@@ -159,6 +181,9 @@ export function AttachmentSection({
     }
   }
 
+  // Embedded viewer: the document currently shown in the iframe.
+  const selected = items.find((i) => i.id === selectedId) ?? null;
+
   return (
     <section className="rounded-md border bg-card">
       <header className="flex items-center justify-between border-b px-4 py-3">
@@ -206,42 +231,49 @@ export function AttachmentSection({
         </div>
       )}
 
-      <div className="divide-y">
-        {loading ? (
-          <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-            Loading…
-          </div>
-        ) : items.length === 0 ? (
-          <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-            No documents attached yet.
-          </div>
-        ) : (
-          items.map((a) => (
-            <div
-              key={a.id}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{a.description}</div>
+      {embedViewer ? (
+        <>
+          {/* Document switcher — only when there's more than one. */}
+          {items.length > 1 && (
+            <div className="flex flex-wrap gap-1.5 border-b px-4 py-2.5">
+              {items.map((a) => {
+                const active = a.id === selectedId;
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => setSelectedId(a.id)}
+                    title={a.description}
+                    className={`inline-flex max-w-[220px] items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition ${
+                      active
+                        ? "border-foreground/30 bg-muted text-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <FileText className="size-3.5 shrink-0" />
+                    <span className="truncate">{a.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Toolbar for the selected document. */}
+          {selected && (
+            <div className="flex items-center justify-between gap-3 border-b px-4 py-2.5">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium">
+                  {selected.description}
+                </div>
                 <div className="truncate text-[11px] text-muted-foreground">
-                  {a.originalName ?? "—"} ·{" "}
-                  {format(new Date(a.createdAt), "d MMM yyyy")}
-                  {a.createdBy?.name ? ` · by ${a.createdBy.name}` : ""}
+                  {selected.originalName ?? "—"} ·{" "}
+                  {format(new Date(selected.createdAt), "d MMM yyyy")}
+                  {selected.createdBy?.name ? ` · by ${selected.createdBy.name}` : ""}
                 </div>
               </div>
-              {isPdfAttachment(a) ? (
-                <button
-                  type="button"
-                  onClick={() => setViewing(a)}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
-                  title="View in app"
-                >
-                  <Eye className="size-3.5" />
-                  View
-                </button>
-              ) : (
+              <div className="flex shrink-0 items-center gap-1.5">
                 <a
-                  href={`/api/attachment/${a.id}`}
+                  href={`/api/attachment/${selected.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
@@ -250,32 +282,139 @@ export function AttachmentSection({
                   <Download className="size-3.5" />
                   Open
                 </a>
-              )}
-              {canDelete ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleDelete(a.id, a.description || a.originalName || "this file")
-                  }
-                  disabled={busy}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground transition hover:text-destructive disabled:opacity-50"
-                  title="Remove"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
-              ) : null}
+                {canDelete ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDelete(
+                        selected.id,
+                        selected.description || selected.originalName || "this file",
+                      )
+                    }
+                    disabled={busy}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground transition hover:text-destructive disabled:opacity-50"
+                    title="Remove"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                ) : null}
+              </div>
             </div>
-          ))
-        )}
-      </div>
+          )}
 
-      <AttachmentViewerModal
-        open={viewing !== null}
-        onOpenChange={(next) => {
-          if (!next) setViewing(null);
-        }}
-        attachment={viewing}
-      />
+          {/* Viewer body — the tall frame only renders once there's a
+              document to show; loading / empty stay compact. */}
+          {loading ? (
+            <div className="px-4 py-12 text-center text-xs text-muted-foreground">
+              Loading…
+            </div>
+          ) : items.length === 0 ? (
+            <div className="px-4 py-12 text-center text-xs text-muted-foreground">
+              No documents attached yet.
+            </div>
+          ) : !selected ? null : (
+            <div className="h-[75vh] w-full bg-muted/30">
+              {isPdfAttachment(selected) ? (
+                <iframe
+                  key={selected.id}
+                  src={`/api/attachment/${selected.id}`}
+                  title={selected.description}
+                  className="h-full w-full border-0"
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+                  <FileText className="size-10 text-muted-foreground/60" />
+                  <p className="text-sm text-muted-foreground">
+                    Preview isn&apos;t available for this file type.
+                  </p>
+                  <a
+                    href={`/api/attachment/${selected.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
+                  >
+                    <Download className="size-4" />
+                    Open in new tab
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="divide-y">
+            {loading ? (
+              <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                Loading…
+              </div>
+            ) : items.length === 0 ? (
+              <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                No documents attached yet.
+              </div>
+            ) : (
+              items.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium">{a.description}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">
+                      {a.originalName ?? "—"} ·{" "}
+                      {format(new Date(a.createdAt), "d MMM yyyy")}
+                      {a.createdBy?.name ? ` · by ${a.createdBy.name}` : ""}
+                    </div>
+                  </div>
+                  {isPdfAttachment(a) ? (
+                    <button
+                      type="button"
+                      onClick={() => setViewing(a)}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
+                      title="View in app"
+                    >
+                      <Eye className="size-3.5" />
+                      View
+                    </button>
+                  ) : (
+                    <a
+                      href={`/api/attachment/${a.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
+                      title="Open in new tab"
+                    >
+                      <Download className="size-3.5" />
+                      Open
+                    </a>
+                  )}
+                  {canDelete ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDelete(a.id, a.description || a.originalName || "this file")
+                      }
+                      disabled={busy}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground transition hover:text-destructive disabled:opacity-50"
+                      title="Remove"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  ) : null}
+                </div>
+              ))
+            )}
+          </div>
+
+          <AttachmentViewerModal
+            open={viewing !== null}
+            onOpenChange={(next) => {
+              if (!next) setViewing(null);
+            }}
+            attachment={viewing}
+          />
+        </>
+      )}
     </section>
   );
 }

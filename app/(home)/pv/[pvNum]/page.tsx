@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   AlertCircle,
   Pencil,
-  Lock,
   FileText,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -106,31 +105,23 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
             <ChevronLeft className="size-4" />
             Back
           </button>
-          {canUpdate &&
-            (editAllowed ? (
-              <Link
-                href={`/edit/${pvNum}`}
-                title={locked ? "Override edit (locked PV)" : undefined}
-                className={`inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted ${
-                  locked
-                    ? "border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300"
-                    : ""
-                }`}
-              >
-                <Pencil className="size-4" />
-                {locked ? "Override edit" : "Edit"}
-              </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                title="PV is locked: not in DRAFT"
-                className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium text-muted-foreground"
-              >
-                <Lock className="size-4" />
-                Edit
-              </button>
-            ))}
+          {/* Edit / Override edit — only shown when editing is actually
+              allowed. Users without the override permission see no button
+              at all on a locked PV (rather than a disabled lock icon). */}
+          {editAllowed && (
+            <Link
+              href={`/edit/${pvNum}`}
+              title={locked ? "Override edit (locked PV)" : undefined}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted ${
+                locked
+                  ? "border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300"
+                  : ""
+              }`}
+            >
+              <Pencil className="size-4" />
+              {locked ? "Override edit" : "Edit"}
+            </Link>
+          )}
           {pv && <DownloadPdf pvNum={pvNum} />}
         </div>
       </header>
@@ -313,8 +304,9 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
               <AttachmentSection
                 referenceType="pv"
                 referenceId={pv.id}
-                canAdd={canUploadAttachments}
-                canDelete={canDeleteAttachments}
+                canAdd={editAllowed && canUploadAttachments}
+                canDelete={editAllowed && canDeleteAttachments}
+                embedViewer
               />
             </div>
 

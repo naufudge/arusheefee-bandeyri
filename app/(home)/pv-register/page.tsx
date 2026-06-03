@@ -9,7 +9,6 @@ import {
   Clock,
   Eye,
   FileSpreadsheet,
-  Lock,
   Plus,
   Printer,
   ReceiptText,
@@ -62,6 +61,7 @@ const PvRegisterPage = () => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const hasAccess = useHasPermission(PERMISSIONS.PV_READ);
+  const canUpdate = useHasPermission(PERMISSIONS.PV_UPDATE);
   const canEditLocked = useHasPermission(PERMISSIONS.PV_EDIT_LOCKED);
 
   const [searchInput, setSearchInput] = useState<string>("");
@@ -384,7 +384,9 @@ const PvRegisterPage = () => {
         ) : (
           filteredPvs.map((pv) => {
             const locked = pv.status !== "DRAFT";
-            const lockEditable = canEditLocked;
+            // Mirror the detail page: editing needs `pv:update`, and a
+            // locked PV additionally needs the `pv:edit_locked` override.
+            const editAllowed = canUpdate && (!locked || canEditLocked);
             return (
               <div
                 key={pv.id}
@@ -441,17 +443,10 @@ const PvRegisterPage = () => {
                   >
                     <Eye className="size-4" />
                   </Link>
-                  {locked && !lockEditable ? (
-                    <button
-                      type="button"
-                      aria-label="Edit (locked)"
-                      disabled
-                      className="cursor-not-allowed opacity-50"
-                      title="Locked: not in DRAFT"
-                    >
-                      <Lock className="size-4" />
-                    </button>
-                  ) : (
+                  {/* Edit / Override edit — hidden entirely unless editing is
+                      allowed (no `pv:update`, or locked without the
+                      `pv:edit_locked` override → no button). */}
+                  {editAllowed && (
                     <button
                       type="button"
                       aria-label={locked ? "Override edit" : "Edit"}
