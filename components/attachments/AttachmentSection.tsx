@@ -2,10 +2,27 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Download, Paperclip, Trash2, Upload, Loader2 } from "lucide-react";
+import {
+  Download,
+  Eye,
+  Loader2,
+  Paperclip,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { AttachmentViewerModal } from "@/components/attachments/AttachmentViewerModal";
+
+// PDF detection — covers both the canonical MIME type and a filename
+// fallback for older rows where `mimeType` may be empty/missing.
+function isPdfAttachment(a: { mimeType: string | null; originalName: string | null }) {
+  return (
+    a.mimeType === "application/pdf" ||
+    (a.originalName ?? "").toLowerCase().endsWith(".pdf")
+  );
+}
 
 type Attachment = {
   id: number;
@@ -48,6 +65,11 @@ export function AttachmentSection({
   const [busy, setBusy] = useState(false);
   const [description, setDescription] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Which attachment (if any) is currently open in the inline viewer.
+  // Only PDF attachments can be viewed; non-PDFs keep the
+  // "Open in new tab" behaviour.
+  const [viewing, setViewing] = useState<Attachment | null>(null);
 
   const load = useCallback(async () => {
     const qs = new URLSearchParams({
@@ -207,16 +229,28 @@ export function AttachmentSection({
                   {a.createdBy?.name ? ` · by ${a.createdBy.name}` : ""}
                 </div>
               </div>
-              <a
-                href={`/api/attachment/${a.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
-                title="Download"
-              >
-                <Download className="size-3.5" />
-                Open
-              </a>
+              {isPdfAttachment(a) ? (
+                <button
+                  type="button"
+                  onClick={() => setViewing(a)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
+                  title="View in app"
+                >
+                  <Eye className="size-3.5" />
+                  View
+                </button>
+              ) : (
+                <a
+                  href={`/api/attachment/${a.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
+                  title="Open in new tab"
+                >
+                  <Download className="size-3.5" />
+                  Open
+                </a>
+              )}
               {canDelete ? (
                 <button
                   type="button"
@@ -234,6 +268,14 @@ export function AttachmentSection({
           ))
         )}
       </div>
+
+      <AttachmentViewerModal
+        open={viewing !== null}
+        onOpenChange={(next) => {
+          if (!next) setViewing(null);
+        }}
+        attachment={viewing}
+      />
     </section>
   );
 }

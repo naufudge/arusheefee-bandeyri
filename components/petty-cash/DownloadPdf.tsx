@@ -72,7 +72,40 @@ const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
         <PrintView pettyCash={transformed} />,
       ).toBlob();
 
-      const url = URL.createObjectURL(blob);
+      // Append any PDF reference documents attached to this record.
+      // Errors are non-fatal — the base petty cash PDF still downloads.
+      let finalBlob = blob;
+      try {
+        const listRes = await fetch(
+          `/api/attachment?referenceType=petty_cash&referenceId=${record.id}`,
+        );
+        if (listRes.ok) {
+          const { attachments } = (await listRes.json()) as {
+            attachments: {
+              id: number;
+              mimeType: string | null;
+              originalName: string | null;
+            }[];
+          };
+          if (attachments.length > 0) {
+            const { bundleAttachmentsIntoPdf } = await import(
+              "@/lib/pdf-bundle"
+            );
+            const result = await bundleAttachmentsIntoPdf(blob, attachments);
+            finalBlob = result.blob;
+            if (result.errors.length > 0) {
+              toast({
+                title: "Some attachments couldn't be bundled",
+                description: result.errors.join(", "),
+              });
+            }
+          }
+        }
+      } catch {
+        // List fetch / merge failed — fall through with the bare PDF.
+      }
+
+      const url = URL.createObjectURL(finalBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `petty_cash_${pettyCashNum}.pdf`;

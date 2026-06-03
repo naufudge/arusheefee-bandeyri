@@ -92,7 +92,41 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
 
       const blob = await pdf(<PrintViewPdf pv={pv} />).toBlob();
 
-      const url = URL.createObjectURL(blob);
+      // Append any PDF reference documents attached to this PV. Errors
+      // are non-fatal — the base PV PDF still downloads, with a toast
+      // naming any attachments that couldn't be included.
+      let finalBlob = blob;
+      try {
+        const listRes = await fetch(
+          `/api/attachment?referenceType=pv&referenceId=${data.id}`,
+        );
+        if (listRes.ok) {
+          const { attachments } = (await listRes.json()) as {
+            attachments: {
+              id: number;
+              mimeType: string | null;
+              originalName: string | null;
+            }[];
+          };
+          if (attachments.length > 0) {
+            const { bundleAttachmentsIntoPdf } = await import(
+              "@/lib/pdf-bundle"
+            );
+            const result = await bundleAttachmentsIntoPdf(blob, attachments);
+            finalBlob = result.blob;
+            if (result.errors.length > 0) {
+              toast({
+                title: "Some attachments couldn't be bundled",
+                description: result.errors.join(", "),
+              });
+            }
+          }
+        }
+      } catch {
+        // List fetch / merge failed — fall through with the bare PV PDF.
+      }
+
+      const url = URL.createObjectURL(finalBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `pv_${pvNum}.pdf`;

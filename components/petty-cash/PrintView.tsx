@@ -37,6 +37,10 @@ export interface PettyCashPrintData {
 const INK = "#0f172a";
 const MUTED = "#64748b";
 const HAIRLINE = "#cbd5e1";
+// Matches the PV PDF: solid black, 1px on table cells. Page-level
+// dividers (header / footer) still use HAIRLINE so the header strip
+// stays subtle.
+const TABLE_BORDER = "#000000";
 const SUBTLE_BG = "#f8fafc";
 const NBSP = " ";
 const MIN_ITEM_ROWS = 5;
@@ -86,8 +90,8 @@ const styles = StyleSheet.create({
   table: { width: "100%" },
   row: { flexDirection: "row" },
   cell: {
-    borderWidth: 0.5,
-    borderColor: HAIRLINE,
+    borderWidth: 1,
+    borderColor: TABLE_BORDER,
     paddingVertical: 2.5,
     paddingHorizontal: 6,
     justifyContent: "center",
