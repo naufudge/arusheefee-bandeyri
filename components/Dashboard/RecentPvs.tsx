@@ -83,7 +83,7 @@ const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
                 >
                   <TableCell className="pl-6">
                     <Link
-                      href={`/edit/${pv.pvNum}`}
+                      href={`/pv/${pv.pvNum}`}
                       className="block font-mono text-xs"
                     >
                       {pv.pvNum}
@@ -91,7 +91,7 @@ const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
                   </TableCell>
                   <TableCell>
                     <Link
-                      href={`/edit/${pv.pvNum}`}
+                      href={`/pv/${pv.pvNum}`}
                       className="flex max-w-[180px] flex-col"
                     >
                       <span className="truncate text-sm" title={pv.notes}>
@@ -111,7 +111,7 @@ const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
                   </TableCell>
                   <TableCell className="pr-6 text-right">
                     <Link
-                      href={`/edit/${pv.pvNum}`}
+                      href={`/pv/${pv.pvNum}`}
                       className="block font-mono text-sm tabular-nums"
                     >
                       {formatNumberWithCommas(totalFor(pv))}
