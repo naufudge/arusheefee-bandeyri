@@ -1,0 +1,419 @@
+{
+    "Land and Building": {
+        "Land": {
+            "Agricultural": [],
+            "Airports": [],
+            "Cemetery": [],
+            "Colleges": [],
+            "Conventional Centres": [],
+            "Flats": [],
+            "Hospitals": [],
+            "Hotels": [],
+            "Industrial": [],
+            "Military": [],
+            "Mosques": [],
+            "Offices": [],
+            "Parks": [],
+            "Prisons": [],
+            "Private Schools": [],
+            "Public Schools": [],
+            "Reclaimed Areas": [],
+            "Residential Area": [],
+            "Resorts": [],
+            "Restaurants and Caf\u00e9": [],
+            "Roads": [],
+            "Shops": [],
+            "Sport Grounds": [],
+            "Stadium": [],
+            "Uninhabited islands": [],
+            "Others": []
+        },
+        "Residential Buildings": {
+            "Flats": [],
+            "Other Residential Buildings": []
+        },
+        "Non Residential Buildings": {
+            "Colleges": [],
+            "Convention Centres": [],
+            "Factories": [],
+            "Hospitals": [],
+            "Military Buildings": [],
+            "Mosques": [],
+            "Offices": [],
+            "Prisons": [],
+            "Schools": [],
+            "Other Non Residential Buildings": []
+        }
+    },
+    "Furniture, Fixtures and Fittings": {
+        "College Furniture": {
+            "Computer Table": [],
+            "Desk / Table": [],
+            "Chair": [],
+            "Bookshelves / Rack  (cupboard)": []
+        },
+        "Hospital and Health Center Furniture": {
+            "Hospital furniture": [],
+            "Hospital fittings": []
+        },
+        "Office Furniture": {
+            "Executive Chair": [],
+            "High back chair": [],
+            "Medium back chair": [],
+            "low back chair": [],
+            "Bench chair": [],
+            "Plastic chair": [],
+            "Banquet Chair": [],
+            "Chrome body chair": [],
+            "Stool Chair": [],
+            "Plastic arm chair": [],
+            "Executive Table": [],
+            "Conference Table": [],
+            "Side Table": [],
+            "Round Table": [],
+            "Work station / Partition": [],
+            "Compartment Locker": [],
+            "Pedestals": [],
+            "Counter": [],
+            "Shelves/ cupboards": [],
+            "Bookshelves (cupboard)": [],
+            "Cabinet / Rack": [],
+            "Foldable Table": [],
+            "Office Table": [],
+            "Wooden Chair": [],
+            "TT Table": []
+        },
+        "School Furniture": {
+            "Computer Table": [],
+            "Desk / Table": [],
+            "Chair": [],
+            "Bookshelves / Rack  (cupboard)": []
+        },
+        "Household Furniture": {
+            "Dining Table": [],
+            "Dining Chair": [],
+            "Sofa table": [],
+            "Sink/ sink cupboard": [],
+            "Sofa Set": [],
+            "Kitchen Cupboard": [],
+            "Bed": [],
+            "wardrobe": [],
+            "Mattress": [],
+            "Coffee Table": [],
+            "Dressing Table": [],
+            "Pillow & Pillow Case": []
+        },
+        "Other Furniture & Fittings": {
+            "Safe": [],
+            "Stands": [],
+            "Coat hanger": [],
+            "Notice board": [],
+            "Display Board": [],
+            "Keyboard Tray": [],
+            "Felt pin Board": [],
+            "Smart Board": [],
+            "white board": [],
+            "flip chart": [],
+            "Ladder": [],
+            "Podium": [],
+            "Key Box": [],
+            "Window": [],
+            "Door": [],
+            "Tv Rack": [],
+            "Drying Rack": [],
+            "Fan": [],
+            "Ceiling Fan": [],
+            "Clock": [],
+            "Switches": [],
+            "Ramp": [],
+            "Exhaust fan": [],
+            "Mats / Rugs": [],
+            "Lights / bulbs": [],
+            "Tents": [],
+            "Other Fittings": [],
+            "Ironing board": [],
+            "Door locker / Door closer": [],
+            "Electric D-Board": [],
+            "Fire and safety items": [],
+            "Wall Mount": [],
+            "Chess Table": [],
+            "TT Table": [],
+            "Blinds and Curtains": []
+        }
+    },
+    "Plant, Machineries, Equipments, Software and IT Hardware": {
+        "Hospital Equipment and Machinery": {
+            "Medical Equipments and Machineries": [
+                "Nebuliser",
+                "Wax Therapy Machine",
+                "Autoclave Machine"
+            ],
+            "ENT Machine Light Source": [],
+            "Monitor CRT (ENT Machine)": []
+        },
+        "Laboratory Equipment and Machinery": {
+            "Laboratory Furniture": [],
+            "laboratory Equipment , Apparatus, Tools": []
+        },
+        "Office Equipment and Machinery": {
+            "Binding Machine": [],
+            "Laminating Machine": [],
+            "Counting Machine": [],
+            "Cooling System": [],
+            "Shredder": [],
+            "Ballet Box": [],
+            "Puncher": [],
+            "Fax Machine": [],
+            "Photocopy machine": [],
+            "Money Detector": [],
+            "Projector lift": [],
+            "Phone": [
+                "Telephone",
+                "Conferencing Phone",
+                "IP Phone",
+                "Mobile phone"
+            ],
+            "Camera": [
+                "Digital Camera",
+                "CCTV Camera",
+                "Drone",
+                "Web Cam"
+            ],
+            "Other Equipment and Machinery": [],
+            "Television": [],
+            "Air conditioner": [],
+            "Refrigeretor": [],
+            "Microwave/ oven": [],
+            "Electric Jug": [],
+            "Rice Cooker": [],
+            "Smoked Detector": [],
+            "coffee machine": [],
+            "water dispenser": [],
+            "Vaccum Cleaner": [],
+            "Collator": [],
+            "Bread Toaster": [],
+            "Kitchen stove": [],
+            "Hand Truck / Trolley": [],
+            "Electric Blender": [],
+            "Iron": [],
+            "Packing Machine": [],
+            "Washing Machine": [],
+            "BBQ Grill set": [],
+            "Garment Steamer": [],
+            "Pump": [],
+            "Water Tank": [],
+            "Labeling machine": [],
+            "Portable AC": [],
+            "Gas Stove hood": [],
+            "Paper Cutting Machine": [],
+            "Air Purifier": [],
+            "Radio": [],
+            "Generator": [],
+            "Pest Killer": [],
+            "Hand-held metal detector": [],
+            "Handset (Talkie)": [],
+            "wheelbarrow": [],
+            "Compressor": [],
+            "Water Heater": [],
+            "Survey Equipment": [],
+            "Concrete Machinery and Equipment": [],
+            "Lawn mower": [],
+            "Oil Gun": [],
+            "Running Machine": [],
+            "Multi Gym": [],
+            "Repeater Jairo": [],
+            "PA Set": [],
+            "Weight plates / Dumbbells": [],
+            "Exercise bench": [],
+            "Diving Equipments": [],
+            "Sprayer": [],
+            "Sewing Machine": [],
+            "Dryer": [],
+            "Outboard Engine": []
+        },
+        "Software , IT related Hardware and other IT Equipments": {
+            "Servers": [],
+            "Softwares": [],
+            "Barcode Reader": [],
+            "Network rack": [],
+            "Wireless Network Device": [],
+            "Decorders/ routers/ Adaptors": [],
+            "Server Hard Disk": [],
+            "Video Recording System": [],
+            "Access Control System": [],
+            "Air Media Presentation Gateway": [],
+            "Que central Management System": [],
+            "Data Environment Monitoring System": [],
+            "High efficiency Hot-Plug Power Supply": [],
+            "Recorder (video / voice)": [],
+            "battery, Charger": [],
+            "Money Detector": [],
+            "Token management system": [],
+            "Microphone, Headsets": [],
+            "Attendence Machine": [],
+            "Projector Screen": [],
+            "Speaker System": [],
+            "Printers": [],
+            "Projectors": [],
+            "Routers": [],
+            "Scanners": [],
+            "CPU Holder": [],
+            "MIC": [],
+            "Computers": [
+                "Monitor",
+                "CPU",
+                "Keyboards",
+                "Mouse",
+                "Speaker",
+                "Laptops",
+                "UPS",
+                "Tablets",
+                "NetBook",
+                "MacBook"
+            ],
+            "Switches": [],
+            "Internal Hard Disk": [],
+            "External Hard Disk": [],
+            "Modem": [],
+            "Antena": [],
+            "CD/ DVD player": [],
+            "CD/DVD Duplicator": [],
+            "Presenter Pen": [],
+            "Conference System": [],
+            "PABX System": [],
+            "Home Theatre System": [],
+            "Modulator": [],
+            "RF Video Link": [],
+            "Amplifier": [],
+            "Phone Jack": [],
+            "Encoder and Decoder": [],
+            "Patch Panel": [],
+            "Cable Manager": [],
+            "Audio Visual Equipment": []
+        },
+        "College Medical Equipment": {
+            "Anatomical Models": [],
+            "Specimens": [],
+            "Diagnostic equipment": [
+                "Clinical diagnostic equipment",
+                "Laboratory diagnostic equipment"
+            ],
+            "Mannequins": [],
+            "Medical Models": [],
+            "Wellness equipment": [],
+            "Medical Treatment Equipment": [],
+            "Medical Instruments": [],
+            "Hospital Equipment": [
+                "Hospital beds and stretchers",
+                "Bedside Equipment",
+                "Examination tables"
+            ]
+        },
+        "College Science Equipment": {
+            "Laboratory Glass ware & ceramic ware": [],
+            "General Laboratory equipment": []
+        },
+        "College Navigational Equipment": {
+            "Communication equipment": [],
+            "Navigational instruments": []
+        },
+        "College Educational Equipment": {
+            "Teaching learning resources": [],
+            "Educational posters & charts": []
+        },
+        "College Hospitality equipment": {
+            "Cutlery": [],
+            "Crockery": [],
+            "Hospitality Glassware": [],
+            "Hollowware": [],
+            "Kitchen equipment": [],
+            "Cooking and bake ware": []
+        },
+        "College Engineering Equipment": {
+            "Hand tools": [],
+            "Power Tools": [],
+            "Engineering Machinery & Equipment": [],
+            "Engines and Generators": [],
+            "Civil engineering machinery & equipment": [],
+            "Workshop Accessories": []
+        }
+    },
+    "Vehicular Equipment, Motor Vehicles, Ships and Boats and Aerospace Euipments": {
+        "Vehicular Equipments": {
+            "Barge": [],
+            "Dredgers": [],
+            "Cranes": [],
+            "Excavators": [],
+            "Fork lifts": [],
+            "Loaders": [],
+            "Bulldozer": [],
+            "Compactor Truck": []
+        },
+        "Motor vehicles": {
+            "Buses": [],
+            "Cars": [],
+            "Lorry": [],
+            "Military Vehicles": [],
+            "Motor cycles": [],
+            "Pick up": [],
+            "Trucks": [],
+            "Vans": [],
+            "Bicycles": [],
+            "Jeep": []
+        },
+        "Ships and Boats": {
+            "Fishing Vessels": [],
+            "Goods carrier Dhoni": [],
+            "Passenger carrier Dhoni": [],
+            "Ships": [],
+            "Speed boats": [],
+            "Dinghy": []
+        },
+        "Other Vessels": {
+            "Pedal Boat": [],
+            "Canoe": [],
+            "Raft": [],
+            "Oar": [],
+            "Fender": [],
+            "Lifebuoy Ring": []
+        },
+        "Aerospace Equipments": {
+            "Aeroplanes": [],
+            "Helicopters": [],
+            "Jets": [],
+            "Sea Planes": []
+        }
+    },
+    "Tools, Instrument and Apparatus": {
+        "Apparatus": {
+            "Vise": []
+        },
+        "Instruments": {
+            "Music Instruments": []
+        },
+        "Tools": {
+            "Drill": [],
+            "Binoculars": [],
+            "Scaler": [],
+            "Blower": [],
+            "Tool Kit": [],
+            "Saw": [],
+            "Planer": [],
+            "Sander": [],
+            "Grinder": [],
+            "Search Kit": [],
+            "Welding former": [],
+            "Vehicle Search Mirror": []
+        }
+    },
+    "Copy Rights and Patents": {
+        "License": {}
+    },
+    "Heritage Assets" : {},
+    "Lagoons, inhabited island, etc" : {},
+    "Reference Books & Exhibition goods": {
+        "books": {},
+        "Exhibition goods": {}
+    },
+    "Non Asset Inventory/ Stock Items": {}
+}

@@ -13,6 +13,8 @@ import {
   LogOut,
   Wallet,
   Coins,
+  Package,
+  PackagePlus,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
@@ -118,6 +120,23 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         url: "/petty-cash/create",
         icon: Coins,
         requires: PERMISSIONS.PETTYCASH_CREATE,
+      },
+    ],
+  },
+  {
+    label: "Assets",
+    items: [
+      {
+        title: "Asset Register",
+        url: "/asset-register",
+        icon: Package,
+        requires: PERMISSIONS.ASSET_READ,
+      },
+      {
+        title: "Create Asset",
+        url: "/asset/create",
+        icon: PackagePlus,
+        requires: PERMISSIONS.ASSET_CREATE,
       },
     ],
   },

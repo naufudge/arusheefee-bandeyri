@@ -2,6 +2,7 @@
 .env
 .claude
 .vscode
+*.xlsx
 
 # dependencies
 /node_modules

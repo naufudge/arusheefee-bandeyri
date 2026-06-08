@@ -299,6 +299,54 @@ model PvTemplate {
   @@map("pv_templates")
 }
 
+// ----- Asset register -----
+// Flat registry row, one per physical asset (plain CRUD — no approval
+// workflow). `assetNum` is the human-readable key (e.g. 433-18-02-15-79-01)
+// and doubles as the URL slug. `category` (the main category) and
+// `assetType` (the Excel sheet name / leaf type) are denormalised onto the
+// row so the export can regroup assets into one-sheet-per-type with the
+// category header without re-deriving the taxonomy.
+model Asset {
+  id String @id @default(cuid())
+
+  assetNum       String  @unique // "Asset Number" — slug + unique key
+  SAPassetNum    String? // "SAP Asset No." — often blank
+  assetName      String // "Asset Name & Description"
+  modelNum       String? // "Model number" — often "-"
+  manufacturerId String? // "Manufacturer ID" — often "-"
+  classification String? // "Classification" e.g. Z652
+
+  previousLocation String?
+  presentLocation  String?
+
+  // Date-or-year: `date` always holds a real DateTime (1 Jan of the year
+  // when only a year is known); `datePrecision` records whether the
+  // original cell was a bare YEAR or a FULL date so export round-trips
+  // losslessly.
+  date          DateTime?
+  datePrecision AssetDatePrecision @default(YEAR)
+
+  price     Float? // "Price"
+  condition String? // "Condition" e.g. Good
+
+  category  String // main category (10 values)
+  assetType String // Excel sheet name / leaf type
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([assetType])
+  @@index([category])
+  @@map("assets")
+}
+
+// Whether an Asset's `date` was recorded as a bare year or a full date.
+// Drives how the date column is rendered on export so it round-trips.
+enum AssetDatePrecision {
+  YEAR
+  FULL
+}
+
 // ----- Approval workflow -----
 
 // Sequential state machine for a Payment Voucher.

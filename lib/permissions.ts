@@ -42,6 +42,16 @@ export const PERMISSIONS = {
   // required as the base.
   PETTYCASH_EDIT_LOCKED: "pettycash:edit_locked",
 
+  // ----- Assets -----
+  // Plain CRUD registry (no approval workflow). Export/import are gated
+  // separately so a viewer can browse without bulk-mutating the register.
+  ASSET_READ: "asset:read",
+  ASSET_CREATE: "asset:create",
+  ASSET_UPDATE: "asset:update",
+  ASSET_DELETE: "asset:delete",
+  ASSET_EXPORT: "asset:export",
+  ASSET_IMPORT: "asset:import",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -168,6 +178,41 @@ export const PERMISSION_GROUPS: {
         label: "Edit locked petty cash",
         description:
           "Override the workflow lock and edit a petty cash record after all five roles have approved. Requires \"Edit petty cash\" as well.",
+      },
+    ],
+  },
+  {
+    label: "Assets",
+    permissions: [
+      {
+        key: PERMISSIONS.ASSET_READ,
+        label: "View assets",
+        description: "Browse the asset register and view individual assets.",
+      },
+      {
+        key: PERMISSIONS.ASSET_CREATE,
+        label: "Create asset",
+        description: "Add a new asset to the register.",
+      },
+      {
+        key: PERMISSIONS.ASSET_UPDATE,
+        label: "Edit asset",
+        description: "Modify an existing asset's details.",
+      },
+      {
+        key: PERMISSIONS.ASSET_DELETE,
+        label: "Delete asset",
+        description: "Remove an asset permanently.",
+      },
+      {
+        key: PERMISSIONS.ASSET_EXPORT,
+        label: "Export Excel",
+        description: "Download the asset register as a .xlsx file.",
+      },
+      {
+        key: PERMISSIONS.ASSET_IMPORT,
+        label: "Import Excel",
+        description: "Bulk-load assets from a .xlsx file.",
       },
     ],
   },
