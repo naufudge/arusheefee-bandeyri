@@ -53,7 +53,7 @@ function DetailRow({
     value === "—";
   return (
     <div className="flex flex-col gap-0.5 border-b px-4 py-3 last:border-b-0 sm:flex-row sm:items-baseline sm:gap-4 sm:px-5">
-      <dt className="w-48 flex-shrink-0 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+      <dt className="w-full text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:w-48 sm:flex-shrink-0">
         {label}
       </dt>
       <dd
@@ -147,18 +147,20 @@ const AssetDetailPage = ({
             <button
               type="button"
               onClick={router.back}
+              aria-label="Back"
               className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
             >
               <ChevronLeft className="size-4" />
-              Back
+              <span className="hidden sm:inline">Back</span>
             </button>
             {asset && canUpdate && (
               <Link
                 href={`/asset/edit/${encodeURIComponent(assetNum)}`}
+                aria-label="Edit"
                 className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
               >
                 <Pencil className="size-4" />
-                Edit
+                <span className="hidden sm:inline">Edit</span>
               </Link>
             )}
             {asset && canDelete && (
@@ -166,10 +168,11 @@ const AssetDetailPage = ({
                 <AlertDialogTrigger asChild>
                   <button
                     type="button"
+                    aria-label="Delete"
                     className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:text-red-400"
                   >
                     <Trash2 className="size-4" />
-                    Delete
+                    <span className="hidden sm:inline">Delete</span>
                   </button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-card">

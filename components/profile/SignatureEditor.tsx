@@ -2,7 +2,6 @@
 
 import React, {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -24,6 +23,29 @@ interface Props {
 }
 
 type Mode = "draw" | "upload";
+
+const ModeButton: React.FC<{
+  value: Mode;
+  icon: React.ReactNode;
+  active: boolean;
+  disabled?: boolean;
+  onSelect: (value: Mode) => void;
+  children: React.ReactNode;
+}> = ({ value, icon, active, disabled, onSelect, children }) => (
+  <button
+    type="button"
+    onClick={() => onSelect(value)}
+    disabled={disabled}
+    className={`flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
+      active
+        ? "bg-background text-foreground shadow-sm"
+        : "text-muted-foreground hover:text-foreground"
+    }`}
+  >
+    {icon}
+    {children}
+  </button>
+);
 
 export function SignatureEditor({
   onSave,
@@ -83,12 +105,6 @@ export function SignatureEditor({
     };
   }, [mode, resizeCanvas]);
 
-  // Reset the empty-state flag every time the user switches tabs so
-  // the Save button starts disabled on a fresh canvas.
-  useEffect(() => {
-    if (mode === "draw") setHasStrokes(false);
-  }, [mode]);
-
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith("image/")) {
       toast({ title: "Not an image", description: "Pick a PNG or JPG." });
@@ -133,26 +149,6 @@ export function SignatureEditor({
     await onSave(file);
   };
 
-  const ModeButton: React.FC<{
-    value: Mode;
-    icon: React.ReactNode;
-    children: React.ReactNode;
-  }> = ({ value, icon, children }) => (
-    <button
-      type="button"
-      onClick={() => setMode(value)}
-      disabled={busy}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
-        mode === value
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {icon}
-      {children}
-    </button>
-  );
-
   return (
     <div className="space-y-3">
       {/* Mode toggle (segmented control) */}
@@ -161,10 +157,22 @@ export function SignatureEditor({
         aria-label="Signature input mode"
         className="inline-flex w-full items-center gap-1 rounded-md border bg-muted/50 p-0.5"
       >
-        <ModeButton value="draw" icon={<Pencil className="size-3.5" />}>
+        <ModeButton
+          value="draw"
+          icon={<Pencil className="size-3.5" />}
+          active={mode === "draw"}
+          disabled={busy}
+          onSelect={setMode}
+        >
           Draw
         </ModeButton>
-        <ModeButton value="upload" icon={<Upload className="size-3.5" />}>
+        <ModeButton
+          value="upload"
+          icon={<Upload className="size-3.5" />}
+          active={mode === "upload"}
+          disabled={busy}
+          onSelect={setMode}
+        >
           Upload
         </ModeButton>
       </div>

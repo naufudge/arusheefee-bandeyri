@@ -100,13 +100,13 @@ const Section: React.FC<{
   children: React.ReactNode;
 }> = ({ title, description, children }) => (
   <section className="rounded-md border bg-card">
-    <header className="border-b px-5 py-3.5">
+    <header className="border-b px-4 py-3.5 sm:px-5">
       <h2 className="text-sm font-semibold">{title}</h2>
       {description && (
         <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
       )}
     </header>
-    <div className="p-5">{children}</div>
+    <div className="p-4 sm:p-5">{children}</div>
   </section>
 );
 
@@ -382,18 +382,18 @@ const AssetForm: React.FC<AssetFormProps> = ({ asset }) => {
         </Section>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-1">
+        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:items-center sm:justify-end">
           <button
             type="button"
             onClick={() => router.back()}
-            className="inline-flex h-9 items-center rounded-md border bg-background px-4 text-sm font-medium transition hover:bg-muted"
+            className="inline-flex h-9 w-full items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition hover:bg-muted sm:w-auto"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-foreground px-4 text-sm font-medium text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-foreground px-4 text-sm font-medium text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {submitting ? (
               <>

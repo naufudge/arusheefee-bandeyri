@@ -202,9 +202,9 @@ const ImportAssets: React.FC<ImportAssetsProps> = ({ onImported }) => {
       </button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-2xl gap-0 p-0 sm:rounded-md">
+        <DialogContent className="flex max-h-[90vh] w-full max-w-2xl flex-col gap-0 overflow-hidden p-0 sm:rounded-md">
           {/* Header */}
-          <div className="border-b px-6 py-5">
+          <div className="shrink-0 border-b px-4 py-4 sm:px-6 sm:py-5">
             <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {stage === "result" ? "Complete" : "Bulk import"}
             </div>
@@ -219,7 +219,7 @@ const ImportAssets: React.FC<ImportAssetsProps> = ({ onImported }) => {
           </div>
 
           {/* Body */}
-          <div className="px-6 py-6">
+          <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
             {(stage === "pick" || stage === "loading-preview") && (
               <PickStage
                 file={file}
@@ -247,7 +247,7 @@ const ImportAssets: React.FC<ImportAssetsProps> = ({ onImported }) => {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between gap-3 border-t bg-muted/30 px-6 py-4">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t bg-muted/30 px-4 py-3 sm:px-6 sm:py-4">
             {stage === "pick" && (
               <>
                 <button
@@ -291,7 +291,7 @@ const ImportAssets: React.FC<ImportAssetsProps> = ({ onImported }) => {
                   Back
                 </button>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center justify-end gap-3">
                   {summary.duplicates.length > 0 && (
                     <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground">
                       <input

@@ -46,7 +46,7 @@ export const AssetDateField: React.FC<AssetDateFieldProps> = ({ form }) => {
             type="button"
             onClick={() => setMode("YEAR")}
             className={cn(
-              "rounded-[5px] px-2.5 py-1 text-xs font-medium transition",
+              "rounded-[5px] px-2.5 py-1.5 text-xs font-medium transition sm:py-1",
               precision === "YEAR"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",
@@ -58,7 +58,7 @@ export const AssetDateField: React.FC<AssetDateFieldProps> = ({ form }) => {
             type="button"
             onClick={() => setMode("FULL")}
             className={cn(
-              "rounded-[5px] px-2.5 py-1 text-xs font-medium transition",
+              "rounded-[5px] px-2.5 py-1.5 text-xs font-medium transition sm:py-1",
               precision === "FULL"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",

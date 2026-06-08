@@ -86,7 +86,7 @@ const MultiSelectFilter: React.FC<{
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={`Search ${label.toLowerCase()}…`}
-            className="h-8 pl-8 text-xs"
+            className="h-9 pl-8 text-sm sm:h-8 sm:text-xs"
           />
         </div>
       )}
@@ -109,7 +109,7 @@ const MultiSelectFilter: React.FC<{
                 type="button"
                 onClick={() => onToggle(opt)}
                 aria-pressed={isSel}
-                className={`inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                className={`inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${
                   isSel
                     ? "border-foreground bg-foreground text-background"
                     : "bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground"
@@ -230,7 +230,7 @@ const AssetFilter: React.FC<AssetFilterProps> = ({
               placeholder="Min"
               value={filters.priceMin}
               onChange={(e) => setPrice("priceMin", e.target.value)}
-              className="h-8 font-mono text-xs tabular-nums"
+              className="h-9 font-mono text-sm tabular-nums sm:h-8 sm:text-xs"
             />
             <span className="text-xs text-muted-foreground">–</span>
             <Input
@@ -238,7 +238,7 @@ const AssetFilter: React.FC<AssetFilterProps> = ({
               placeholder="Max"
               value={filters.priceMax}
               onChange={(e) => setPrice("priceMax", e.target.value)}
-              className="h-8 font-mono text-xs tabular-nums"
+              className="h-9 font-mono text-sm tabular-nums sm:h-8 sm:text-xs"
             />
           </div>
         </div>
