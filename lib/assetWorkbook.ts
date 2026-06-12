@@ -7,6 +7,9 @@ import ExcelJS from "exceljs";
 import { cellToString, cellToNumber, parseDate, formatExcelDate } from "@/lib/excel";
 import {
   findCategoryForType,
+  findCategoryForSubcategory,
+  findSubcategoryForType,
+  isLeafSubcategory,
   normalizeCategoryLabel,
 } from "@/lib/constants/assetCategories";
 import {
@@ -197,10 +200,25 @@ export function parseAssetWorkbook(workbook: ExcelJS.Workbook): ParseResult {
         });
       }
     } else {
-      category = findCategoryForType(assetType) ?? null;
+      category =
+        findCategoryForType(assetType) ??
+        findCategoryForSubcategory(assetType) ??
+        null;
       if (!category) {
         category = "Uncategorised";
         categoryFallbacks.push({ sheet: ws.name, assetType, category });
+      }
+    }
+
+    // Resolve the subcategory from the sheet's type. A sheet named after a
+    // type-less subcategory becomes that subcategory with no leaf type.
+    let subcategory: string | null = null;
+    let leafType: string | null = assetType;
+    if (category) {
+      subcategory = findSubcategoryForType(category, assetType) ?? null;
+      if (!subcategory && isLeafSubcategory(category, assetType)) {
+        subcategory = assetType;
+        leafType = null;
       }
     }
 
@@ -242,7 +260,8 @@ export function parseAssetWorkbook(workbook: ExcelJS.Workbook): ParseResult {
         price: price ?? null,
         condition: opt("condition"),
         category,
-        assetType,
+        subcategory,
+        assetType: leafType,
       };
 
       const parsed = createAssetSchema.safeParse(candidate);
@@ -310,7 +329,8 @@ export type ExportableAsset = {
   price: number | null;
   condition: string | null;
   category: string;
-  assetType: string;
+  subcategory: string | null;
+  assetType: string | null;
 };
 
 function dateCell(asset: ExportableAsset): string | number {
@@ -329,7 +349,10 @@ function dateCell(asset: ExportableAsset): string | number {
 export function buildAssetWorkbook(assets: ExportableAsset[]): ExcelJS.Workbook {
   const groups = new Map<string, ExportableAsset[]>();
   for (const a of assets) {
-    const key = a.assetType || "Uncategorised";
+    // Type-less subcategories have no `assetType`; group them under the
+    // subcategory so they export to their own sheet (the "Type:" row + sheet
+    // name) and round-trip back to that subcategory on import.
+    const key = a.assetType || a.subcategory || "Uncategorised";
     const arr = groups.get(key) ?? [];
     arr.push(a);
     groups.set(key, arr);
@@ -395,6 +418,141 @@ export function buildAssetWorkbook(assets: ExportableAsset[]): ExcelJS.Workbook 
       ws.getColumn(i + 1).width = w;
     });
   }
+
+  return workbook;
+}
+
+// ----- "FA register" export -----
+
+// Headers for the finance "FA register" layout (Asset Register 2026.xlsx), in
+// the same left-to-right order as the source sheet. Spelling is reproduced
+// verbatim (the "remaks" typo and the double space in "Asset Portal  Use Only")
+// to match the format exactly. The "Code Number" is broken out into one labelled
+// column per asset-number segment (the source sheet kept the code in component
+// columns). Only the columns marked below are populated from the current data
+// model; the finance-only columns are intentionally left blank.
+export const FA_REGISTER_COLUMNS = [
+  // Code Number, broken down on "-" (433-YY-main-sub-type[-variant]-item).
+  "Agency",
+  "Year",
+  "Category",
+  "Sub-Cat",
+  "Type",
+  "Variant",
+  "Item",
+  "Name of item",
+  "Item name (Description)",
+  "Serial Number",
+  "Model",
+  "Finance code",
+  "GL Code",
+  "Location",
+  "Section",
+  "Date acquired",
+  "Price(MVR)",
+  "Purchase Year",
+  "Asset Number",
+  "Asset Creation form No",
+  "PO number",
+  "Vendor",
+  "life",
+  "remaks",
+  "Asset Portal  Use Only",
+] as const;
+
+// Split a structured asset number (433-YY-main-sub-type[-variant]-item) into its
+// labelled segments. Raw string tokens are kept (preserving zero-padding like
+// "02"). The last segment is always the running item number and the optional
+// variant only exists with 7+ segments, so Item keeps its own column either way.
+function splitAssetCode(assetNum: string): {
+  agency: string;
+  year: string;
+  category: string;
+  subCat: string;
+  type: string;
+  variant: string;
+  item: string;
+} {
+  const parts = (assetNum ?? "").trim().split("-");
+  const n = parts.length;
+  const at = (i: number) => parts[i] ?? "";
+  return {
+    agency: at(0),
+    year: at(1),
+    category: at(2),
+    subCat: at(3),
+    // Type-less subcategories have 5 parts (no type segment); the item is the
+    // last part. Typed assets have 6, or 7 with a variant.
+    type: n >= 6 ? at(4) : "",
+    variant: n >= 7 ? at(5) : "",
+    item: n >= 5 ? parts[n - 1] : "",
+  };
+}
+
+/**
+ * Build the single-sheet "FA register" workbook. Mirrors the layout of
+ * Asset Register 2026.xlsx: one flat "FA register" sheet with a frozen header
+ * row. Columns we don't store (Code Number, Serial Number, Finance/GL code,
+ * Section, PO number, Vendor, life, remaks, etc.) are left empty so the file
+ * is a ready-to-fill template. The caller decides which assets to include
+ * (a single year or all).
+ */
+export function buildFaRegisterWorkbook(
+  assets: ExportableAsset[],
+): ExcelJS.Workbook {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Arusheefee Bandeyri";
+  workbook.created = new Date();
+
+  const ws = workbook.addWorksheet("FA register");
+  ws.views = [{ state: "frozen", ySplit: 1 }];
+
+  const headerRow = ws.getRow(1);
+  FA_REGISTER_COLUMNS.forEach((h, i) => {
+    headerRow.getCell(i + 1).value = h;
+  });
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FFE0E0E0" },
+  };
+
+  // Code segments are stored as numbers (so "02" -> 2); blank/non-numeric
+  // tokens stay as-is so nothing is lost on odd legacy numbers.
+  const numOrBlank = (s: string): number | string =>
+    s === "" ? "" : /^\d+$/.test(s) ? Number(s) : s;
+
+  assets.forEach((a, i) => {
+    const row = ws.getRow(2 + i);
+    const code = splitAssetCode(a.assetNum);
+    // Column numbers are 1-based and follow FA_REGISTER_COLUMNS order.
+    row.getCell(1).value = numOrBlank(code.agency); // Agency
+    row.getCell(2).value = numOrBlank(code.year); // Year
+    row.getCell(3).value = numOrBlank(code.category); // Category
+    row.getCell(4).value = numOrBlank(code.subCat); // Sub-Cat
+    row.getCell(5).value = numOrBlank(code.type); // Type
+    row.getCell(6).value = numOrBlank(code.variant); // Variant
+    row.getCell(7).value = numOrBlank(code.item); // Item
+    row.getCell(8).value = a.assetName; // Name of item
+    row.getCell(11).value = a.modelNum ?? ""; // Model
+    row.getCell(14).value = a.presentLocation ?? ""; // Location
+    row.getCell(16).value = dateCell(a); // Date acquired
+    row.getCell(17).value = a.price ?? ""; // Price(MVR)
+    row.getCell(18).value = a.date // Purchase Year
+      ? new Date(a.date).getUTCFullYear()
+      : "";
+    row.getCell(19).value = a.SAPassetNum ?? ""; // Asset Number (SAP asset no.)
+  });
+
+  // Narrow for the code-segment columns, wide for the name + location columns.
+  const widths = [
+    9, 7, 10, 9, 8, 9, 7, 34, 34, 16, 16, 14, 12, 28, 18, 14, 12, 12, 22, 18,
+    14, 18, 8, 24, 14,
+  ];
+  widths.forEach((w, i) => {
+    ws.getColumn(i + 1).width = w;
+  });
 
   return workbook;
 }

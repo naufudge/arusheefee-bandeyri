@@ -23,7 +23,7 @@ export const assetRouter = router({
   nextItem: permissionProcedure("asset:create")
     .input(nextItemSchema)
     .query(async ({ ctx, input }) => {
-      const { yy, mainNum, subNum, typeNum, variantNum } = input;
+      const { yy, mainNum, subNum, typeNum, variantNum, noType } = input;
       const hasVariant = variantNum !== undefined && variantNum !== null;
 
       const assets = await ctx.prisma.asset.findMany({
@@ -36,11 +36,17 @@ export const assetRouter = router({
         const parsed = parseAssetNumber(a.assetNum);
         if (!parsed) continue;
         const p = parsed.parts;
-        if (p[2] !== mainNum || p[3] !== subNum || p[4] !== typeNum) continue;
-        if (hasVariant) {
-          if (p.length !== 7 || p[5] !== variantNum) continue;
-        } else if (p.length !== 6) {
-          continue;
+        if (p[2] !== mainNum || p[3] !== subNum) continue;
+        if (noType) {
+          // Type-less subcategory: 5-segment 433-YY-main-sub-item.
+          if (p.length !== 5) continue;
+        } else {
+          if (p[4] !== typeNum) continue;
+          if (hasVariant) {
+            if (p.length !== 7 || p[5] !== variantNum) continue;
+          } else if (p.length !== 6) {
+            continue;
+          }
         }
         if (parsed.item > max) max = parsed.item;
       }

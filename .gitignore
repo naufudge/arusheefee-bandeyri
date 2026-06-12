@@ -3,6 +3,7 @@
 .claude
 .vscode
 *.xlsx
+*.docx
 
 # dependencies
 /node_modules

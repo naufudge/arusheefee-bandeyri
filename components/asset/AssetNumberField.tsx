@@ -29,16 +29,18 @@ function NumberStatus({
 }) {
   if (!assetNum) return null;
   const v = validateAssetNumber(assetNum, { category, subcategory, assetType });
+  // For type-less subcategories `assetType` is empty — show the subcategory.
+  const leafLabel = assetType || subcategory;
 
   if (v.formatOk && v.matchesCategory) {
     return (
       <p className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
         <Check className="size-3.5" />
-        Matches {assetType}
+        Matches {leafLabel}
       </p>
     );
   }
-  if (v.formatOk && category && assetType && !v.matchesCategory) {
+  if (v.formatOk && category && leafLabel && !v.matchesCategory) {
     return (
       <p className="flex items-start gap-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
         <AlertTriangle className="mt-px size-3.5 shrink-0" />
@@ -70,7 +72,7 @@ const ReadonlyView: React.FC<{ form: UseFormReturn<AssetValues> }> = ({
   const assetType = form.watch("assetType");
   const assetSubtype = form.watch("assetSubtype") ?? "";
   // The leaf-most selection drives the type/variant segments of the number.
-  const effectiveType = assetSubtype || assetType;
+  const effectiveType = assetSubtype || assetType || "";
 
   return (
     <div className="space-y-2">
@@ -100,7 +102,7 @@ const BuilderView: React.FC<{ form: UseFormReturn<AssetValues> }> = ({
   const assetSubtype = form.watch("assetSubtype") ?? "";
   // The leaf-most selection (sub-type if chosen) drives the type/variant
   // segments of the number.
-  const effectiveType = assetSubtype || assetType;
+  const effectiveType = assetSubtype || assetType || "";
   const numberYear = form.watch("numberYear") ?? "";
   const assetNum = form.watch("assetNum") ?? "";
   const error = form.formState.errors.assetNum?.message;
@@ -128,6 +130,7 @@ const BuilderView: React.FC<{ form: UseFormReturn<AssetValues> }> = ({
       subNum: prefixResult.path.subNum ?? 0,
       typeNum: prefixResult.path.typeNum ?? 0,
       variantNum: prefixResult.path.variantNum ?? null,
+      noType: prefixResult.leafSubcategory,
     }),
     enabled: canFetch,
   });

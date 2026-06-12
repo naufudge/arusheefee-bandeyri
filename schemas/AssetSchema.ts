@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ASSET_NUMBER_PATTERN } from "@/lib/assetNumber";
+import { getSubcategories, isLeafSubcategory } from "@/lib/constants/assetCategories";
 
 // Client-side form shape for an asset. The date is modelled as a precision
 // flag plus either a 4-digit `year` (YEAR mode) or a full `date` (FULL mode);
@@ -38,10 +39,12 @@ export const AssetSchema = z
     condition: z.string().optional(),
 
     category: z.string().min(1, "Select a category"),
-    assetType: z.string().min(1, "Select a type"),
+    // Type-less subcategories have no leaf type, so `assetType` is conditionally
+    // required (see superRefine below). `subcategory` is persisted now.
+    assetType: z.string().optional(),
 
-    // Transient (not sent to the server).
     subcategory: z.string().optional(),
+    // Transient (not sent to the server).
     assetSubtype: z.string().optional(),
     numberYear: z.string().optional(),
   })
@@ -50,8 +53,32 @@ export const AssetSchema = z
     { message: "Enter a 4-digit year", path: ["year"] },
   )
   .refine((v) => ASSET_NUMBER_PATTERN.test(v.assetNum.trim()), {
-    message: "Use the format 433-YY-category-subcategory-type-item.",
+    message: "Use the format 433-YY-category-subcategory[-type]-item.",
     path: ["assetNum"],
+  })
+  .superRefine((v, ctx) => {
+    if (!v.category) return;
+    // Require a subcategory when the category has any.
+    if (getSubcategories(v.category).length > 0 && !v.subcategory) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Select a subcategory",
+        path: ["subcategory"],
+      });
+      return;
+    }
+    // Require a type unless the chosen subcategory is type-less (a leaf).
+    if (
+      v.subcategory &&
+      !isLeafSubcategory(v.category, v.subcategory) &&
+      (!v.assetType || v.assetType.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Select a type",
+        path: ["assetType"],
+      });
+    }
   });
 
 export type AssetValues = z.infer<typeof AssetSchema>;

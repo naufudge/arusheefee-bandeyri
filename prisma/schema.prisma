@@ -329,14 +329,16 @@ model Asset {
   price     Float? // "Price"
   condition String? // "Condition" e.g. Good
 
-  category  String // main category (10 values)
-  assetType String // Excel sheet name / leaf type
+  category    String // main category (10 values)
+  subcategory String? // taxonomy subcategory; the leaf for type-less subcategories
+  assetType   String? // Excel sheet name / leaf type; null when the subcategory has no types
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([assetType])
   @@index([category])
+  @@index([subcategory])
   @@map("assets")
 }
 
