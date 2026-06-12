@@ -10,7 +10,8 @@ type ValidEntry = {
   sheet: string;
   assetName: string;
   category: string;
-  assetType: string;
+  subcategory: string | null;
+  assetType: string | null;
 };
 type DuplicateEntry = { num: string; sheet: string; assetName: string };
 type InFileDuplicateEntry = {
@@ -100,7 +101,8 @@ export async function POST(request: NextRequest) {
     sheet: e.sheet,
     assetName: e.data.assetName,
     category: e.data.category,
-    assetType: e.data.assetType,
+    subcategory: e.data.subcategory ?? null,
+    assetType: e.data.assetType ?? null,
   }));
 
   // Asset numbers that appear more than once in the file. Only the first

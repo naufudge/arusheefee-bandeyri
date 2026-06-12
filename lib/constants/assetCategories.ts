@@ -70,6 +70,19 @@ export function getTypeKeys(category: string, subcategory: string): string[] {
 }
 
 /**
+ * A subcategory with no types beneath it (e.g. "books", "Exhibition goods"
+ * under "Reference Books & Exhibition goods"). Such subcategories are the
+ * asset's leaf classification themselves: the asset stores no `assetType`,
+ * and its number drops the type segment (433-YY-main-sub-item).
+ */
+export function isLeafSubcategory(category: string, subcategory: string): boolean {
+  return (
+    getSubcategories(category).includes(subcategory) &&
+    getTypeKeys(category, subcategory).length === 0
+  );
+}
+
+/**
  * Fourth-level sub-types under a specific type (e.g. Phone → Telephone, IP
  * Phone…), or `[]` when the type has no finer breakdown.
  */

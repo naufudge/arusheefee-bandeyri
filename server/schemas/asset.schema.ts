@@ -1,9 +1,11 @@
 import { z } from "zod";
 
-// Create Asset schema. Only assetNum / assetName / category / assetType are
-// required; the rest are blank or "-" in much of the source register, so
-// they're optional. category/assetType are kept lenient (no taxonomy refine)
-// so messy import rows warn rather than hard-reject.
+// Create Asset schema. Only assetNum / assetName / category are required; the
+// rest are blank or "-" in much of the source register, so they're optional.
+// `assetType` is optional/nullable because type-less subcategories have no
+// leaf type (the subcategory is the leaf). category/subcategory/assetType are
+// kept lenient (no taxonomy refine) so messy import rows warn rather than
+// hard-reject.
 export const createAssetSchema = z.object({
   assetNum: z.string().min(1),
   SAPassetNum: z.string().optional().nullable(),
@@ -22,7 +24,8 @@ export const createAssetSchema = z.object({
   condition: z.string().optional().nullable(),
 
   category: z.string().min(1),
-  assetType: z.string().min(1),
+  subcategory: z.string().optional().nullable(),
+  assetType: z.string().optional().nullable(),
 });
 
 // Update mirrors create. assetNum is the key and is not changed on update.
@@ -39,12 +42,15 @@ export const deleteAssetSchema = z.object({
 // Input for suggesting the next running item number within a number prefix.
 // The agency code is fixed server-side; the caller supplies the 2-digit year
 // and the resolved category/subcategory/type (+ optional variant) numbers.
+// `noType` flags a type-less subcategory (5-segment number), where `typeNum`
+// is absent and the item directly follows the subcategory.
 export const nextItemSchema = z.object({
   yy: z.string().regex(/^\d{2}$/),
   mainNum: z.coerce.number().int().nonnegative(),
   subNum: z.coerce.number().int().nonnegative(),
-  typeNum: z.coerce.number().int().nonnegative(),
+  typeNum: z.coerce.number().int().nonnegative().optional(),
   variantNum: z.coerce.number().int().nonnegative().optional().nullable(),
+  noType: z.boolean().optional(),
 });
 
 export type CreateAssetInput = z.infer<typeof createAssetSchema>;

@@ -18,6 +18,7 @@ import {
   getSubtypes,
   getCategoryNumber,
   findSubcategoryForType,
+  isLeafSubcategory,
 } from "@/lib/constants/assetCategories";
 import type { AssetValues } from "@/schemas/AssetSchema";
 
@@ -49,10 +50,15 @@ export const AssetCategorySelect: React.FC<AssetCategorySelectProps> = ({
   const [manualType, setManualType] = useState<boolean>(
     () =>
       Boolean(category && assetType) &&
-      !findSubcategoryForType(category, assetType),
+      !findSubcategoryForType(category, assetType ?? ""),
   );
 
   const subcategories = category ? getSubcategories(category) : [];
+  // A type-less ("leaf") subcategory is the asset's leaf itself — no type is
+  // selected, and the asset number drops the type segment.
+  const leafSub = Boolean(
+    category && subcategory && isLeafSubcategory(category, subcategory),
+  );
   const types =
     category && subcategory ? getTypeKeys(category, subcategory) : [];
   // 4th-level sub-types under the chosen type (e.g. Phone → Telephone). Empty
@@ -164,9 +170,26 @@ export const AssetCategorySelect: React.FC<AssetCategorySelectProps> = ({
             ))}
           </SelectContent>
         </Select>
+        {errors.subcategory && (
+          <p className="text-[0.8rem] font-light italic text-destructive">
+            {errors.subcategory.message}
+          </p>
+        )}
       </div>
 
-      {/* Type */}
+      {/* Type — hidden for type-less subcategories (the subcategory is the leaf). */}
+      {leafSub ? (
+        <div className="space-y-2 sm:col-span-2">
+          <div className="flex min-h-5 items-center">
+            <Label>Type</Label>
+          </div>
+          <div className="rounded-md border border-dashed bg-muted/30 px-3 py-2.5 text-[11px] text-muted-foreground">
+            <span className="font-medium text-foreground">{subcategory}</span>{" "}
+            has no types — the asset is classified at the subcategory level, and
+            its number omits the type segment.
+          </div>
+        </div>
+      ) : (
       <div className={`space-y-2 ${hasSubtypes ? "" : "sm:col-span-2"}`}>
         <div className="flex min-h-5 items-center justify-between gap-2">
           <div className="flex items-baseline gap-2">
@@ -238,6 +261,7 @@ export const AssetCategorySelect: React.FC<AssetCategorySelectProps> = ({
           </p>
         )}
       </div>
+      )}
 
       {/* Sub-type (only when the chosen type has a finer breakdown) */}
       {hasSubtypes && (

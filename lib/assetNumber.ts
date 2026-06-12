@@ -10,7 +10,11 @@
  * data mixes zero-padding (`02` vs `2`, `01` vs `1`), so all comparisons here
  * are done on parsed integers — never on the raw strings.
  */
-import { CATEGORY_TREE, getCategoryNumber } from "@/lib/constants/assetCategories";
+import {
+  CATEGORY_TREE,
+  getCategoryNumber,
+  isLeafSubcategory,
+} from "@/lib/constants/assetCategories";
 
 /** Fixed agency/business code for National Archives assets. */
 export const AGENCY_CODE = "433";
@@ -99,11 +103,17 @@ export type BuildPrefixResult = {
   missing: string[];
   yy: string | null;
   path: TypePath;
+  /** True when the subcategory has no types — the type segment is omitted. */
+  leafSubcategory: boolean;
 };
 
 /**
  * Build the asset-number prefix (everything up to and including the dash
  * before the running item number).
+ *
+ * Type-less ("leaf") subcategories drop the type segment entirely, producing a
+ * 5-segment number `433-YY-main-sub-` — the subcategory is the leaf, so no
+ * `assetType` / `typeNum` is required.
  */
 export function buildPrefix(opts: {
   year?: string | null;
@@ -114,6 +124,7 @@ export function buildPrefix(opts: {
   const { category, subcategory, assetType } = opts;
   const yy = toYY(opts.year);
   const path = getTypePath(category, subcategory, assetType);
+  const leafSub = !!subcategory && isLeafSubcategory(category, subcategory);
 
   const missing: string[] = [];
   if (!yy) missing.push("year");
@@ -121,21 +132,32 @@ export function buildPrefix(opts: {
   else if (path.mainNum === undefined) missing.push("category number");
   if (!subcategory) missing.push("subcategory");
   else if (path.subNum === undefined) missing.push("subcategory number");
-  if (!assetType) missing.push("type");
-  else if (path.typeNum === undefined) missing.push("type number");
+  if (!leafSub) {
+    if (!assetType) missing.push("type");
+    else if (path.typeNum === undefined) missing.push("type number");
+  }
 
   if (
     !yy ||
     path.mainNum === undefined ||
     path.subNum === undefined ||
-    path.typeNum === undefined
+    (!leafSub && path.typeNum === undefined)
   ) {
-    return { prefix: null, missing, yy, path };
+    return { prefix: null, missing, yy, path, leafSubcategory: leafSub };
   }
 
-  const segs = [AGENCY_CODE, yy, path.mainNum, path.subNum, path.typeNum];
-  if (path.variantNum !== undefined) segs.push(path.variantNum);
-  return { prefix: `${segs.join("-")}-`, missing, yy, path };
+  const segs = [AGENCY_CODE, yy, path.mainNum, path.subNum];
+  if (!leafSub) {
+    segs.push(path.typeNum as number);
+    if (path.variantNum !== undefined) segs.push(path.variantNum);
+  }
+  return {
+    prefix: `${segs.join("-")}-`,
+    missing,
+    yy,
+    path,
+    leafSubcategory: leafSub,
+  };
 }
 
 export type ParsedAssetNumber = {
@@ -166,8 +188,12 @@ export type ValidationResult = {
   parsed: ParsedAssetNumber | null;
 };
 
-/** Padding-agnostic regex for a well-formed asset number (≥6 numeric segments). */
-export const ASSET_NUMBER_PATTERN = /^\d+(-\d+){5,}$/;
+/**
+ * Padding-agnostic regex for a well-formed asset number. Allows ≥5 numeric
+ * segments: type-less subcategories have 5 (`433-YY-main-sub-item`); typed
+ * assets have 6, or 7 with a variant.
+ */
+export const ASSET_NUMBER_PATTERN = /^\d+(-\d+){4,}$/;
 
 /**
  * Validate an asset number's shape and (optionally) that its segments match
@@ -179,9 +205,19 @@ export function validateAssetNumber(
 ): ValidationResult {
   const parsed = parseAssetNumber(num);
   const issues: string[] = [];
-  const formatOk = !!parsed && parsed.parts.length >= 6;
+  // Type-less subcategories use a 5-segment number; everything else needs ≥6.
+  const leafSub =
+    !!selection?.category &&
+    !!selection?.subcategory &&
+    isLeafSubcategory(selection.category, selection.subcategory);
+  const minParts = leafSub ? 5 : 6;
+  const formatOk = !!parsed && parsed.parts.length >= minParts;
   if (!formatOk) {
-    issues.push("Expected 433-YY-category-subcategory-type-item.");
+    issues.push(
+      leafSub
+        ? "Expected 433-YY-category-subcategory-item."
+        : "Expected 433-YY-category-subcategory-type-item.",
+    );
     return { formatOk, matchesCategory: false, issues, parsed };
   }
 
@@ -191,11 +227,11 @@ export function validateAssetNumber(
   }
 
   let matchesCategory = true;
-  if (selection?.category && selection?.assetType) {
+  if (selection?.category && (selection?.assetType || leafSub)) {
     const path = getTypePath(
       selection.category,
       selection.subcategory ?? "",
-      selection.assetType,
+      selection.assetType ?? "",
     );
     if (path.mainNum !== undefined && p[2] !== path.mainNum) {
       matchesCategory = false;
@@ -205,16 +241,19 @@ export function validateAssetNumber(
       matchesCategory = false;
       issues.push(`Subcategory segment (${p[3]}) ≠ ${path.subNum}.`);
     }
-    if (path.typeNum !== undefined && p[4] !== path.typeNum) {
-      matchesCategory = false;
-      issues.push(`Type segment (${p[4]}) ≠ ${path.typeNum}.`);
-    }
-    if (
-      path.variantNum !== undefined &&
-      !(p.length >= 7 && p[5] === path.variantNum)
-    ) {
-      matchesCategory = false;
-      issues.push(`Variant segment ≠ ${path.variantNum}.`);
+    // Type-less subcategories have no type/variant segment to check.
+    if (!leafSub) {
+      if (path.typeNum !== undefined && p[4] !== path.typeNum) {
+        matchesCategory = false;
+        issues.push(`Type segment (${p[4]}) ≠ ${path.typeNum}.`);
+      }
+      if (
+        path.variantNum !== undefined &&
+        !(p.length >= 7 && p[5] === path.variantNum)
+      ) {
+        matchesCategory = false;
+        issues.push(`Variant segment ≠ ${path.variantNum}.`);
+      }
     }
   } else {
     matchesCategory = false;

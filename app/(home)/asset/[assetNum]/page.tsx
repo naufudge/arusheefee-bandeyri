@@ -119,6 +119,9 @@ const AssetDetailPage = ({
   const categoryNumber = asset?.category
     ? getCategoryNumber(asset.category)
     : undefined;
+  const subcategoryNumber = asset?.subcategory
+    ? getCategoryNumber(asset.subcategory)
+    : undefined;
   const typeNumber = asset?.assetType
     ? getCategoryNumber(asset.assetType)
     : undefined;
@@ -214,7 +217,7 @@ const AssetDetailPage = ({
                 <Boxes className="size-3.5" />
                 {asset.category}
                 <span className="text-muted-foreground/50">·</span>
-                {asset.assetType}
+                {asset.assetType || asset.subcategory || "—"}
               </span>
               {asset.condition && (
                 <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[10px] font-medium uppercase tracking-wide">
@@ -288,16 +291,33 @@ const AssetDetailPage = ({
                   }
                 />
                 <DetailRow
+                  label="Subcategory"
+                  value={
+                    asset.subcategory ? (
+                      <span className="flex flex-wrap items-baseline gap-2">
+                        <span>{asset.subcategory}</span>
+                        {subcategoryNumber !== undefined && (
+                          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                            #{subcategoryNumber}
+                          </span>
+                        )}
+                      </span>
+                    ) : null
+                  }
+                />
+                <DetailRow
                   label="Type"
                   value={
-                    <span className="flex flex-wrap items-baseline gap-2">
-                      <span>{asset.assetType}</span>
-                      {typeNumber !== undefined && (
-                        <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
-                          #{typeNumber}
-                        </span>
-                      )}
-                    </span>
+                    asset.assetType ? (
+                      <span className="flex flex-wrap items-baseline gap-2">
+                        <span>{asset.assetType}</span>
+                        {typeNumber !== undefined && (
+                          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                            #{typeNumber}
+                          </span>
+                        )}
+                      </span>
+                    ) : null
                   }
                 />
                 <DetailRow

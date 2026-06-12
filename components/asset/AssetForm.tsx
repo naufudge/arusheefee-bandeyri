@@ -61,10 +61,14 @@ function buildDefaults(asset?: AssetRecord): AssetValues {
   // Stored `assetType` is the leaf-most name. Split it back into the L3 type +
   // optional L4 sub-type so the cascade pre-selects both in edit mode.
   const storedLeaf = asset.assetType ?? "";
+  // Prefer the persisted subcategory; fall back to deriving it from the type
+  // for older rows that predate the stored `subcategory` column.
   const subcategory =
-    category && storedLeaf
-      ? findSubcategoryForType(category, storedLeaf) ?? ""
-      : "";
+    asset.subcategory && String(asset.subcategory).trim() !== ""
+      ? String(asset.subcategory)
+      : category && storedLeaf
+        ? findSubcategoryForType(category, storedLeaf) ?? ""
+        : "";
   const leafPath =
     category && subcategory && storedLeaf
       ? getTypePath(category, subcategory, storedLeaf)
@@ -174,12 +178,11 @@ const AssetForm: React.FC<AssetFormProps> = ({ asset }) => {
     const clean = (s?: string) => (s && s.trim() !== "" ? s.trim() : null);
 
     // Persist the most specific selection: the L4 sub-type if one was chosen,
-    // otherwise the L3 type. (`subcategory`/`assetSubtype`/`numberYear` are
-    // transient and never sent to the server.)
+    // otherwise the L3 type. Type-less subcategories have no leaf type, so this
+    // is empty → stored as null (the subcategory carries the classification).
+    // (`assetSubtype`/`numberYear` are transient and never sent to the server.)
     const leafType =
-      values.assetSubtype && values.assetSubtype.trim() !== ""
-        ? values.assetSubtype.trim()
-        : values.assetType;
+      values.assetSubtype?.trim() || values.assetType?.trim() || "";
 
     const payload = {
       assetNum: values.assetNum.trim(),
@@ -195,7 +198,8 @@ const AssetForm: React.FC<AssetFormProps> = ({ asset }) => {
       price: values.price && values.price.trim() !== "" ? Number(values.price) : null,
       condition: clean(values.condition),
       category: values.category,
-      assetType: leafType,
+      subcategory: clean(values.subcategory),
+      assetType: leafType !== "" ? leafType : null,
     };
 
     if (isEdit) {
