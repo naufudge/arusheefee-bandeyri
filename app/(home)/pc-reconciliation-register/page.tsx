@@ -78,6 +78,7 @@ const ReconciliationRegisterPage = () => {
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const [year, setYear] = useState<string>("all");
 
   useEffect(() => {
     const t = setTimeout(() => setQuery(searchInput), 250);
@@ -104,10 +105,24 @@ const ReconciliationRegisterPage = () => {
     }),
   );
 
+  // Years that actually have reports, derived from each report's week range,
+  // newest first. Drives the year filter so empty years never appear.
+  const yearOptions = useMemo(() => {
+    const years = new Set<number>();
+    for (const r of reports ?? []) {
+      years.add(new Date(r.weekStart).getFullYear());
+    }
+    return Array.from(years).sort((a, b) => b - a);
+  }, [reports]);
+
   const filtered = useMemo(() => {
     if (!reports) return [];
     let result = [...reports];
     if (status !== "all") result = result.filter((r) => r.status === status);
+    if (year !== "all")
+      result = result.filter(
+        (r) => String(new Date(r.weekStart).getFullYear()) === year,
+      );
     if (query) {
       const q = query.trim().toLowerCase();
       result = result.filter(
@@ -117,7 +132,7 @@ const ReconciliationRegisterPage = () => {
       );
     }
     return result;
-  }, [reports, status, query]);
+  }, [reports, status, year, query]);
 
   const stats = useMemo(() => {
     const all = reports ?? [];
@@ -133,10 +148,11 @@ const ReconciliationRegisterPage = () => {
     };
   }, [reports]);
 
-  const filtersActive = status !== "all" || Boolean(query);
+  const filtersActive = status !== "all" || year !== "all" || Boolean(query);
 
   const handleClearAll = () => {
     setStatus("all");
+    setYear("all");
     setSearchInput("");
     setQuery("");
   };
@@ -215,6 +231,19 @@ const ReconciliationRegisterPage = () => {
           />
         </div>
         <div className="flex items-center gap-2">
+          <Select value={year} onValueChange={setYear}>
+            <SelectTrigger className="h-9 w-[130px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All years</SelectItem>
+              {yearOptions.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="h-9 w-[200px]">
               <SelectValue />
