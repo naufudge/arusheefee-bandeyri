@@ -8,11 +8,19 @@ export const pettyCashStaffSchema = z.object({
   date: z.coerce.date(),
 });
 
-// A line item: just qty + name (no price — total is on the parent record).
-export const pettyCashItemSchema = z.object({
-  qty: z.coerce.number().int().positive(),
-  name: z.string().min(1),
-});
+// A line item: qty + name (no price — total is on the parent record).
+// Either the English `name` or the Dhivehi `nameDhivehi` must be filled.
+export const pettyCashItemSchema = z
+  .object({
+    qty: z.coerce.number().int().positive(),
+    name: z.string().optional().nullable(),
+    nameDhivehi: z.string().optional().nullable(),
+  })
+  .refine(
+    (it) =>
+      (it.name?.trim() ?? "") !== "" || (it.nameDhivehi?.trim() ?? "") !== "",
+    { message: "Enter an English or Dhivehi item name", path: ["name"] },
+  );
 
 // Petty cash numbers are PC/<seq>/<year>, e.g. "PC/01/2025". Enforced on
 // create paths; the update schema below loosens this so legacy records

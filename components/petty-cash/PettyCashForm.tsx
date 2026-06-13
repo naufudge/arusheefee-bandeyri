@@ -90,7 +90,7 @@ function buildDefaults(pettyCash?: any): PettyCashValues {
       budgetCheckedBy: emptyRole(),
       balanceHandedOverBy: emptyRole(),
       balanceCollectedBy: emptyRole(),
-      items: [{ qty: 1, name: "" }],
+      items: [{ qty: 1, name: "", nameDhivehi: "" }],
     };
   }
 
@@ -112,7 +112,11 @@ function buildDefaults(pettyCash?: any): PettyCashValues {
       pettyCash.items && pettyCash.items.length > 0
         ? pettyCash.items.map(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (it: any) => ({ qty: it.qty, name: it.name }),
+            (it: any) => ({
+              qty: it.qty,
+              name: it.name ?? "",
+              nameDhivehi: it.nameDhivehi ?? "",
+            }),
           )
         : [{ qty: 1, name: "" }],
   };
@@ -248,7 +252,11 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
       budgetCheckedBy: transformRole(values.budgetCheckedBy),
       balanceHandedOverBy: transformRole(values.balanceHandedOverBy),
       balanceCollectedBy: transformRole(values.balanceCollectedBy),
-      items: values.items.map((it) => ({ qty: it.qty, name: it.name })),
+      items: values.items.map((it) => ({
+        qty: it.qty,
+        name: it.name || null,
+        nameDhivehi: it.nameDhivehi || null,
+      })),
     };
 
     if (!pettyCash) {

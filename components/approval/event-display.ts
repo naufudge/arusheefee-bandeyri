@@ -29,6 +29,11 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   GSR_RECEIVED: "Received",
   GSR_CALLED_BACK: "Called back to draft",
   GSR_REJECTED: "Rejected",
+  PCRECON_SENT_FOR_CHECK: "Sent for check",
+  PCRECON_CHECKED: "Checked",
+  PCRECON_AUTHORIZED: "Authorized",
+  PCRECON_CALLED_BACK: "Called back to draft",
+  PCRECON_REJECTED: "Rejected",
 };
 
 export const KIND_ICON: Record<
@@ -49,6 +54,11 @@ export const KIND_ICON: Record<
   GSR_RECEIVED: CheckCircle2,
   GSR_CALLED_BACK: Undo2,
   GSR_REJECTED: XCircle,
+  PCRECON_SENT_FOR_CHECK: Send,
+  PCRECON_CHECKED: CheckCircle2,
+  PCRECON_AUTHORIZED: ShieldCheck,
+  PCRECON_CALLED_BACK: Undo2,
+  PCRECON_REJECTED: XCircle,
 };
 
 export const KIND_TONE: Record<
@@ -121,6 +131,31 @@ export const KIND_TONE: Record<
     icon: "text-muted-foreground",
   },
   GSR_REJECTED: {
+    bg: "bg-red-50 dark:bg-red-900/20",
+    ring: "ring-red-200 dark:ring-red-800/60",
+    icon: "text-red-600 dark:text-red-400",
+  },
+  PCRECON_SENT_FOR_CHECK: {
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    ring: "ring-blue-200 dark:ring-blue-800/60",
+    icon: "text-blue-600 dark:text-blue-400",
+  },
+  PCRECON_CHECKED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  PCRECON_AUTHORIZED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  PCRECON_CALLED_BACK: {
+    bg: "bg-muted",
+    ring: "ring-border",
+    icon: "text-muted-foreground",
+  },
+  PCRECON_REJECTED: {
     bg: "bg-red-50 dark:bg-red-900/20",
     ring: "ring-red-200 dark:ring-red-800/60",
     icon: "text-red-600 dark:text-red-400",

@@ -17,6 +17,8 @@ import {
   PackagePlus,
   ClipboardList,
   FilePlus,
+  ClipboardCheck,
+  FilePlus2,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
@@ -122,6 +124,18 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         url: "/petty-cash/create",
         icon: Coins,
         requires: PERMISSIONS.PETTYCASH_CREATE,
+      },
+      {
+        title: "Reconciliation Register",
+        url: "/pc-reconciliation-register",
+        icon: ClipboardCheck,
+        requires: PERMISSIONS.PCRECON_READ,
+      },
+      {
+        title: "Create Reconciliation",
+        url: "/pc-reconciliation/create",
+        icon: FilePlus2,
+        requires: PERMISSIONS.PCRECON_CREATE,
       },
     ],
   },

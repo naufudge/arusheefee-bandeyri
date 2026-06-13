@@ -39,10 +39,18 @@ export const PettyCashSchema = z.object({
 
   items: z
     .array(
-      z.object({
-        qty: z.coerce.number().int().positive(),
-        name: z.string().min(1),
-      }),
+      z
+        .object({
+          qty: z.coerce.number().int().positive(),
+          name: z.string().optional().nullable(),
+          nameDhivehi: z.string().optional().nullable(),
+        })
+        .refine(
+          (it) =>
+            (it.name?.trim() ?? "") !== "" ||
+            (it.nameDhivehi?.trim() ?? "") !== "",
+          { message: "Enter an English or Dhivehi item name", path: ["name"] },
+        ),
     )
     .min(1),
 });

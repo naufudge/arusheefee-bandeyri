@@ -20,6 +20,11 @@ model Staff {
   name        String
   designation String
 
+  // Dhivehi (Thaana) localization, used by Dhivehi forms/reports (e.g. the
+  // Petty Cash Reconciliation Report). Optional — filled when needed.
+  dhivehiName        String?
+  dhivehiDesignation String?
+
   // Auth / identity (added when Azure SSO was introduced)
   email       String?   @unique
   azureOid    String?   @unique
@@ -50,6 +55,12 @@ model Staff {
   authorizedGSRs GSRForm[] @relation("GSRAuthorizedBy")
   receivedGSRs   GSRForm[] @relation("GSRReceivedBy")
   rejectedGSRs   GSRForm[] @relation("GSRRejectedBy")
+
+  // Petty cash reconciliation report role assignments
+  preparedPcRecons   PcReconciliation[] @relation("PcReconPreparedBy")
+  checkedPcRecons    PcReconciliation[] @relation("PcReconCheckedBy")
+  authorizedPcRecons PcReconciliation[] @relation("PcReconAuthorizedBy")
+  rejectedPcRecons   PcReconciliation[] @relation("PcReconRejectedBy")
 
   // Approval timeline: every event this staff member triggered
   // (sent/verified/authorised/rejected) across PVs and petty cash.
@@ -257,9 +268,10 @@ model PettyCashStaff {
 
 // ----- Line items on a petty cash request -----
 model PettyCashItem {
-  id   String @id @default(cuid())
-  qty  Int
-  name String
+  id          String  @id @default(cuid())
+  qty         Int
+  name        String? // English name; either this or nameDhivehi must be set
+  nameDhivehi String? // Dhivehi (Thaana) name, used by Dhivehi reports
 
   pettyCashId String
   pettyCash   PettyCash @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
@@ -363,6 +375,76 @@ model GSRItem {
   @@map("gsr_items")
 }
 
+// ----- Petty Cash Reconciliation Report -----
+// A weekly (Sunday→Thursday) Dhivehi safe/treasury statement. Items are
+// snapshotted from the week's petty cash records when the report is sent for
+// approval. Workflow mirrors the GSR/PV state machine:
+// DRAFT → PENDING_CHECK → PENDING_AUTHORIZATION → COMPLETED.
+model PcReconciliation {
+  id         String   @id @default(cuid())
+  reportNum  String   @unique // "NN/YYYY", auto-suggested but editable
+  weekStart  DateTime // Sunday 00:00 UTC
+  weekEnd    DateTime // Thursday UTC
+  periodText String // Dhivehi period text, e.g. "04 ޖަނަވަރީ 2026 ން 08 ޖަނަވަރީ 2026 އަށް"
+
+  // Manual cash-composition figures. The grand total (cashHeld + chequeHeld)
+  // is computed in the form/PDF and not stored.
+  openingBalance   Float @default(0)
+  cashInHand       Float @default(0)
+  redepositAcc1155 Float @default(0)
+  staffWages       Float @default(0)
+  foodAllowance    Float @default(0)
+  heldInCheque     Float @default(0)
+  totalPayable     Float @default(0)
+  total            Float @default(0)
+  cashHeld         Float @default(0)
+  chequeHeld       Float @default(0)
+
+  // Staff role foreign keys
+  preparedById   String?
+  checkedById    String?
+  authorizedById String?
+
+  preparedBy   Staff? @relation("PcReconPreparedBy", fields: [preparedById], references: [id])
+  checkedBy    Staff? @relation("PcReconCheckedBy", fields: [checkedById], references: [id])
+  authorizedBy Staff? @relation("PcReconAuthorizedBy", fields: [authorizedById], references: [id])
+
+  // ----- Approval workflow -----
+  status           PcReconStatus @default(DRAFT)
+  checkedAt        DateTime?
+  authorizedAt     DateTime?
+  rejectedAt       DateTime?
+  rejectedById     String?
+  rejectionComment String?
+
+  rejectedBy     Staff?          @relation("PcReconRejectedBy", fields: [rejectedById], references: [id])
+  approvalEvents ApprovalEvent[]
+
+  items PcReconciliationItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("pc_reconciliations")
+}
+
+// Snapshot transaction row, one per petty cash record in the report's week.
+model PcReconciliationItem {
+  id                 String   @id @default(cuid())
+  date               DateTime // the source petty cash date
+  details            String // comma-joined Dhivehi item names
+  detailsEn          String? // comma-joined English item names (fallback)
+  withdrawn          Float // PettyCash.totalRequiredAmount
+  sourcePettyCashNum String? // provenance, for the Dhivehi-gate links
+  sortOrder          Int      @default(0)
+
+  reconciliationId String
+  reconciliation   PcReconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+
+  @@map("pc_reconciliation_items")
+}
+
 // ----- Asset register -----
 // Flat registry row, one per physical asset (plain CRUD — no approval
 // workflow). `assetNum` is the human-readable key (e.g. 433-18-02-15-79-01)
@@ -439,6 +521,17 @@ enum GSRStatus {
   REJECTED
 }
 
+// Sequential state machine for a Petty Cash Reconciliation Report:
+// DRAFT → PENDING_CHECK → PENDING_AUTHORIZATION → COMPLETED. REJECTED is a
+// transient label (the row reverts to DRAFT in the same write).
+enum PcReconStatus {
+  DRAFT
+  PENDING_CHECK
+  PENDING_AUTHORIZATION
+  COMPLETED
+  REJECTED
+}
+
 // Discriminator for ApprovalEvent rows. PV events are sequential stages;
 // PC events are per-role since PC approvals are out-of-order.
 enum ApprovalEventKind {
@@ -456,6 +549,11 @@ enum ApprovalEventKind {
   GSR_RECEIVED
   GSR_CALLED_BACK
   GSR_REJECTED
+  PCRECON_SENT_FOR_CHECK
+  PCRECON_CHECKED
+  PCRECON_AUTHORIZED
+  PCRECON_CALLED_BACK
+  PCRECON_REJECTED
 }
 
 // Polymorphic timeline table. Exactly one of `pvId` / `pettyCashId` is
@@ -465,21 +563,24 @@ enum ApprovalEventKind {
 model ApprovalEvent {
   id            String            @id @default(cuid())
   kind          ApprovalEventKind
-  pvId          String?
-  pettyCashId   String?
-  gsrFormId     String?
-  pettyCashRole String?
-  actorId       String
-  comment       String?
-  createdAt     DateTime          @default(now())
+  pvId             String?
+  pettyCashId      String?
+  gsrFormId        String?
+  pcReconciliationId String?
+  pettyCashRole    String?
+  actorId          String
+  comment          String?
+  createdAt        DateTime          @default(now())
 
-  pv        PV?        @relation(fields: [pvId], references: [id], onDelete: Cascade)
-  pettyCash PettyCash? @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
-  gsrForm   GSRForm?   @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
-  actor     Staff      @relation("ApprovalActor", fields: [actorId], references: [id])
+  pv               PV?               @relation(fields: [pvId], references: [id], onDelete: Cascade)
+  pettyCash        PettyCash?        @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
+  gsrForm          GSRForm?          @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
+  pcReconciliation PcReconciliation? @relation(fields: [pcReconciliationId], references: [id], onDelete: Cascade)
+  actor            Staff             @relation("ApprovalActor", fields: [actorId], references: [id])
 
   @@index([pvId, createdAt])
   @@index([pettyCashId, createdAt])
   @@index([gsrFormId, createdAt])
+  @@index([pcReconciliationId, createdAt])
   @@map("approval_events")
 }

@@ -27,6 +27,8 @@ export const staffRouter = router({
         data: {
           name: input.name,
           designation: input.designation,
+          dhivehiName: input.dhivehiName,
+          dhivehiDesignation: input.dhivehiDesignation,
           ...(input.roleIds && input.roleIds.length > 0
             ? { roles: { connect: input.roleIds.map((id) => ({ id })) } }
             : {}),

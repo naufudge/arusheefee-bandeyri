@@ -369,7 +369,7 @@ const PettyCashRegisterPage = () => {
                   <div className="flex min-w-0 flex-1 flex-col">
                     {(() => {
                       const itemList = record.items
-                        .map((it) => it.name)
+                        .map((it) => it.name || it.nameDhivehi || "")
                         .filter((n) => n.length > 0)
                         .join(", ");
                       return (

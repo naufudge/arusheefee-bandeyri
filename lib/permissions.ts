@@ -64,6 +64,18 @@ export const PERMISSIONS = {
   // PV_EDIT_LOCKED — `gsr:update` is still required as the base.
   GSR_EDIT_LOCKED: "gsr:edit_locked",
 
+  // ----- Petty Cash Reconciliation Report -----
+  // Weekly Dhivehi safe statement with a PV-style approval workflow.
+  // Check/Authorize actions are assignee-gated, not permission-gated.
+  PCRECON_READ: "pcrecon:read",
+  PCRECON_CREATE: "pcrecon:create",
+  PCRECON_UPDATE: "pcrecon:update",
+  PCRECON_DELETE: "pcrecon:delete",
+  PCRECON_EXPORT: "pcrecon:export",
+  // Override: edit a report after it has left DRAFT. `pcrecon:update` is
+  // still required as the base.
+  PCRECON_EDIT_LOCKED: "pcrecon:edit_locked",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -262,6 +274,43 @@ export const PERMISSION_GROUPS: {
         label: "Edit locked GSR form",
         description:
           "Override the workflow lock and edit a GSR form that has been sent for authorization or further. Requires \"Edit GSR form\" as well.",
+      },
+    ],
+  },
+  {
+    label: "Petty Cash Reconciliation",
+    permissions: [
+      {
+        key: PERMISSIONS.PCRECON_READ,
+        label: "View reconciliation reports",
+        description:
+          "Browse the reconciliation register and view individual reports.",
+      },
+      {
+        key: PERMISSIONS.PCRECON_CREATE,
+        label: "Create reconciliation report",
+        description: "Add a new weekly petty cash reconciliation report.",
+      },
+      {
+        key: PERMISSIONS.PCRECON_UPDATE,
+        label: "Edit reconciliation report",
+        description: "Modify an existing reconciliation report's details.",
+      },
+      {
+        key: PERMISSIONS.PCRECON_DELETE,
+        label: "Delete reconciliation report",
+        description: "Remove a reconciliation report permanently.",
+      },
+      {
+        key: PERMISSIONS.PCRECON_EXPORT,
+        label: "Export reconciliation PDF",
+        description: "Download a reconciliation report as a PDF.",
+      },
+      {
+        key: PERMISSIONS.PCRECON_EDIT_LOCKED,
+        label: "Edit locked reconciliation report",
+        description:
+          "Override the workflow lock and edit a report that has been sent for approval or further. Requires \"Edit reconciliation report\" as well.",
       },
     ],
   },

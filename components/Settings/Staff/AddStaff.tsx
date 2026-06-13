@@ -38,7 +38,16 @@ interface AddStaffProps {
 const staffFormSchema = z.object({
   name: z.string().min(8, "Please write the full name of the staff."),
   designation: z.string().min(3, "Please write a valid designation."),
+  dhivehiName: z.string().optional(),
+  dhivehiDesignation: z.string().optional(),
 });
+
+// RTL Thaana inputs for the Dhivehi name/designation fields (left-aligned).
+const dhivehiInputStyle: React.CSSProperties = {
+  fontFamily: "var(--font-faruma), sans-serif",
+  direction: "rtl",
+  textAlign: "left",
+};
 
 const AddStaff: React.FC<AddStaffProps> = ({
   button,
@@ -69,6 +78,8 @@ const AddStaff: React.FC<AddStaffProps> = ({
     defaultValues: {
       name: staff?.name ?? "",
       designation: staff?.designation ?? "",
+      dhivehiName: staff?.dhivehiName ?? "",
+      dhivehiDesignation: staff?.dhivehiDesignation ?? "",
     },
   });
 
@@ -82,6 +93,8 @@ const AddStaff: React.FC<AddStaffProps> = ({
       form.reset({
         name: staff?.name ?? "",
         designation: staff?.designation ?? "",
+        dhivehiName: staff?.dhivehiName ?? "",
+        dhivehiDesignation: staff?.dhivehiDesignation ?? "",
       });
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedRoleIds(new Set(staff?.roleIds ?? []));
@@ -134,6 +147,8 @@ const AddStaff: React.FC<AddStaffProps> = ({
         id: staff._id,
         name: values.name,
         designation: values.designation,
+        dhivehiName: values.dhivehiName,
+        dhivehiDesignation: values.dhivehiDesignation,
         roleIds,
       });
     } else {
@@ -209,6 +224,54 @@ const AddStaff: React.FC<AddStaffProps> = ({
                   </FormItem>
                 )}
               />
+
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="dhivehiName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        Name (Dhivehi)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="ނަން"
+                          className="h-9 text-sm"
+                          lang="dv"
+                          dir="rtl"
+                          style={dhivehiInputStyle}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dhivehiDesignation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        Designation (Dhivehi)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="މަޤާމު"
+                          className="h-9 text-sm"
+                          lang="dv"
+                          dir="rtl"
+                          style={dhivehiInputStyle}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {canManageRoles && (
                 <div className="grid gap-1.5">

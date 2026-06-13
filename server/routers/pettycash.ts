@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { router, protectedProcedure, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { requirePermission } from "@/lib/permissions";
@@ -122,6 +123,25 @@ export const pettyCashRouter = router({
       });
     }),
 
+  // Petty cash whose `date` falls in [weekStart, weekEnd] (inclusive of the
+  // whole weekEnd day). Used to source the reconciliation report's items.
+  byWeek: permissionProcedure("pettycash:read")
+    .input(
+      z.object({
+        weekStart: z.coerce.date(),
+        weekEnd: z.coerce.date(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const endExclusive = new Date(input.weekEnd);
+      endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
+      return ctx.prisma.pettyCash.findMany({
+        where: { date: { gte: input.weekStart, lt: endExclusive } },
+        include: pettyCashInclude,
+        orderBy: { date: "asc" },
+      });
+    }),
+
   create: permissionProcedure("pettycash:create")
     .input(createPettyCashSchema)
     .mutation(async ({ ctx, input }) => {
@@ -160,7 +180,8 @@ export const pettyCashRouter = router({
           items: {
             create: input.items.map((item) => ({
               qty: item.qty,
-              name: item.name,
+              name: item.name ?? null,
+              nameDhivehi: item.nameDhivehi ?? null,
             })),
           },
         },

@@ -17,6 +17,13 @@ interface ItemsFormProps {
   className?: string;
 }
 
+// RTL Thaana input for the Dhivehi item name (left-aligned).
+const dhivehiInputStyle: React.CSSProperties = {
+  fontFamily: "var(--font-faruma), sans-serif",
+  direction: "rtl",
+  textAlign: "left",
+};
+
 const ItemsForm: React.FC<ItemsFormProps> = ({ control, className }) => {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -29,7 +36,9 @@ const ItemsForm: React.FC<ItemsFormProps> = ({ control, className }) => {
         <div
           key={item.id}
           className={`mb-3 grid items-end gap-3 ${
-            index !== 0 ? "grid-cols-[80px_1fr_auto]" : "grid-cols-[80px_1fr]"
+            index !== 0
+              ? "grid-cols-[70px_1fr_1fr_auto]"
+              : "grid-cols-[70px_1fr_1fr]"
           }`}
         >
           <FormField
@@ -50,9 +59,33 @@ const ItemsForm: React.FC<ItemsFormProps> = ({ control, className }) => {
             name={`items.${index}.name`}
             render={({ field }) => (
               <FormItem>
-                {index === 0 && <FormLabel>Item</FormLabel>}
+                {index === 0 && <FormLabel>Item (English)</FormLabel>}
                 <FormControl>
-                  <Input placeholder="Item description" {...field} />
+                  <Input
+                    placeholder="Item description"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name={`items.${index}.nameDhivehi`}
+            render={({ field }) => (
+              <FormItem>
+                {index === 0 && <FormLabel>Item (Dhivehi)</FormLabel>}
+                <FormControl>
+                  <Input
+                    placeholder="ތަފްޞީލް"
+                    lang="dv"
+                    dir="rtl"
+                    style={dhivehiInputStyle}
+                    {...field}
+                    value={field.value ?? ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -73,7 +106,7 @@ const ItemsForm: React.FC<ItemsFormProps> = ({ control, className }) => {
       ))}
       <button
         type="button"
-        onClick={() => append({ qty: 1, name: "" })}
+        onClick={() => append({ qty: 1, name: "", nameDhivehi: "" })}
         className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-md border border-dashed bg-background px-4 text-sm font-medium text-muted-foreground transition hover:border-solid hover:bg-muted hover:text-foreground"
       >
         <Plus className="size-4" />
