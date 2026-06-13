@@ -15,6 +15,8 @@ import {
   Coins,
   Package,
   PackagePlus,
+  ClipboardList,
+  FilePlus,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
@@ -137,6 +139,23 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         url: "/asset/create",
         icon: PackagePlus,
         requires: PERMISSIONS.ASSET_CREATE,
+      },
+    ],
+  },
+  {
+    label: "GSR Forms",
+    items: [
+      {
+        title: "GSR Register",
+        url: "/gsr-register",
+        icon: ClipboardList,
+        requires: PERMISSIONS.GSR_READ,
+      },
+      {
+        title: "Create GSR",
+        url: "/gsr/create",
+        icon: FilePlus,
+        requires: PERMISSIONS.GSR_CREATE,
       },
     ],
   },

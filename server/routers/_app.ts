@@ -7,6 +7,7 @@ import { roleRouter } from "./role";
 import { approvalsRouter } from "./approvals";
 import { templatesRouter } from "./templates";
 import { assetRouter } from "./asset";
+import { gsrRouter } from "./gsr";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -17,6 +18,7 @@ export const appRouter = router({
   approvals: approvalsRouter,
   templates: templatesRouter,
   asset: assetRouter,
+  gsr: gsrRouter,
 });
 
 // Export type router type signature,

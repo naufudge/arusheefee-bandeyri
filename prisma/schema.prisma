@@ -45,6 +45,12 @@ model Staff {
   // Petty cash role assignments (one row per signed role on one PettyCash)
   pettyCashRoles PettyCashStaff[]
 
+  // GSR form role assignments
+  requestedGSRs  GSRForm[] @relation("GSRRequestedBy")
+  authorizedGSRs GSRForm[] @relation("GSRAuthorizedBy")
+  receivedGSRs   GSRForm[] @relation("GSRReceivedBy")
+  rejectedGSRs   GSRForm[] @relation("GSRRejectedBy")
+
   // Approval timeline: every event this staff member triggered
   // (sent/verified/authorised/rejected) across PVs and petty cash.
   approvalEvents ApprovalEvent[] @relation("ApprovalActor")
@@ -299,6 +305,64 @@ model PvTemplate {
   @@map("pv_templates")
 }
 
+// ----- Goods / Service Requisition Form (GSR) -----
+// Mirrors the PV approval workflow: a requester drafts the form, an
+// authoriser approves it, and an optional receiver acknowledges receipt.
+// `gsrNum` is the human-readable key, entered manually (must be unique).
+model GSRForm {
+  id         String   @id @default(cuid())
+  gsrFormNum String   @unique
+  section    String // Dhivehi section/unit (e.g. "އެޑްމިން، ފައިނޭންސް އެންޑް އައި.ޓީ.")
+  date       DateTime
+
+  // Staff role foreign keys
+  requestedById  String?
+  authorizedById String?
+  receivedById   String?
+
+  requestedBy  Staff? @relation("GSRRequestedBy", fields: [requestedById], references: [id])
+  authorizedBy Staff? @relation("GSRAuthorizedBy", fields: [authorizedById], references: [id])
+  receivedBy   Staff? @relation("GSRReceivedBy", fields: [receivedById], references: [id])
+
+  // ----- Approval workflow -----
+  // `status` drives the state machine. `*At` columns gate whether the PDF
+  // renders the corresponding signature; they're cleared on reject back to
+  // DRAFT. Form Received By is optional: authorising with no receiver
+  // assigned completes the form directly.
+  status           GSRStatus @default(DRAFT)
+  authorizedAt     DateTime?
+  receivedAt       DateTime?
+  rejectedAt       DateTime?
+  rejectedById     String?
+  rejectionComment String?
+
+  rejectedBy     Staff?          @relation("GSRRejectedBy", fields: [rejectedById], references: [id])
+  approvalEvents ApprovalEvent[]
+
+  items GSRItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("gsr_forms")
+}
+
+// ----- Line items on a GSR form -----
+model GSRItem {
+  id           String    @id @default(cuid())
+  particulars  String
+  requestedQty Int
+  issuedQty    Int?
+  rqdDate      DateTime?
+  remarks      String? // Dhivehi remarks
+
+  gsrFormId String
+  gsrForm   GSRForm @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
+
+  @@map("gsr_items")
+}
+
 // ----- Asset register -----
 // Flat registry row, one per physical asset (plain CRUD — no approval
 // workflow). `assetNum` is the human-readable key (e.g. 433-18-02-15-79-01)
@@ -364,6 +428,17 @@ enum PVStatus {
   REJECTED
 }
 
+// Sequential state machine for a GSR Form. Form Received By is optional, so
+// authorising with no receiver assigned goes straight to COMPLETED. REJECTED
+// is a transient label (the row reverts to DRAFT in the same write).
+enum GSRStatus {
+  DRAFT
+  PENDING_AUTHORIZATION
+  PENDING_RECEIPT
+  COMPLETED
+  REJECTED
+}
+
 // Discriminator for ApprovalEvent rows. PV events are sequential stages;
 // PC events are per-role since PC approvals are out-of-order.
 enum ApprovalEventKind {
@@ -376,6 +451,11 @@ enum ApprovalEventKind {
   PC_ROLE_APPROVED
   PC_ROLE_REJECTED
   PC_ROLE_RESET_ON_EDIT
+  GSR_SENT_FOR_AUTHORIZATION
+  GSR_AUTHORIZED
+  GSR_RECEIVED
+  GSR_CALLED_BACK
+  GSR_REJECTED
 }
 
 // Polymorphic timeline table. Exactly one of `pvId` / `pettyCashId` is
@@ -387,6 +467,7 @@ model ApprovalEvent {
   kind          ApprovalEventKind
   pvId          String?
   pettyCashId   String?
+  gsrFormId     String?
   pettyCashRole String?
   actorId       String
   comment       String?
@@ -394,9 +475,11 @@ model ApprovalEvent {
 
   pv        PV?        @relation(fields: [pvId], references: [id], onDelete: Cascade)
   pettyCash PettyCash? @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
+  gsrForm   GSRForm?   @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
   actor     Staff      @relation("ApprovalActor", fields: [actorId], references: [id])
 
   @@index([pvId, createdAt])
   @@index([pettyCashId, createdAt])
+  @@index([gsrFormId, createdAt])
   @@map("approval_events")
 }

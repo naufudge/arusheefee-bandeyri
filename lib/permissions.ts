@@ -52,6 +52,18 @@ export const PERMISSIONS = {
   ASSET_EXPORT: "asset:export",
   ASSET_IMPORT: "asset:import",
 
+  // ----- GSR Forms (Goods / Service Requisition) -----
+  // Full approval workflow (like PV). Approve/receive actions are
+  // assignee-gated, not permission-gated.
+  GSR_READ: "gsr:read",
+  GSR_CREATE: "gsr:create",
+  GSR_UPDATE: "gsr:update",
+  GSR_DELETE: "gsr:delete",
+  GSR_EXPORT: "gsr:export",
+  // Override: edit a GSR form after it has left DRAFT. Same semantics as
+  // PV_EDIT_LOCKED — `gsr:update` is still required as the base.
+  GSR_EDIT_LOCKED: "gsr:edit_locked",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -213,6 +225,43 @@ export const PERMISSION_GROUPS: {
         key: PERMISSIONS.ASSET_IMPORT,
         label: "Import Excel",
         description: "Bulk-load assets from a .xlsx file.",
+      },
+    ],
+  },
+  {
+    label: "GSR Forms",
+    permissions: [
+      {
+        key: PERMISSIONS.GSR_READ,
+        label: "View GSR forms",
+        description:
+          "Browse the GSR register and view individual requisition forms.",
+      },
+      {
+        key: PERMISSIONS.GSR_CREATE,
+        label: "Create GSR form",
+        description: "Add a new goods / service requisition form.",
+      },
+      {
+        key: PERMISSIONS.GSR_UPDATE,
+        label: "Edit GSR form",
+        description: "Modify an existing GSR form's details.",
+      },
+      {
+        key: PERMISSIONS.GSR_DELETE,
+        label: "Delete GSR form",
+        description: "Remove a GSR form permanently.",
+      },
+      {
+        key: PERMISSIONS.GSR_EXPORT,
+        label: "Export GSR PDF",
+        description: "Download a GSR form as a PDF.",
+      },
+      {
+        key: PERMISSIONS.GSR_EDIT_LOCKED,
+        label: "Edit locked GSR form",
+        description:
+          "Override the workflow lock and edit a GSR form that has been sent for authorization or further. Requires \"Edit GSR form\" as well.",
       },
     ],
   },
