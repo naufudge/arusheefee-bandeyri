@@ -24,6 +24,7 @@ export const PvSchema = z.object({
   invoiceDetails: z.array(
     z.object({
       comments: z.string().min(1),
+      documentNumber: z.string().optional(),
       invoiceNumber: z.string().optional(),
       invoiceDate: z.date().nullable().optional(),
       invoiceTotal: z.coerce.number().gt(0).multipleOf(0.01),
@@ -45,7 +46,12 @@ export const PvSchema = z.object({
   parkedDate: z.date().optional().nullable(),
   postingDate: z.date().optional().nullable(),
   clearingDoc: z.object({num: z.string().optional(), date: z.date().optional().nullable()}),
-  transferNum: z.string().optional()
+  transferNum: z.string().optional(),
+
+  // PDF-only: populated by the server's pdfPayload when a PV has been
+  // posted. The create/edit form never sets these.
+  postedOn: z.date().optional().nullable(),
+  postedBy: userSchema.optional(),
 })
 
 export type PvValues = z.infer<typeof PvSchema>

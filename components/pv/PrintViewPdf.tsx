@@ -34,6 +34,20 @@ const formatDate = (date?: Date | null) => {
   }
 };
 
+// Numeric DD/MM/YYYY for the posted stamp ("…posted on 13/06/2026").
+const formatDmyNumeric = (date?: Date | null) => {
+  if (!date) return "";
+  try {
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+};
+
 const styles = StyleSheet.create({
   page: {
     paddingTop: 24,
@@ -69,6 +83,7 @@ const styles = StyleSheet.create({
   },
   sectionGap: { marginTop: 6 },
   smallGap: { marginTop: 3 },
+  topBand: { marginBottom: 6, alignItems: "flex-start" },
 });
 
 interface Props {
@@ -110,9 +125,56 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
   const grossTotal = getGrossTotal(pv);
   const isMVR = pv.currency.toLowerCase() === "mvr";
 
+  // Single-invoice document number prints top-left above the header.
+  // (Multi-invoice doc numbers print inside each invoice's comments cell.)
+  const singleDocNumber =
+    pv.invoiceDetails.length === 1
+      ? pv.invoiceDetails[0].documentNumber
+      : undefined;
+  const isPosted = Boolean(pv.postedOn);
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Top band above the frame: single-invoice document number (left)
+            and the posted stamp (right). */}
+        {(singleDocNumber || isPosted) && (
+          <View style={[styles.row, styles.topBand]}>
+            <View style={{ width: "50%" }}>
+              {singleDocNumber ? (
+                <Text style={styles.bold}>{singleDocNumber}</Text>
+              ) : null}
+            </View>
+            <View style={{ width: "50%", alignItems: "flex-end" }}>
+              {isPosted ? (
+                <>
+                  <Text style={[styles.bold, styles.right]}>
+                    This PV has been posted on{" "}
+                    {formatDmyNumeric(pv.postedOn)}
+                  </Text>
+                  {pv.postedBy?.signature ? (
+                    // react-pdf's <Image> doesn't take `alt`; jsx-a11y is a
+                    // false positive here.
+                    // eslint-disable-next-line jsx-a11y/alt-text
+                    <Image
+                      src={pv.postedBy.signature}
+                      style={{
+                        maxHeight: 28,
+                        maxWidth: 130,
+                        objectFit: "contain",
+                        marginTop: 2,
+                      }}
+                    />
+                  ) : null}
+                  {pv.postedBy?.name ? (
+                    <Text style={styles.right}>{pv.postedBy.name}</Text>
+                  ) : null}
+                </>
+              ) : null}
+            </View>
+          </View>
+        )}
+
         <View style={styles.outerFrame}>
           {/* Title strip + Acct No / Type */}
           <View style={styles.row}>
@@ -313,6 +375,13 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
                       minHeight: 16,
                     }}
                   >
+                    {/* Multi-invoice: the document number prints right-aligned
+                        inside this invoice's comments cell. */}
+                    {pv.invoiceDetails.length > 1 && invoice.documentNumber ? (
+                      <Text style={[styles.bold, styles.right]}>
+                        Doc. No: {invoice.documentNumber}
+                      </Text>
+                    ) : null}
                     <Text>{invoice.comments}</Text>
                   </View>
                 </View>

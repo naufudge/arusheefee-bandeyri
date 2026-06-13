@@ -46,6 +46,7 @@ model Staff {
   authorisedOnePVs PV[] @relation("AuthorisedByOne")
   authorisedTwoPVs PV[] @relation("AuthorisedByTwo")
   rejectedPVs      PV[] @relation("RejectedBy")
+  postedPVs        PV[] @relation("PostedBy")
 
   // Petty cash role assignments (one row per signed role on one PettyCash)
   pettyCashRoles PettyCashStaff[]
@@ -145,7 +146,14 @@ model PV {
   rejectedById      String?
   rejectionComment  String?
 
+  // ----- Posting -----
+  // After a PV is APPROVED, a `pv:post` holder posts it (terminal POSTED
+  // status). `postedAt` gates the posted signature on the PDF.
+  postedAt   DateTime?
+  postedById String?
+
   rejectedBy     Staff?          @relation("RejectedBy", fields: [rejectedById], references: [id])
+  postedBy       Staff?          @relation("PostedBy", fields: [postedById], references: [id])
   approvalEvents ApprovalEvent[]
 
   // Invoice relation (one-to-many)
@@ -507,6 +515,7 @@ enum PVStatus {
   PENDING_AUTHORISATION_ONE
   PENDING_AUTHORISATION_TWO
   APPROVED
+  POSTED
   REJECTED
 }
 
@@ -541,6 +550,7 @@ enum ApprovalEventKind {
   AUTHORISED_ONE
   AUTHORISED_TWO
   REJECTED
+  POSTED
   PC_ROLE_APPROVED
   PC_ROLE_REJECTED
   PC_ROLE_RESET_ON_EDIT

@@ -2,7 +2,14 @@
 
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Send, Undo2, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
+import {
+  Send,
+  Undo2,
+  CheckCircle2,
+  ShieldCheck,
+  XCircle,
+  BookCheck,
+} from "lucide-react";
 import type { PVStatus } from "@prisma/client";
 import { useTRPC } from "@/lib/trpc";
 import { useToast } from "@/hooks/use-toast";
@@ -12,12 +19,14 @@ import { Button } from "@/components/ui/button";
 import { RejectDialog } from "./RejectDialog";
 import { SignatureRequiredModal } from "./SignatureRequiredModal";
 
-type PVAction = "verify" | "authoriseOne" | "authoriseTwo";
+type PVAction = "verify" | "authoriseOne" | "authoriseTwo" | "post";
 
 const APPROVE_CLS =
   "bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700";
 const REJECT_CLS =
   "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700";
+const POST_CLS =
+  "bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700";
 
 interface PVActionBarProps {
   pvNum: string;
@@ -40,6 +49,7 @@ export function PVActionBar({
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const canUpdate = useHasPermission(PERMISSIONS.PV_UPDATE);
+  const canPost = useHasPermission(PERMISSIONS.PV_POST);
 
   const [rejectOpen, setRejectOpen] = useState(false);
   const [signatureOpen, setSignatureOpen] = useState(false);
@@ -120,6 +130,15 @@ export function PVActionBar({
       onError: (err) => handleApprovalError("authoriseTwo", err),
     }),
   );
+  const postMutation = useMutation(
+    trpc.pv.post.mutationOptions({
+      onSuccess: () => {
+        toast({ title: "Posted" });
+        invalidate();
+      },
+      onError: (err) => handleApprovalError("post", err),
+    }),
+  );
   const rejectMutation = useMutation(
     trpc.pv.reject.mutationOptions({
       onSuccess: () => {
@@ -141,6 +160,7 @@ export function PVActionBar({
   const showVerify = status === "PENDING_VERIFICATION" && isVerifier;
   const showAuthOne = status === "PENDING_AUTHORISATION_ONE" && isAuthOne;
   const showAuthTwo = status === "PENDING_AUTHORISATION_TWO" && isAuthTwo;
+  const showPost = canPost && status === "APPROVED";
   const canReject = showVerify || showAuthOne || showAuthTwo;
 
   const anyPending =
@@ -149,6 +169,7 @@ export function PVActionBar({
     verifyMutation.isPending ||
     authOneMutation.isPending ||
     authTwoMutation.isPending ||
+    postMutation.isPending ||
     rejectMutation.isPending;
 
   // Nothing to render if the user can't take any action.
@@ -157,7 +178,8 @@ export function PVActionBar({
     !showCallback &&
     !showVerify &&
     !showAuthOne &&
-    !showAuthTwo
+    !showAuthTwo &&
+    !showPost
   ) {
     return null;
   }
@@ -167,6 +189,7 @@ export function PVActionBar({
     if (pendingApproval === "verify") verifyMutation.mutate({ pvNum });
     else if (pendingApproval === "authoriseOne") authOneMutation.mutate({ pvNum });
     else if (pendingApproval === "authoriseTwo") authTwoMutation.mutate({ pvNum });
+    else if (pendingApproval === "post") postMutation.mutate({ pvNum });
     setPendingApproval(null);
   }
 
@@ -231,6 +254,18 @@ export function PVActionBar({
           >
             <ShieldCheck className="size-3.5" />
             Authorise (final)
+          </Button>
+        )}
+        {showPost && (
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => postMutation.mutate({ pvNum })}
+            disabled={anyPending}
+            className={POST_CLS}
+          >
+            <BookCheck className="size-3.5" />
+            Post
           </Button>
         )}
         {canReject && (

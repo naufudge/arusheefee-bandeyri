@@ -273,6 +273,7 @@ type PvStatus =
   | "PENDING_AUTHORISATION_ONE"
   | "PENDING_AUTHORISATION_TWO"
   | "APPROVED"
+  | "POSTED"
   | "REJECTED";
 
 type PvPendingRow = {

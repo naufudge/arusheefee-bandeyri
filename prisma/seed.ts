@@ -36,6 +36,229 @@ async function main() {
     );
   }
 
+  // 1.5 Seed sample PVs so the document-number and posted-flow features are
+  //     testable right away. Idempotent per-sample (keyed on the unique
+  //     "SMP-…" pvNum) so it runs regardless of other PVs already in the DB
+  //     and re-runs don't duplicate. Written directly (bypassing the zod
+  //     schema + signature gate); the status / *At columns are set
+  //     consistently per stage. Seeded signatories have no signature
+  //     attachments, so the PDF renders names and dates but blank signature
+  //     images until a real signature is uploaded for that staff member.
+  {
+    const staffId = async (name: string) =>
+      (await prisma.staff.findFirst({ where: { name } }))?.id ?? null;
+
+    const prepared = await staffId("Sharumeela Abdul Fatah");
+    const verifier = await staffId("Aishath Soniya");
+    const authOne = await staffId("Imad Mohamed");
+    const authTwo = await staffId("Mohamed Amir");
+    const poster = await staffId("Sharmeela Mohamed");
+
+    const gl = (code: number, amount: number) => ({ code, fund: "C-GOM", amount });
+    const d = (iso: string) => new Date(iso);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const samplePvs: any[] = [
+      {
+        // DRAFT — single invoice, no document number.
+        pvNum: "SMP-2026-0001",
+        vendor: "Dhiraagu Plc",
+        date: d("2026-06-01"),
+        notes: "Internet & telephone services for May 2026.",
+        paymentMethod: "Transfer",
+        status: "DRAFT",
+        preparedById: prepared,
+        verifiedById: verifier,
+        authorisedByOneId: authOne,
+        authorisedByTwoId: authTwo,
+        invoices: {
+          create: [
+            {
+              comments: "Monthly internet and telephone bill.",
+              documentNum: null,
+              invoiceNumber: "INV-5521",
+              invoiceDate: d("2026-05-28"),
+              invoiceTotal: 1850.0,
+              glDetails: { create: [gl(223001, 1850.0)] },
+            },
+          ],
+        },
+      },
+      {
+        // PENDING_VERIFICATION — single invoice WITH a document number
+        // (exercises the top-left placement on the PDF).
+        pvNum: "SMP-2026-0002",
+        vendor: "State Electric Company Ltd",
+        date: d("2026-06-02"),
+        notes: "Electricity charges for April 2026.",
+        paymentMethod: "Transfer",
+        status: "PENDING_VERIFICATION",
+        preparedById: prepared,
+        verifiedById: verifier,
+        authorisedByOneId: authOne,
+        authorisedByTwoId: authTwo,
+        invoices: {
+          create: [
+            {
+              comments: "STELCO electricity bill — head office.",
+              documentNum: "DOC-2026-114",
+              invoiceNumber: "SE-99812",
+              invoiceDate: d("2026-05-30"),
+              invoiceTotal: 7421.5,
+              glDetails: { create: [gl(223002, 7421.5)] },
+            },
+          ],
+        },
+      },
+      {
+        // PENDING_AUTHORISATION_TWO — multi-invoice, each with a document
+        // number (exercises the right-aligned in-comments placement).
+        pvNum: "SMP-2026-0003",
+        vendor: "Office Mart Pvt Ltd",
+        date: d("2026-06-03"),
+        notes: "Office supplies and stationery.",
+        paymentMethod: "Cheque",
+        status: "PENDING_AUTHORISATION_TWO",
+        preparedById: prepared,
+        verifiedById: verifier,
+        verifiedAt: d("2026-06-04"),
+        authorisedByOneId: authOne,
+        authorisedByOneAt: d("2026-06-05"),
+        authorisedByTwoId: authTwo,
+        invoices: {
+          create: [
+            {
+              comments: "Stationery — pens, paper, files.",
+              documentNum: "DOC-2026-201",
+              invoiceNumber: "OM-3310",
+              invoiceDate: d("2026-06-01"),
+              invoiceTotal: 1240.0,
+              glDetails: { create: [gl(221002, 1240.0)] },
+            },
+            {
+              comments: "Printer toner cartridges.",
+              documentNum: "DOC-2026-202",
+              invoiceNumber: "OM-3318",
+              invoiceDate: d("2026-06-01"),
+              invoiceTotal: 2980.0,
+              glDetails: { create: [gl(221003, 2980.0)] },
+            },
+          ],
+        },
+      },
+      {
+        // APPROVED — multi-invoice, ready for the Post action.
+        pvNum: "SMP-2026-0004",
+        vendor: "Allied Insurance Company",
+        date: d("2026-06-04"),
+        notes: "Annual vehicle insurance renewal.",
+        paymentMethod: "Transfer",
+        status: "APPROVED",
+        preparedById: prepared,
+        verifiedById: verifier,
+        verifiedAt: d("2026-06-05"),
+        authorisedByOneId: authOne,
+        authorisedByOneAt: d("2026-06-06"),
+        authorisedByTwoId: authTwo,
+        authorisedByTwoAt: d("2026-06-07"),
+        invoices: {
+          create: [
+            {
+              comments: "Vehicle insurance — GA-1234.",
+              documentNum: "DOC-2026-301",
+              invoiceNumber: "AI-4401",
+              invoiceDate: d("2026-06-02"),
+              invoiceTotal: 5400.0,
+              glDetails: { create: [gl(228001, 5400.0)] },
+            },
+            {
+              comments: "Vehicle insurance — GA-5678.",
+              documentNum: "DOC-2026-302",
+              invoiceNumber: "AI-4402",
+              invoiceDate: d("2026-06-02"),
+              invoiceTotal: 5400.0,
+              glDetails: { create: [gl(228001, 5400.0)] },
+            },
+          ],
+        },
+      },
+      {
+        // POSTED — full chain + posted stamp (exercises the top-right
+        // "posted on" stamp on the PDF).
+        pvNum: "SMP-2026-0005",
+        vendor: "Maldives Water & Sewerage Co",
+        date: d("2026-06-05"),
+        notes: "Water charges for May 2026.",
+        paymentMethod: "Transfer",
+        status: "POSTED",
+        preparedById: prepared,
+        verifiedById: verifier,
+        verifiedAt: d("2026-06-06"),
+        authorisedByOneId: authOne,
+        authorisedByOneAt: d("2026-06-07"),
+        authorisedByTwoId: authTwo,
+        authorisedByTwoAt: d("2026-06-08"),
+        postedById: poster,
+        postedAt: d("2026-06-09"),
+        postingDate: d("2026-06-09"),
+        invoices: {
+          create: [
+            {
+              comments: "MWSC water bill — head office.",
+              documentNum: "DOC-2026-410",
+              invoiceNumber: "MW-7781",
+              invoiceDate: d("2026-06-03"),
+              invoiceTotal: 980.25,
+              glDetails: { create: [gl(223003, 980.25)] },
+            },
+          ],
+        },
+      },
+      {
+        // REJECTED — single invoice, with a rejection comment.
+        pvNum: "SMP-2026-0006",
+        vendor: "Quick Print Services",
+        date: d("2026-06-06"),
+        notes: "Banner and poster printing for an event.",
+        paymentMethod: "Cheque",
+        status: "REJECTED",
+        preparedById: prepared,
+        verifiedById: verifier,
+        rejectedById: verifier,
+        rejectedAt: d("2026-06-07"),
+        rejectionComment: "Quote exceeds the approved budget — please revise.",
+        authorisedByOneId: authOne,
+        authorisedByTwoId: authTwo,
+        invoices: {
+          create: [
+            {
+              comments: "Event banners and posters.",
+              documentNum: null,
+              invoiceNumber: "QP-220",
+              invoiceDate: d("2026-06-04"),
+              invoiceTotal: 3150.0,
+              glDetails: { create: [gl(221004, 3150.0)] },
+            },
+          ],
+        },
+      },
+    ];
+
+    let created = 0;
+    for (const data of samplePvs) {
+      const exists = await prisma.pV.findUnique({
+        where: { pvNum: data.pvNum },
+        select: { id: true },
+      });
+      if (exists) continue;
+      await prisma.pV.create({ data });
+      created += 1;
+    }
+    console.log(
+      `Sample PVs: ${created} created, ${samplePvs.length - created} already present.`,
+    );
+  }
+
   // 2. Seed the Administrator role (idempotent via upsert on unique name).
   const adminRole = await prisma.role.upsert({
     where: { name: "Administrator" },

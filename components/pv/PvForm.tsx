@@ -48,6 +48,7 @@ function usePvForm(pv?: any) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (inv: any) => ({
         comments: inv.comments,
+        documentNumber: inv.documentNum || "",
         invoiceNumber: inv.invoiceNumber || "",
         invoiceDate: inv.invoiceDate ? new Date(inv.invoiceDate) : null,
         invoiceTotal: inv.invoiceTotal,
@@ -131,6 +132,7 @@ function usePvForm(pv?: any) {
         invoiceDetails: [
           {
             comments: "",
+            documentNumber: "",
             invoiceNumber: "",
             invoiceDate: new Date(),
             invoiceTotal: 0,
@@ -477,7 +479,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
       // Transform invoiceDetails to invoices
       invoices: values.invoiceDetails.map((invoice) => ({
         comments: invoice.comments,
-        documentNum: null,
+        documentNum: invoice.documentNumber || null,
         invoiceNumber: invoice.invoiceNumber || null,
         invoiceDate: invoice.invoiceDate,
         invoiceTotal: invoice.invoiceTotal,
@@ -638,7 +640,15 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
                 control={control}
                 name={`invoiceDetails.${index}.invoiceDate`}
                 label="Invoice Date"
-                className="flex flex-col justify-start gap-2 col-span-2"
+                className="flex flex-col justify-start gap-2"
+              />
+
+              {/* Document Number */}
+              <PvInputField
+                control={control}
+                name={`invoiceDetails.${index}.documentNumber`}
+                label="Document Number"
+                className="flex flex-col gap-2"
               />
 
               {/* Invoice Number */}
@@ -674,6 +684,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
             onClick={() => {
               append({
                 comments: "",
+                documentNumber: "",
                 invoiceNumber: "",
                 invoiceDate: new Date(),
                 invoiceTotal: 0,
@@ -821,11 +832,8 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
               name={"parkedDate"}
               label="Parking Date"
             />
-            <PvInputField
-              control={control}
-              name={"postingDate"}
-              label="Posting Date"
-            />
+            {/* Posting Date is no longer entered here — it's recorded
+                automatically when a user posts the PV (see the Post action). */}
             <PvInputField
               control={control}
               name={"clearingDoc.num"}

@@ -13,6 +13,7 @@ import {
   Receipt,
   Users,
   History,
+  BookCheck,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
@@ -152,6 +153,13 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
             <span className="italic tabular-nums text-foreground">
               {format(new Date(pv.date), "d MMM yyyy")}
             </span>
+            {pv.postedAt && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-2 py-0.5 font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                <BookCheck className="size-3.5" />
+                Posted {format(new Date(pv.postedAt), "d MMM yyyy")}
+                {pv.postedBy?.name ? ` by ${pv.postedBy.name}` : ""}
+              </span>
+            )}
             {pv.exchangeRate !== 1 && (
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.14em]">
@@ -250,6 +258,11 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                               {inv.invoiceNumber}
                             </span>
                           )}
+                          {inv.documentNum && (
+                            <span className="rounded border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                              Doc: {inv.documentNum}
+                            </span>
+                          )}
                           {inv.invoiceDate && (
                             <span className="text-[11px] tabular-nums text-muted-foreground">
                               {format(new Date(inv.invoiceDate), "d MMM yyyy")}
@@ -323,6 +336,13 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                     staff={pv.authorisedByTwo}
                     signedAt={pv.authorisedByTwoAt}
                   />
+                  {pv.postedBy && (
+                    <SignatoryCard
+                      label="Posted by"
+                      staff={pv.postedBy}
+                      signedAt={pv.postedAt}
+                    />
+                  )}
                 </div>
               </section>
             </aside>

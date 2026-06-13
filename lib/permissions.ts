@@ -25,6 +25,10 @@ export const PERMISSIONS = {
   PV_DELETE: "pv:delete",
   PV_EXPORT: "pv:export",
   PV_IMPORT: "pv:import",
+  // Post an APPROVED PV (terminal POSTED state). Holders can post any
+  // approved voucher; posting requires the actor to have a signature on
+  // file (it's stamped onto the PDF).
+  PV_POST: "pv:post",
   // Override: edit a PV after it has left DRAFT (sent for verification or
   // further along the workflow). Holders bypass the lock that normally
   // shuts down `pv.update` once `status !== DRAFT`. `pv:update` is still
@@ -155,6 +159,12 @@ export const PERMISSION_GROUPS: {
         key: PERMISSIONS.PV_IMPORT,
         label: "Import Excel",
         description: "Bulk-load vouchers from a .xlsx file.",
+      },
+      {
+        key: PERMISSIONS.PV_POST,
+        label: "Post voucher",
+        description:
+          "Post an approved voucher (terminal Posted state). Stamps the poster's signature and posting date onto the PDF.",
       },
       {
         key: PERMISSIONS.PV_EDIT_LOCKED,

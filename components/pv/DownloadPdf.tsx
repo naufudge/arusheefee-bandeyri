@@ -48,6 +48,7 @@ function transformToPv(pv: any): PvValues {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     invoiceDetails: pv.invoices.map((invoice: any) => ({
       comments: invoice.comments,
+      documentNumber: invoice.documentNum ?? undefined,
       invoiceNumber: invoice.invoiceNumber ?? undefined,
       invoiceDate: invoice.invoiceDate ? new Date(invoice.invoiceDate) : null,
       invoiceTotal: invoice.invoiceTotal,
@@ -66,6 +67,15 @@ function transformToPv(pv: any): PvValues {
       date: pv.clearingDocDate ? new Date(pv.clearingDocDate) : undefined,
     },
     transferNum: pv.transferNum ?? undefined,
+    // Posted stamp — only set once the PV has been posted.
+    postedOn: pv.postedAt ? new Date(pv.postedAt) : null,
+    postedBy: pv.postedBy
+      ? {
+          name: pv.postedBy?.name,
+          designation: pv.postedBy?.designation,
+          signature: pv.signatures?.postedBy ?? undefined,
+        }
+      : undefined,
   };
 }
 

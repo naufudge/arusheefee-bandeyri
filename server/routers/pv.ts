@@ -22,6 +22,7 @@ const pvInclude = {
   authorisedByOne: true,
   authorisedByTwo: true,
   rejectedBy: true,
+  postedBy: true,
   invoices: {
     include: {
       glDetails: true,
@@ -483,6 +484,50 @@ export const pvRouter = router({
       });
     }),
 
+  // Post an APPROVED PV. Permission-gated (`pv:post`) rather than
+  // assignee-gated — any holder can post. Requires the actor to have a
+  // signature on file (stamped onto the PDF). Terminal: POSTED.
+  post: permissionProcedure("pv:post")
+    .input(pvWorkflowActionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pv = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+      });
+      if (!pv) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `PV ${input.pvNum} not found` });
+      }
+      if (pv.status !== "APPROVED") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only an approved PV can be posted.",
+        });
+      }
+      await assertActorHasSignature(ctx.prisma, ctx.session.user.id);
+
+      const now = new Date();
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "POSTED",
+            pvId: pv.id,
+            actorId: ctx.session.user.id,
+          },
+        });
+        return tx.pV.update({
+          where: { id: pv.id },
+          data: {
+            status: "POSTED",
+            postedAt: now,
+            postedById: ctx.session.user.id,
+            // Mirror onto the legacy `postingDate` column so existing
+            // display/exports (e.g. the lifecycle "Posted" step) reflect it.
+            postingDate: now,
+          },
+          include: pvInclude,
+        });
+      });
+    }),
+
   // Reject from any pending stage. The current-stage assignee is the only
   // one allowed to reject. Drops the PV back to DRAFT, clears the `*At`
   // columns so the PDF doesn't render stale signatures, and records the
@@ -562,7 +607,7 @@ export const pvRouter = router({
       // once a PV has been sent, the prepared-by signature is final.
       const includePrepared = pv.status !== "DRAFT" && !!pv.preparedById;
 
-      const [preparedBy, verifiedBy, authorisedByOne, authorisedByTwo] =
+      const [preparedBy, verifiedBy, authorisedByOne, authorisedByTwo, postedBy] =
         await Promise.all([
           includePrepared
             ? getSignatureDataUrl(ctx.prisma, pv.preparedById)
@@ -576,6 +621,9 @@ export const pvRouter = router({
           pv.authorisedByTwoAt
             ? getSignatureDataUrl(ctx.prisma, pv.authorisedByTwoId)
             : Promise.resolve(null),
+          pv.postedAt
+            ? getSignatureDataUrl(ctx.prisma, pv.postedById)
+            : Promise.resolve(null),
         ]);
 
       return {
@@ -585,6 +633,7 @@ export const pvRouter = router({
           verifiedBy,
           authorisedByOne,
           authorisedByTwo,
+          postedBy,
         },
       };
     }),
