@@ -47,6 +47,7 @@ export const PvSchema = z.object({
   postingDate: z.date().optional().nullable(),
   clearingDoc: z.object({num: z.string().optional(), date: z.date().optional().nullable()}),
   transferNum: z.string().optional(),
+  isPettyCashReimbursement: z.boolean().optional(),
 
   // PDF-only: populated by the server's pdfPayload when a PV has been
   // posted. The create/edit form never sets these.

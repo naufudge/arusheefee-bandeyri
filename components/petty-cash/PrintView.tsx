@@ -25,6 +25,8 @@ export interface PettyCashPrintData {
   glCode: number;
   parkedDate: Date | null;
   postingDate: Date | null;
+  /** Imported record approved by the system — render a stamp, not signatories. */
+  systemApproved?: boolean;
   items: { qty: number; name: string }[];
   roles: {
     label: string;
@@ -435,6 +437,29 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
           />
         </View>
 
+        {pettyCash.systemApproved ? (
+          /* Imported record — approved by the system, no signatories. */
+          <View style={styles.blockGap} wrap={false}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: BORDER,
+                paddingVertical: 14,
+                paddingHorizontal: 10,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={[styles.bold, { fontSize: 12 }]}>
+                SYSTEM APPROVED
+              </Text>
+              <Text style={{ fontSize: 8, marginTop: 3, textAlign: "center" }}>
+                Approved by the system on import — no individual signatories.
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <>
         {/* ---------- Funds Received By ---------- */}
         <View style={styles.blockGap} wrap={false}>
           <View style={styles.row}>
@@ -542,6 +567,8 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
             />
           </View>
         </View>
+          </>
+        )}
       </Page>
     </Document>
   );

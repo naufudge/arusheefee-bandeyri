@@ -47,6 +47,10 @@ export const createPvSchema = z.object({
   clearingDocNum: z.string().optional().nullable(),
   clearingDocDate: z.coerce.date().optional().nullable(),
   transferNum: z.string().optional().nullable(),
+
+  // Marks the PV as a petty cash float reimbursement (surfaces in the
+  // petty cash register export as a "Received" row).
+  isPettyCashReimbursement: z.coerce.boolean().default(false),
 });
 
 // Update PV schema - same as create

@@ -152,6 +152,11 @@ model PV {
   postedAt   DateTime?
   postedById String?
 
+  // Marks a PV raised to reimburse / top up the petty cash float. Such PVs
+  // surface as "Received" rows in the petty cash register export, and are
+  // skipped when importing that register.
+  isPettyCashReimbursement Boolean @default(false)
+
   rejectedBy     Staff?          @relation("RejectedBy", fields: [rejectedById], references: [id])
   postedBy       Staff?          @relation("PostedBy", fields: [postedById], references: [id])
   approvalEvents ApprovalEvent[]
@@ -211,6 +216,11 @@ model PettyCash {
   sectionUnit         String
   totalRequiredAmount Float
   glCode              Int
+
+  // Set on bulk import: the record is approved by the system, with no
+  // individual signatories. Treated as fully approved everywhere; renders a
+  // "System Approved" indicator instead of the five role cards.
+  systemApproved Boolean @default(false)
 
   // gated by separate permissions (see lib/permissions.ts)
   parkedDate  DateTime?
@@ -285,6 +295,21 @@ model PettyCashItem {
   pettyCash   PettyCash @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
 
   @@map("petty_cash_items")
+}
+
+// ----- Per-year petty cash opening balance -----
+// The starting float balance for a fiscal year. Drives the running balance
+// in the petty cash register export. Set manually or derived from the
+// previous year's closing balance.
+model PettyCashOpeningBalance {
+  id     String @id @default(cuid())
+  year   Int    @unique
+  amount Float  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("petty_cash_opening_balances")
 }
 
 model Attachment {

@@ -160,17 +160,30 @@ export function PcReconStatusPill({
 interface PettyCashStatusPillProps {
   approvedCount: number;
   totalAssigned: number;
+  /** Imported records approved by the system (no individual signatories). */
+  systemApproved?: boolean;
   className?: string;
 }
 
 // Petty Cash doesn't have a single status enum (5 independent approvals),
 // so the pill reflects the approved/assigned ratio + a "fully approved"
-// terminal label.
+// terminal label. `systemApproved` is a separate terminal state for imports.
 export function PettyCashStatusPill({
   approvedCount,
   totalAssigned,
+  systemApproved,
   className,
 }: PettyCashStatusPillProps) {
+  if (systemApproved) {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.06em] text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 ${className ?? ""}`}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        System Approved
+      </span>
+    );
+  }
   const fullyApproved = totalAssigned === 5 && approvedCount === 5;
   if (fullyApproved) {
     return (

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Plus, Trash2 } from "lucide-react";
@@ -108,6 +108,7 @@ function usePvForm(pv?: any) {
             : null,
       },
       transferNum: pv.transferNum || "",
+      isPettyCashReimbursement: pv.isPettyCashReimbursement ?? false,
     };
 
     formConfig = {
@@ -160,6 +161,7 @@ function usePvForm(pv?: any) {
         postingDate: null,
         clearingDoc: { num: "", date: null },
         transferNum: "",
+        isPettyCashReimbursement: false,
       },
     };
   }
@@ -497,6 +499,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
       clearingDocNum: values.clearingDoc?.num || null,
       clearingDocDate: values.clearingDoc?.date,
       transferNum: values.transferNum || null,
+      isPettyCashReimbursement: values.isPettyCashReimbursement ?? false,
     };
 
     if (!pv) {
@@ -850,6 +853,31 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
               label="Transfer Number"
             />
           </div>
+
+          <Controller
+            control={control}
+            name="isPettyCashReimbursement"
+            render={({ field }) => (
+              <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-md border bg-background p-3 transition hover:bg-muted/40">
+                <input
+                  type="checkbox"
+                  checked={!!field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  className="mt-0.5 size-4 accent-primary"
+                />
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-sm font-medium">
+                    Petty Cash Reimbursement
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    This voucher reimburses / tops up the petty cash float. It
+                    appears as a &ldquo;Received&rdquo; row in the petty cash
+                    register export.
+                  </span>
+                </span>
+              </label>
+            )}
+          />
         </section>
 
         {/* Reference documents — queued in create mode (uploaded after the

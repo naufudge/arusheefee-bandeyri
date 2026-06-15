@@ -30,6 +30,7 @@ function transform(record: any): PettyCashPrintData {
     glCode: record.glCode,
     parkedDate: record.parkedDate ? new Date(record.parkedDate) : null,
     postingDate: record.postingDate ? new Date(record.postingDate) : null,
+    systemApproved: !!record.systemApproved,
     items:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       record.items?.map((it: any) => ({ qty: it.qty, name: it.name })) ?? [],

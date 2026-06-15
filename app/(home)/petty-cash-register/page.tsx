@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Banknote,
-  CircleCheck,
   Clock,
   Eye,
   FileSpreadsheet,
@@ -38,6 +37,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import DownloadPdf from "@/components/petty-cash/DownloadPdf";
+import ExportPettyCash from "@/components/petty-cash/ExportPettyCash";
+import ImportPettyCash from "@/components/petty-cash/ImportPettyCash";
+import OpeningBalanceControl from "@/components/petty-cash/OpeningBalanceControl";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
@@ -61,6 +63,9 @@ const PettyCashRegisterPage = () => {
   const canDelete = useHasPermission(PERMISSIONS.PETTYCASH_DELETE);
   const canCreate = useHasPermission(PERMISSIONS.PETTYCASH_CREATE);
   const canEditLocked = useHasPermission(PERMISSIONS.PETTYCASH_EDIT_LOCKED);
+  const canExport = useHasPermission(PERMISSIONS.PETTYCASH_EXPORT);
+  const canImport = useHasPermission(PERMISSIONS.PETTYCASH_IMPORT);
+  const canUpdate = useHasPermission(PERMISSIONS.PETTYCASH_UPDATE);
 
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -94,13 +99,14 @@ const PettyCashRegisterPage = () => {
     }),
   );
 
-  // Approval = all 5 roles signed off. Anything less is pending.
-  const isApproved = (record: { handledBy: { isApproved: boolean } | null; procurementApprovedBy: { isApproved: boolean } | null; budgetCheckedBy: { isApproved: boolean } | null; balanceHandedOverBy: { isApproved: boolean } | null; balanceCollectedBy: { isApproved: boolean } | null }) =>
-    !!record.handledBy?.isApproved &&
-    !!record.procurementApprovedBy?.isApproved &&
-    !!record.budgetCheckedBy?.isApproved &&
-    !!record.balanceHandedOverBy?.isApproved &&
-    !!record.balanceCollectedBy?.isApproved;
+  // Approval = system-approved (imports) OR all 5 roles signed off.
+  const isApproved = (record: { systemApproved?: boolean; handledBy: { isApproved: boolean } | null; procurementApprovedBy: { isApproved: boolean } | null; budgetCheckedBy: { isApproved: boolean } | null; balanceHandedOverBy: { isApproved: boolean } | null; balanceCollectedBy: { isApproved: boolean } | null }) =>
+    !!record.systemApproved ||
+    (!!record.handledBy?.isApproved &&
+      !!record.procurementApprovedBy?.isApproved &&
+      !!record.budgetCheckedBy?.isApproved &&
+      !!record.balanceHandedOverBy?.isApproved &&
+      !!record.balanceCollectedBy?.isApproved);
 
   const filtered = useMemo(() => {
     if (!records) return [];
@@ -171,6 +177,18 @@ const PettyCashRegisterPage = () => {
               New Petty Cash
             </Link>
           )}
+          {canImport && (
+            <ImportPettyCash
+              onImported={() =>
+                queryClient.invalidateQueries({
+                  queryKey: trpc.pettycash.byYear.queryKey({
+                    year: String(year),
+                  }),
+                })
+              }
+            />
+          )}
+          {canExport && <ExportPettyCash year={year} />}
           <div className="flex items-center gap-2" suppressHydrationWarning>
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
               Period
@@ -215,18 +233,6 @@ const PettyCashRegisterPage = () => {
               }
             />
             <KpiCard
-              label="Approved"
-              icon={CircleCheck}
-              value={stats.approved.toString()}
-              sub={
-                <span className="text-emerald-700">
-                  {stats.total === 0
-                    ? "0%"
-                    : `${Math.round((stats.approved / stats.total) * 100)}% complete`}
-                </span>
-              }
-            />
-            <KpiCard
               label="Pending"
               icon={Clock}
               value={stats.pending.toString()}
@@ -236,6 +242,7 @@ const PettyCashRegisterPage = () => {
                   : `${stats.pending === 1 ? "record" : "records"} awaiting approval`
               }
             />
+            <OpeningBalanceControl year={year} canEdit={canUpdate} />
             <KpiCard
               label="Total Value"
               icon={Banknote}
@@ -382,6 +389,7 @@ const PettyCashRegisterPage = () => {
                       <PettyCashStatusPill
                         approvedCount={approvedCount}
                         totalAssigned={totalAssigned}
+                        systemApproved={record.systemApproved}
                       />
                       <span className="truncate text-[11px] text-muted-foreground">
                         Form {record.formNum} &middot; {record.sectionUnit}

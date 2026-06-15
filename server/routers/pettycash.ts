@@ -142,6 +142,64 @@ export const pettyCashRouter = router({
       });
     }),
 
+  // ----- Per-year opening balance (drives the register export) -----
+  openingBalance: permissionProcedure("pettycash:read")
+    .input(yearFilterSchema)
+    .query(async ({ ctx, input }) => {
+      const year = Number(input.year);
+      const row = await ctx.prisma.pettyCashOpeningBalance.findUnique({
+        where: { year },
+      });
+      return { year, amount: row?.amount ?? 0, isSet: !!row };
+    }),
+
+  // Closing balance of the *previous* year = its opening balance + received
+  // (reimbursement PVs) − paid (petty cash totals). Used to prefill this
+  // year's opening balance from the previous year's records.
+  previousYearClosing: permissionProcedure("pettycash:read")
+    .input(yearFilterSchema)
+    .query(async ({ ctx, input }) => {
+      const prevYear = Number(input.year) - 1;
+      const start = new Date(Date.UTC(prevYear, 0, 1));
+      const end = new Date(Date.UTC(prevYear + 1, 0, 1));
+
+      const [prevOpening, paidAgg, reimbursements] = await Promise.all([
+        ctx.prisma.pettyCashOpeningBalance.findUnique({
+          where: { year: prevYear },
+        }),
+        ctx.prisma.pettyCash.aggregate({
+          where: { date: { gte: start, lt: end } },
+          _sum: { totalRequiredAmount: true },
+        }),
+        ctx.prisma.pV.findMany({
+          where: {
+            isPettyCashReimbursement: true,
+            date: { gte: start, lt: end },
+          },
+          include: { invoices: { select: { invoiceTotal: true } } },
+        }),
+      ]);
+
+      const paid = paidAgg._sum.totalRequiredAmount ?? 0;
+      const received = reimbursements.reduce(
+        (sum, pv) =>
+          sum + pv.invoices.reduce((s, inv) => s + inv.invoiceTotal, 0),
+        0,
+      );
+      const opening = prevOpening?.amount ?? 0;
+      return { prevYear, closing: opening + received - paid, received, paid, opening };
+    }),
+
+  setOpeningBalance: permissionProcedure("pettycash:update")
+    .input(z.object({ year: z.coerce.number().int(), amount: z.coerce.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.pettyCashOpeningBalance.upsert({
+        where: { year: input.year },
+        update: { amount: input.amount },
+        create: { year: input.year, amount: input.amount },
+      });
+    }),
+
   create: permissionProcedure("pettycash:create")
     .input(createPettyCashSchema)
     .mutation(async ({ ctx, input }) => {
@@ -214,15 +272,16 @@ export const pettyCashRouter = router({
         });
       }
 
-      // Edit lock: fully approved petty cash records are final, unless
-      // the actor has the `pettycash:edit_locked` override. `pettycash:update`
-      // (the procedure-level gate) is still required.
+      // Edit lock: fully approved (or system-approved) petty cash records
+      // are final, unless the actor has the `pettycash:edit_locked` override.
+      // `pettycash:update` (the procedure-level gate) is still required.
       const allRoles = PC_ROLES.map((r) => existing[r]);
       const allAssigned = allRoles.every((r) => r !== null);
       const allApproved =
         allAssigned && allRoles.every((r) => r !== null && r.isApproved);
+      const locked = existing.systemApproved || allApproved;
       if (
-        allApproved &&
+        locked &&
         !ctx.session.permissions?.includes("pettycash:edit_locked")
       ) {
         throw new TRPCError({
@@ -336,6 +395,9 @@ export const pettyCashRouter = router({
             glCode: input.glCode,
             parkedDate: input.parkedDate ?? null,
             postingDate: input.postingDate ?? null,
+            // A human edit via the role-based form supersedes system
+            // approval: the record becomes a normal role-tracked record.
+            systemApproved: false,
             items: {
               create: input.items.map((item) => ({
                 qty: item.qty,

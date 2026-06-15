@@ -12,6 +12,7 @@ import {
   Pencil,
   Lock,
   FileText,
+  ShieldCheck,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
@@ -81,7 +82,9 @@ const PettyCashDetailPage = ({
     : [];
   const approvedCount = assignedRoles.filter((r) => r!.isApproved).length;
   const totalAssigned = assignedRoles.length;
-  const allApproved = totalAssigned === 5 && approvedCount === 5;
+  const systemApproved = !!pc?.systemApproved;
+  const allApproved =
+    systemApproved || (totalAssigned === 5 && approvedCount === 5);
   // `allApproved` is the visual lock; `editAllowed` is the actual
   // enable bit (override holders can still edit a fully-approved record).
   const editAllowed = canUpdate && (!allApproved || canEditLocked);
@@ -112,6 +115,7 @@ const PettyCashDetailPage = ({
               <PettyCashStatusPill
                 approvedCount={approvedCount}
                 totalAssigned={totalAssigned}
+                systemApproved={systemApproved}
               />
             )}
           </div>
@@ -250,9 +254,25 @@ const PettyCashDetailPage = ({
               </ul>
             </section>
 
-            {/* Signatories — 5 roles, with per-role action bars. */}
+            {/* Signatories — 5 roles, with per-role action bars. System-
+                approved imports have no signatories, so they show a single
+                "System Approved" panel instead. */}
             <section className="space-y-3 lg:col-span-3">
               <h2 className="px-1 text-sm font-semibold">Approvals</h2>
+              {systemApproved ? (
+                <div className="flex items-start gap-3 rounded-md border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800/60 dark:bg-emerald-900/20">
+                  <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <div>
+                    <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                      System Approved
+                    </div>
+                    <p className="mt-0.5 text-xs text-emerald-700/90 dark:text-emerald-300/80">
+                      Approved by the system on import — no individual
+                      signatories.
+                    </p>
+                  </div>
+                </div>
+              ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {PC_ROLES.map(({ key, label, showAmount }) => {
                   const row = pc[key];
@@ -288,6 +308,7 @@ const PettyCashDetailPage = ({
                   );
                 })}
               </div>
+              )}
             </section>
 
             {/* Reference docs */}

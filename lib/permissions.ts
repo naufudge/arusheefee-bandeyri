@@ -39,6 +39,8 @@ export const PERMISSIONS = {
   PETTYCASH_CREATE: "pettycash:create",
   PETTYCASH_UPDATE: "pettycash:update",
   PETTYCASH_DELETE: "pettycash:delete",
+  PETTYCASH_EXPORT: "pettycash:export",
+  PETTYCASH_IMPORT: "pettycash:import",
   PETTYCASH_EDIT_PARKED_DATE: "pettycash:edit_parked_date",
   PETTYCASH_EDIT_POSTING_DATE: "pettycash:edit_posting_date",
   // Override: edit a Petty Cash after all five roles have approved.
@@ -196,6 +198,16 @@ export const PERMISSION_GROUPS: {
         key: PERMISSIONS.PETTYCASH_DELETE,
         label: "Delete petty cash",
         description: "Remove a petty cash record permanently.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_EXPORT,
+        label: "Export register",
+        description: "Download the petty cash register as a .xlsx file.",
+      },
+      {
+        key: PERMISSIONS.PETTYCASH_IMPORT,
+        label: "Import register",
+        description: "Bulk-load petty cash records from a .xlsx file.",
       },
       {
         key: PERMISSIONS.PETTYCASH_EDIT_PARKED_DATE,
