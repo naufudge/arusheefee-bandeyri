@@ -1,7 +1,7 @@
 import { router } from "../trpc";
 import { staffRouter } from "./staff";
 import { pvRouter } from "./pv";
-import { pettyCashRouter } from "./pettyCash";
+import { pettyCashRouter } from "./pettycash";
 import { exchangeRatesRouter } from "./exchangeRates";
 import { roleRouter } from "./role";
 import { approvalsRouter } from "./approvals";
