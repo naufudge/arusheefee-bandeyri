@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
+import PdfLetterhead from "@/components/shared/PdfLetterhead";
 
 // Dhivehi (Thaana) fonts — shared with the GSR / petty-cash print views.
 Font.register({ family: "Faruma", src: "/fonts/Faruma.ttf" });
@@ -81,25 +82,6 @@ const styles = StyleSheet.create({
     color: "#000",
   },
 
-  // ----- Letterhead -----
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingBottom: 8,
-  },
-  headerLogo: { height: 46, objectFit: "contain" },
-  headerCenter: { flex: 1, alignItems: "center", paddingHorizontal: 8 },
-  orgDhivehi: { fontFamily: "MVWaheed", fontSize: 16, textAlign: "center" },
-  orgEnglish: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 8.5,
-    letterSpacing: 1.3,
-    marginTop: 3,
-    textAlign: "center",
-  },
-  rule: { borderBottomWidth: 1.5, borderColor: BORDER },
-
   infoWrap: { flexDirection: "row", marginTop: 8 },
 
   // ----- Generic cell -----
@@ -136,6 +118,14 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 4,
   },
+  // Body-cell modifier: drop the top/bottom (horizontal) dividers but keep the
+  // left/right (vertical column) dividers. The longhand keys override the
+  // `borderWidth` shorthand because @react-pdf/stylesheet resolves them last.
+  noHRule: { borderTopWidth: 0, borderBottomWidth: 0 },
+  // Wrappers that restore a table's outer outline once its rows no longer draw
+  // their own horizontal dividers (left/right outline still comes from cells).
+  txnTable: { marginTop: 8, borderBottomWidth: 0.5, borderColor: BORDER },
+  boxTable: { borderTopWidth: 0.5, borderBottomWidth: 0.5, borderColor: BORDER },
 
   // ----- Title band -----
   titleBand: {
@@ -238,17 +228,7 @@ const TreasuryWeeklyPdf: React.FC<{ data: TreasuryWeeklyData }> = ({ data }) => 
     >
       <Page size="A4" style={styles.page}>
         {/* ---------- Letterhead ---------- */}
-        <View style={styles.header}>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image src="/emblem.png" style={[styles.headerLogo, { width: 44 }]} />
-          <View style={styles.headerCenter}>
-            <Text style={styles.orgDhivehi}>ދިވެހިރާއްޖޭގެ ޤައުމީ އަރުޝީފު</Text>
-            <Text style={styles.orgEnglish}>NATIONAL ARCHIVES OF MALDIVES</Text>
-          </View>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image src="/logo.png" style={[styles.headerLogo, { width: 48 }]} />
-        </View>
-        <View style={styles.rule} />
+        <PdfLetterhead />
 
         {/* ---------- Number ---------- */}
         <View style={styles.infoWrap}>
@@ -274,7 +254,7 @@ const TreasuryWeeklyPdf: React.FC<{ data: TreasuryWeeklyData }> = ({ data }) => 
         </View>
 
         {/* ---------- Transactions table ---------- */}
-        <View style={{ marginTop: 8 }}>
+        <View style={styles.txnTable}>
           {/* Header (RTL: Date right → Balance left) */}
           <View style={styles.row}>
             <THead width={COL.balance} text="ބާކީ" />
@@ -285,19 +265,19 @@ const TreasuryWeeklyPdf: React.FC<{ data: TreasuryWeeklyData }> = ({ data }) => 
           </View>
           {rows.map((t, i) => (
             <View style={styles.row} key={i}>
-              <Cell width={COL.balance} align="center" minHeight={15}>
+              <Cell width={COL.balance} align="center" minHeight={15} style={styles.noHRule}>
                 {t.balance ?? NBSP}
               </Cell>
-              <Cell width={COL.withdrawn} align="center" minHeight={15}>
+              <Cell width={COL.withdrawn} align="center" minHeight={15} style={styles.noHRule}>
                 {t.withdrawn ?? NBSP}
               </Cell>
-              <Cell width={COL.deposited} align="center" minHeight={15}>
+              <Cell width={COL.deposited} align="center" minHeight={15} style={styles.noHRule}>
                 {t.deposited ?? NBSP}
               </Cell>
-              <Cell width={COL.details} align="right" minHeight={15}>
+              <Cell width={COL.details} align="right" minHeight={15} style={styles.noHRule}>
                 {t.details ?? NBSP}
               </Cell>
-              <Cell width={COL.date} align="center" minHeight={15}>
+              <Cell width={COL.date} align="center" minHeight={15} style={styles.noHRule}>
                 {t.date ?? NBSP}
               </Cell>
             </View>
@@ -305,31 +285,31 @@ const TreasuryWeeklyPdf: React.FC<{ data: TreasuryWeeklyData }> = ({ data }) => 
           {/* Column totals — the last row of the table. */}
           {data.totals ? (
             <View style={styles.row}>
-              <Cell width={COL.balance} align="center" style={styles.bold}>
+              <Cell width={COL.balance} align="center" style={[styles.bold, styles.noHRule]}>
                 {data.totals.balance ?? NBSP}
               </Cell>
-              <Cell width={COL.withdrawn} align="center" style={styles.bold}>
+              <Cell width={COL.withdrawn} align="center" style={[styles.bold, styles.noHRule]}>
                 {data.totals.withdrawn ?? NBSP}
               </Cell>
-              <Cell width={COL.deposited} align="center" style={styles.bold}>
+              <Cell width={COL.deposited} align="center" style={[styles.bold, styles.noHRule]}>
                 {data.totals.deposited ?? NBSP}
               </Cell>
-              <View
-                style={
-                  [
-                    styles.cell,
-                    { width: "53%", backgroundColor: BAND_BG },
-                  ] as AnyStyle
-                }
-              >
-                <Text>{NBSP}</Text>
-              </View>
+              {/* Details + date kept as two plain cells (no band) so the
+                  ތާރީޚް/ތަފްޞީލް divider runs to the bottom of the table. */}
+              <Cell width={COL.details} align="right" style={styles.noHRule}>
+                {NBSP}
+              </Cell>
+              <Cell width={COL.date} align="center" style={styles.noHRule}>
+                {NBSP}
+              </Cell>
             </View>
           ) : null}
         </View>
 
         {/* ---------- Cash-held breakdown ---------- */}
-        <View style={styles.blockGap}>
+        {/* Value column matches the transactions table's ބާކީ width so the
+            figures line up with the balance column above. */}
+        <View style={[styles.blockGap, styles.boxTable]}>
           {data.asOfTitle ? (
             <View style={styles.row}>
               <DvLabel width="100%" text={data.asOfTitle} style={styles.band} />
@@ -337,33 +317,39 @@ const TreasuryWeeklyPdf: React.FC<{ data: TreasuryWeeklyData }> = ({ data }) => 
           ) : null}
           {data.breakdown.map((b, i) => (
             <View style={styles.row} key={i}>
-              <Cell width="38%" align="center">
+              <Cell width={COL.balance} align="center" style={styles.noHRule}>
                 {b.value ?? NBSP}
               </Cell>
-              <DvLabel width="62%" text={b.label} />
+              <DvLabel width="90%" text={b.label} style={styles.noHRule} />
             </View>
           ))}
         </View>
 
         {/* ---------- Cash / cheque split (separate table) ---------- */}
-        <View style={styles.blockGap}>
+        {/* Value column matches the breakdown above (= ބާކީ width) so every
+            figure column lines up down the left edge. */}
+        <View style={[styles.blockGap, styles.boxTable]}>
           <View style={styles.row}>
-            <Cell width="38%" align="center">
+            <Cell width={COL.balance} align="center" style={styles.noHRule}>
               {data.cashHeld ?? NBSP}
             </Cell>
-            <DvLabel width="62%" text="ނަގުދު ހުރި" />
+            <DvLabel width="90%" text="ނަގުދު ހުރި" style={styles.noHRule} />
           </View>
           <View style={styles.row}>
-            <Cell width="38%" align="center">
+            <Cell width={COL.balance} align="center" style={styles.noHRule}>
               {data.chequeHeld ?? NBSP}
             </Cell>
-            <DvLabel width="62%" text="ޗެކްތަކުގައި ހުރި" />
+            <DvLabel width="90%" text="ޗެކްތަކުގައި ހުރި" style={styles.noHRule} />
           </View>
           <View style={styles.row}>
-            <Cell width="38%" align="center" style={styles.bold}>
+            <Cell width={COL.balance} align="center" style={[styles.bold, styles.noHRule]}>
               {data.total ?? NBSP}
             </Cell>
-            <DvLabel width="62%" text="ނަގުދު ފައިސާއާއި ޗެކުން ހުރި ޖުމްލަ" />
+            <DvLabel
+              width="90%"
+              text="ނަގުދު ފައިސާއާއި ޗެކުން ހުރި ޖުމްލަ"
+              style={styles.noHRule}
+            />
           </View>
         </View>
 

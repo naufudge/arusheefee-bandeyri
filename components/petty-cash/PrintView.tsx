@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
+import PdfLetterhead from "@/components/shared/PdfLetterhead";
 import { formatNumberWithCommas } from "@/utils/helpers";
 
 // Dhivehi (Thaana) fonts — shared with the GSR / PV print views.
@@ -71,25 +72,6 @@ const styles = StyleSheet.create({
     fontSize: 8.5,
     color: "#000",
   },
-
-  // ----- Letterhead -----
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingBottom: 8,
-  },
-  headerLogo: { height: 46, objectFit: "contain" },
-  headerCenter: { flex: 1, alignItems: "center", paddingHorizontal: 8 },
-  orgDhivehi: { fontFamily: "MVWaheed", fontSize: 16, textAlign: "center" },
-  orgEnglish: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 8.5,
-    letterSpacing: 1.3,
-    marginTop: 3,
-    textAlign: "center",
-  },
-  rule: { borderBottomWidth: 1.5, borderColor: BORDER },
 
   // ----- Generic cell -----
   row: { flexDirection: "row" },
@@ -343,17 +325,7 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
     >
       <Page size="A4" style={styles.page}>
         {/* ---------- Letterhead ---------- */}
-        <View style={styles.header}>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image src="/emblem.png" style={[styles.headerLogo, { width: 44 }]} />
-          <View style={styles.headerCenter}>
-            <Text style={styles.orgDhivehi}>ދިވެހިރާއްޖޭގެ ޤައުމީ އަރުޝީފު</Text>
-            <Text style={styles.orgEnglish}>NATIONAL ARCHIVES OF MALDIVES</Text>
-          </View>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image src="/logo.png" style={[styles.headerLogo, { width: 48 }]} />
-        </View>
-        <View style={styles.rule} />
+        <PdfLetterhead />
 
         {/* ---------- Info box: Number / Date ---------- */}
         <View style={styles.infoWrap}>

@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
+import PdfLetterhead from "@/components/shared/PdfLetterhead";
 
 // Dhivehi (Thaana) fonts — shared with the PV / petty-cash print views.
 Font.register({ family: "Faruma", src: "/fonts/Faruma.ttf" });
@@ -72,26 +73,6 @@ const styles = StyleSheet.create({
     fontSize: 8.5,
     color: "#000",
   },
-
-  // ----- Letterhead -----
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingBottom: 8,
-  },
-  headerLogo: { height: 50, objectFit: "contain" },
-  headerCenter: { flex: 1, alignItems: "center", paddingHorizontal: 8 },
-  orgDhivehi: { fontFamily: "MVWaheed", fontSize: 17, textAlign: "center" },
-  orgEnglish: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 9,
-    letterSpacing: 1.5,
-    marginTop: 3,
-    textAlign: "center",
-  },
-  orgSub: { fontSize: 7.5, marginTop: 1, textAlign: "center", color: "#333" },
-  rule: { borderBottomWidth: 1.5, borderColor: BORDER },
 
   // ----- Generic table cell -----
   row: { flexDirection: "row" },
@@ -164,17 +145,7 @@ const RequisitionFormPdf: React.FC<{ data: RequisitionData }> = ({ data }) => {
     >
       <Page size="A4" style={styles.page}>
         {/* ---------- Letterhead ---------- */}
-        <View style={styles.header}>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image src="/emblem.png" style={[styles.headerLogo, { width: 46 }]} />
-          <View style={styles.headerCenter}>
-            <Text style={styles.orgDhivehi}>ދިވެހިރާއްޖޭގެ ޤައުމީ އަރުޝީފު</Text>
-            <Text style={styles.orgEnglish}>NATIONAL ARCHIVES OF MALDIVES</Text>
-          </View>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image src="/logo.png" style={[styles.headerLogo, { width: 50 }]} />
-        </View>
-        <View style={styles.rule} />
+        <PdfLetterhead />
 
         {/* ---------- Info box: Section / Number / Date ---------- */}
         <View style={styles.infoWrap}>
