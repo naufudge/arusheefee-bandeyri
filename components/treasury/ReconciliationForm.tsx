@@ -24,6 +24,7 @@ import {
   ReconInputField,
   ReconStaffDropDownField,
 } from "@/components/treasury/ReconciliationInputField";
+import EditPcDetailDialog from "@/components/treasury/EditPcDetailDialog";
 import {
   weekBoundsForDate,
   suggestReportNum,
@@ -143,24 +144,30 @@ const ReconciliationForm: React.FC<ReconciliationFormProps> = ({ recon }) => {
     enabled: !isEdit && !!weekStart && !!weekEnd,
   });
 
-  const previewRows: { date: string; details: string; withdrawn: string }[] =
-    isEdit
-      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (recon?.items ?? []).map((it: any) => ({
-          date: format(new Date(it.date), "dd.MM.yyyy"),
-          details: it.details || it.detailsEn || "",
-          withdrawn: formatNumberWithCommas(it.withdrawn),
-        }))
-      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (weekPettyCash ?? []).map((pc: any) => ({
-          date: format(new Date(pc.date), "dd.MM.yyyy"),
-          details: pc.items
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((it: any) => it.nameDhivehi || it.name || "")
-            .filter(Boolean)
-            .join("، "),
-          withdrawn: formatNumberWithCommas(pc.totalRequiredAmount),
-        }));
+  const previewRows: {
+    date: string;
+    details: string;
+    withdrawn: string;
+    pettyCashNum: string | null;
+  }[] = isEdit
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (recon?.items ?? []).map((it: any) => ({
+        date: format(new Date(it.date), "dd.MM.yyyy"),
+        details: it.details || it.detailsEn || "",
+        withdrawn: formatNumberWithCommas(it.withdrawn),
+        pettyCashNum: it.sourcePettyCashNum ?? null,
+      }))
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (weekPettyCash ?? []).map((pc: any) => ({
+        date: format(new Date(pc.date), "dd.MM.yyyy"),
+        details: pc.items
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((it: any) => it.nameDhivehi || it.name || "")
+          .filter(Boolean)
+          .join("، "),
+        withdrawn: formatNumberWithCommas(pc.totalRequiredAmount),
+        pettyCashNum: pc.pettyCashNum as string,
+      }));
 
   // Auto-calculated like the PDF: cash held = opening balance − the week's
   // withdrawals (deposits aren't tracked yet); grand total = cash + cheque.
@@ -202,6 +209,20 @@ const ReconciliationForm: React.FC<ReconciliationFormProps> = ({ recon }) => {
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: trpc.pcRecon.list.queryKey() });
+
+  // After editing a record's Dhivehi detail, refresh whichever query feeds the
+  // items preview: the stored snapshot (edit) or the live petty cash (create).
+  const onItemDetailSaved = () => {
+    if (isEdit) {
+      queryClient.invalidateQueries({
+        queryKey: trpc.pcRecon.getByNum.queryKey({ reportNum: recon.reportNum }),
+      });
+    } else {
+      queryClient.invalidateQueries({
+        queryKey: trpc.pettycash.byWeek.queryKey({ weekStart, weekEnd }),
+      });
+    }
+  };
 
   const createMutation = useMutation(
     trpc.pcRecon.create.mutationOptions({
@@ -343,13 +364,16 @@ const ReconciliationForm: React.FC<ReconciliationFormProps> = ({ recon }) => {
                   <th className="px-4 py-2 text-left font-medium">Date</th>
                   <th className="px-4 py-2 text-right font-medium">Details</th>
                   <th className="px-4 py-2 text-right font-medium">Withdrawn</th>
+                  <th className="w-12 px-2 py-2 text-right font-medium">
+                    <span className="sr-only">Edit</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {previewRows.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={3}
+                      colSpan={4}
                       className="px-4 py-6 text-center text-xs text-muted-foreground"
                     >
                       No petty cash records found for this week.
@@ -364,6 +388,15 @@ const ReconciliationForm: React.FC<ReconciliationFormProps> = ({ recon }) => {
                       </td>
                       <td className="px-4 py-2 text-right font-mono tabular-nums">
                         {r.withdrawn}
+                      </td>
+                      <td className="px-2 py-1 text-right">
+                        {r.pettyCashNum ? (
+                          <EditPcDetailDialog
+                            pettyCashNum={r.pettyCashNum}
+                            reportNum={isEdit ? recon.reportNum : undefined}
+                            onSaved={onItemDetailSaved}
+                          />
+                        ) : null}
                       </td>
                     </tr>
                   ))
@@ -422,14 +455,13 @@ const ReconciliationForm: React.FC<ReconciliationFormProps> = ({ recon }) => {
               Approvers
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Prepared / in charge, checked, and authorized. Their Dhivehi name
-              &amp; designation are required to send for approval.
+              Prepared, checked, and authorized.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {(
               [
-                { key: "preparedBy", label: "Prepared / In charge" },
+                { key: "preparedBy", label: "Prepared by" },
                 { key: "checkedBy", label: "Checked by" },
                 { key: "authorizedBy", label: "Authorized by" },
               ] as const

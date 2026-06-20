@@ -45,6 +45,26 @@ export const rejectPcReconSchema = z.object({
   comment: z.string().trim().max(1000).optional(),
 });
 
+// Fetch one petty cash record's items (for the reconciliation detail editor).
+export const recordItemsSchema = z.object({
+  pettyCashNum: z.string().min(1),
+});
+
+// Update a petty cash record's item Dhivehi names from the reconciliation form.
+// `reportNum` (edit view) lets the server also sync that report's snapshot row.
+export const setRecordItemDhivehiSchema = z.object({
+  pettyCashNum: z.string().min(1),
+  items: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        nameDhivehi: z.string().trim().max(500),
+      }),
+    )
+    .min(1),
+  reportNum: z.string().min(1).optional(),
+});
+
 // Structured "what's missing" issues returned by the send-preflight check so
 // the client can render a friendly checklist with deep links.
 export type GateIssue =
@@ -64,3 +84,6 @@ export type PcReconWorkflowActionInput = z.infer<
   typeof pcReconWorkflowActionSchema
 >;
 export type RejectPcReconInput = z.infer<typeof rejectPcReconSchema>;
+export type SetRecordItemDhivehiInput = z.infer<
+  typeof setRecordItemDhivehiSchema
+>;

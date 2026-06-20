@@ -8,6 +8,8 @@ import {
   deletePcReconSchema,
   pcReconWorkflowActionSchema,
   rejectPcReconSchema,
+  recordItemsSchema,
+  setRecordItemDhivehiSchema,
   type GateIssue,
 } from "../schemas/pcrecon.schema";
 import {
@@ -31,6 +33,16 @@ const pcReconInclude = {
 
 const hasText = (s: string | null | undefined) => (s?.trim() ?? "") !== "";
 
+// The reconciliation "Details" text for a petty cash record: its item Dhivehi
+// names (falling back to the English name) joined together.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const joinedItemDhivehi = (pc: any) =>
+  pc.items
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((it: any) => it.nameDhivehi || it.name || "")
+    .filter(Boolean)
+    .join("، ");
+
 // One snapshot transaction row per petty cash record dated in the week.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function deriveItems(prisma: PrismaClient | any, weekStart: Date, weekEnd: Date) {
@@ -44,11 +56,7 @@ async function deriveItems(prisma: PrismaClient | any, weekStart: Date, weekEnd:
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return records.map((pc: any, i: number) => ({
     date: pc.date,
-    details: pc.items
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((it: any) => it.nameDhivehi || it.name || "")
-      .filter(Boolean)
-      .join("، "),
+    details: joinedItemDhivehi(pc),
     detailsEn:
       pc.items
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -203,6 +211,87 @@ export const pcReconRouter = router({
           data: { ...data, items: { create: items } },
           include: pcReconInclude,
         });
+      });
+    }),
+
+  // The items of one petty cash record, for the reconciliation detail editor.
+  recordItems: permissionProcedure("pcrecon:read")
+    .input(recordItemsSchema)
+    .query(async ({ ctx, input }) => {
+      const pc = await ctx.prisma.pettyCash.findUnique({
+        where: { pettyCashNum: input.pettyCashNum },
+        select: {
+          items: {
+            select: { id: true, qty: true, name: true, nameDhivehi: true },
+          },
+        },
+      });
+      if (!pc) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Petty cash record ${input.pettyCashNum} not found`,
+        });
+      }
+      return pc.items;
+    }),
+
+  // Set the Dhivehi names of a petty cash record's items from the reconciliation
+  // form. Stored on the existing PettyCashItem.nameDhivehi, so the derived
+  // "Details" + the send-gate's missing-Dhivehi check both reflect it. When
+  // `reportNum` is supplied (edit view), the matching DRAFT snapshot row's
+  // details are re-synced too so the change shows without a full re-save.
+  setRecordItemDhivehi: permissionProcedure("pcrecon:update")
+    .input(setRecordItemDhivehiSchema)
+    .mutation(async ({ ctx, input }) => {
+      const pc = await ctx.prisma.pettyCash.findUnique({
+        where: { pettyCashNum: input.pettyCashNum },
+        include: { items: true },
+      });
+      if (!pc) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Petty cash record ${input.pettyCashNum} not found`,
+        });
+      }
+      const ownItemIds = new Set(pc.items.map((it) => it.id));
+      for (const it of input.items) {
+        if (!ownItemIds.has(it.id)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Item ${it.id} does not belong to ${input.pettyCashNum}`,
+          });
+        }
+      }
+
+      return ctx.prisma.$transaction(async (tx) => {
+        for (const it of input.items) {
+          await tx.pettyCashItem.update({
+            where: { id: it.id },
+            data: { nameDhivehi: it.nameDhivehi.trim() || null },
+          });
+        }
+
+        if (input.reportNum) {
+          const report = await tx.pcReconciliation.findUnique({
+            where: { reportNum: input.reportNum },
+            select: { id: true, status: true },
+          });
+          if (report && report.status === "DRAFT") {
+            const updatedPc = await tx.pettyCash.findUnique({
+              where: { id: pc.id },
+              include: { items: true },
+            });
+            await tx.pcReconciliationItem.updateMany({
+              where: {
+                reconciliationId: report.id,
+                sourcePettyCashNum: input.pettyCashNum,
+              },
+              data: { details: joinedItemDhivehi(updatedPc) },
+            });
+          }
+        }
+
+        return { pettyCashNum: input.pettyCashNum };
       });
     }),
 
