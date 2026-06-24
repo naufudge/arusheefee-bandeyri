@@ -22,14 +22,14 @@ export const pettyCashItemSchema = z
     { message: "Enter an English or Dhivehi item name", path: ["name"] },
   );
 
-// Petty cash numbers are PC/<seq>/<year>, e.g. "PC/01/2025". Enforced on
-// create paths; the update schema below loosens this so legacy records
-// (imported with `PC-N-YYYY` before the format was tightened) can still
-// be edited without first being renamed.
-export const PETTY_CASH_NUM_FORMAT = /^PC\/\d+\/\d{4}$/;
+// Petty cash numbers are PC-<seq>-<year>, e.g. "PC-20-2026" — the same
+// dash format imported records use. Enforced on create paths; the update
+// schema below loosens this so any legacy record can still be edited
+// without first being renamed.
+export const PETTY_CASH_NUM_FORMAT = /^PC-\d+-\d{4}$/;
 const pettyCashNumStrict = z
   .string()
-  .regex(PETTY_CASH_NUM_FORMAT, "Must be in the format PC/01/2025");
+  .regex(PETTY_CASH_NUM_FORMAT, "Must be in the format PC-20-2026");
 
 // Create petty cash schema. Each role is optional so a draft can be saved
 // before all five signatures land.

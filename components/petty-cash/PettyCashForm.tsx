@@ -283,7 +283,7 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
               required={!pettyCash}
               register={register}
               disabled={!!pettyCash}
-              description={pettyCash ? "" : "Eg: PC/01/2025"}
+              description={pettyCash ? "" : "Eg: PC-20-2026"}
             />
             <PettyCashInputField
               control={control}

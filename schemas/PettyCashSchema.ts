@@ -11,14 +11,15 @@ const roleSchema = z.object({
   date: z.date(),
 });
 
-// Strict slash format for new petty cash entries. The base schema below
-// stays lenient so the same form can re-load legacy records (PC-N-YYYY)
-// for editing without tripping validation; the create page picks the
-// stricter variant explicitly.
-export const PETTY_CASH_NUM_FORMAT = /^PC\/\d+\/\d{4}$/;
+// Strict dash format for new petty cash entries, e.g. "PC-20-2026" —
+// matches how imported records are stored. The base schema below stays
+// lenient so the same form can re-load any record for editing without
+// tripping validation; the create page picks the stricter variant
+// explicitly.
+export const PETTY_CASH_NUM_FORMAT = /^PC-\d+-\d{4}$/;
 const pettyCashNumStrict = z
   .string()
-  .regex(PETTY_CASH_NUM_FORMAT, "Must be in the format PC/01/2025");
+  .regex(PETTY_CASH_NUM_FORMAT, "Must be in the format PC-20-2026");
 
 export const PettyCashSchema = z.object({
   pettyCashNum: z.string().min(1),
