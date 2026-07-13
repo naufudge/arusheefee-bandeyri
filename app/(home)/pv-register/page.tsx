@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ArrowDown,
+  ArrowUp,
   Banknote,
   CircleCheck,
   Clock,
@@ -55,6 +57,21 @@ import { FilterType } from "@/types";
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => CURRENT_YEAR - i);
 
+// Parse "YYYY-NNN" -> { year, seq } for numeric ordering; unmatched values
+// fall back to string compare so odd formats still sort deterministically.
+const parsePvNum = (pvNum: string) => {
+  const m = pvNum.match(/(\d{4})-(\d+)\s*$/);
+  return m ? { year: Number(m[1]), seq: Number(m[2]) } : null;
+};
+const comparePvNum = (a: string, b: string) => {
+  const pa = parsePvNum(a);
+  const pb = parsePvNum(b);
+  if (pa && pb) return pa.year - pb.year || pa.seq - pb.seq;
+  if (pa) return -1; // parseable sorts before unparseable
+  if (pb) return 1;
+  return a.localeCompare(b);
+};
+
 const PvRegisterPage = () => {
   const router = useRouter();
   const { toast } = useToast();
@@ -66,6 +83,7 @@ const PvRegisterPage = () => {
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [query, setQuery] = useState<string>("");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [filters, setFilters] = useState<FilterType>({
     year: CURRENT_YEAR,
@@ -137,8 +155,11 @@ const PvRegisterPage = () => {
       );
     }
 
+    result.sort((x, y) => comparePvNum(x.pvNum, y.pvNum));
+    if (sortDir === "desc") result.reverse();
+
     return result;
-  }, [pvs, filters, query]);
+  }, [pvs, filters, query, sortDir]);
 
   const stats = useMemo(() => {
     const processed = filteredPvs.filter(
@@ -315,6 +336,19 @@ const PvRegisterPage = () => {
           />
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
+            title={`Sort by PV # (${sortDir === "asc" ? "ascending" : "descending"})`}
+          >
+            {sortDir === "asc" ? (
+              <ArrowUp className="size-4" />
+            ) : (
+              <ArrowDown className="size-4" />
+            )}
+            PV #
+          </button>
           <Filter
             vendors={vendors}
             filters={filters}
