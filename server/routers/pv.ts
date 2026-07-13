@@ -217,6 +217,19 @@ export const pvRouter = router({
         });
       }
 
+      // Signatory assignments are frozen once a PV leaves DRAFT. The workflow
+      // writes the signature *dates* (verifiedAt/authorisedByOneAt/...) against
+      // these FKs, so overwriting or nulling them here (reachable via the
+      // pv:edit_locked override) desyncs the person from the date and surfaces
+      // as "UNASSIGNED" next to a "Signed on" date. To change signatories,
+      // callback the PV to DRAFT first.
+      if (existing.status !== "DRAFT") {
+        delete pvUpdateData.preparedById;
+        delete pvUpdateData.verifiedById;
+        delete pvUpdateData.authorisedByOneId;
+        delete pvUpdateData.authorisedByTwoId;
+      }
+
       // Use transaction to handle nested updates atomically
       return ctx.prisma.$transaction(async (tx) => {
         // Delete existing invoices (cascade deletes GL details)

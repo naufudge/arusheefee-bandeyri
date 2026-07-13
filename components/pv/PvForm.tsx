@@ -320,6 +320,23 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
     return found?.id ?? null;
   };
 
+  // Resolve a signatory field to a staff ID for the API payload without
+  // silently dropping a still-assigned signatory. `findStaffId` returns null
+  // for BOTH "field cleared" and "name couldn't be resolved" (staff
+  // renamed/deactivated, or `staffData` not loaded yet at submit) — writing
+  // that null would blank the FK while the workflow-written signature date
+  // survives, showing "UNASSIGNED" next to "Signed on". So: a present-but-
+  // unresolved name keeps the original FK; only a genuinely cleared field
+  // becomes null.
+  const resolveSignatoryId = (
+    field: { name?: string } | undefined,
+    originalId: string | null | undefined,
+  ): string | null => {
+    const name = field?.name?.trim();
+    if (!name) return null; // user cleared the field → intentional unassign
+    return findStaffId(name) ?? originalId ?? null;
+  };
+
   // Reverse of findStaffId — used by the template apply flow to turn a
   // saved staffId back into { name, designation } for the form fields.
   const findStaffById = (
@@ -472,11 +489,20 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
       currency: values.currency,
       exchangeRate: values.exchangeRate,
 
-      // Map staff names to IDs
-      preparedById: findStaffId(values.preparedBy?.name),
-      verifiedById: findStaffId(values.verifiedBy?.name),
-      authorisedByOneId: findStaffId(values.authorisedByOne?.name),
-      authorisedByTwoId: findStaffId(values.authorisedByTwo?.name),
+      // Map staff names to IDs. Keep the original assignment when a name is
+      // present but unresolved, so an edit never nulls a still-assigned
+      // signatory (see resolveSignatoryId). In create mode pv is undefined,
+      // so the fallback is undefined → null, matching prior behaviour.
+      preparedById: resolveSignatoryId(values.preparedBy, pv?.preparedById),
+      verifiedById: resolveSignatoryId(values.verifiedBy, pv?.verifiedById),
+      authorisedByOneId: resolveSignatoryId(
+        values.authorisedByOne,
+        pv?.authorisedByOneId,
+      ),
+      authorisedByTwoId: resolveSignatoryId(
+        values.authorisedByTwo,
+        pv?.authorisedByTwoId,
+      ),
 
       // Transform invoiceDetails to invoices
       invoices: values.invoiceDetails.map((invoice) => ({
