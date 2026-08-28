@@ -6,6 +6,7 @@ import {
   Download,
   Eye,
   FileText,
+  Image as ImageIcon,
   Loader2,
   Paperclip,
   Trash2,
@@ -15,15 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { AttachmentViewerModal } from "@/components/attachments/AttachmentViewerModal";
-
-// PDF detection — covers both the canonical MIME type and a filename
-// fallback for older rows where `mimeType` may be empty/missing.
-function isPdfAttachment(a: { mimeType: string | null; originalName: string | null }) {
-  return (
-    a.mimeType === "application/pdf" ||
-    (a.originalName ?? "").toLowerCase().endsWith(".pdf")
-  );
-}
+import { AttachmentPreview } from "@/components/attachments/AttachmentPreview";
+import { getAttachmentKind, isPreviewable } from "@/lib/attachment-kind";
 
 type Attachment = {
   id: number;
@@ -45,11 +39,16 @@ interface AttachmentSectionProps {
    */
   canDelete?: boolean;
   /**
-   * If true, render an embedded tabbed PDF viewer (document switcher tabs on
+   * If true, render an embedded tabbed document viewer (switcher tabs on
    * top, scrollable viewer below) instead of the list + click-to-open modal.
    * Used on the PV detail page; other call sites keep the default list UI.
    */
   embedViewer?: boolean;
+  /**
+   * Tailwind height classes for the embedded viewer box. Defaults to
+   * `h-[75vh]`; pages that need a shorter frame pass their own.
+   */
+  viewerClassName?: string;
 }
 
 /**
@@ -66,6 +65,7 @@ export function AttachmentSection({
   canAdd = true,
   canDelete = true,
   embedViewer = false,
+  viewerClassName,
 }: AttachmentSectionProps) {
   const { toast } = useToast();
   const [items, setItems] = useState<Attachment[]>([]);
@@ -75,11 +75,11 @@ export function AttachmentSection({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Which attachment (if any) is currently open in the inline viewer.
-  // Only PDF attachments can be viewed; non-PDFs keep the
+  // PDFs and images can be viewed in-app; everything else keeps the
   // "Open in new tab" behaviour.
   const [viewing, setViewing] = useState<Attachment | null>(null);
 
-  // Embedded-viewer mode: which document is shown in the iframe. Defaults
+  // Embedded-viewer mode: which document is shown in the viewer. Defaults
   // to the first (most recent) attachment and repairs itself when the
   // current selection is removed (e.g. after a delete).
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -250,7 +250,11 @@ export function AttachmentSection({
                         : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                   >
-                    <FileText className="size-3.5 shrink-0" />
+                    {getAttachmentKind(a) === "image" ? (
+                      <ImageIcon className="size-3.5 shrink-0" />
+                    ) : (
+                      <FileText className="size-3.5 shrink-0" />
+                    )}
                     <span className="truncate">{a.description}</span>
                   </button>
                 );
@@ -313,31 +317,11 @@ export function AttachmentSection({
               No documents attached yet.
             </div>
           ) : !selected ? null : (
-            <div className="h-[75vh] w-full bg-muted/30">
-              {isPdfAttachment(selected) ? (
-                <iframe
-                  key={selected.id}
-                  src={`/api/attachment/${selected.id}`}
-                  title={selected.description}
-                  className="h-full w-full border-0"
-                />
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-                  <FileText className="size-10 text-muted-foreground/60" />
-                  <p className="text-sm text-muted-foreground">
-                    Preview isn&apos;t available for this file type.
-                  </p>
-                  <a
-                    href={`/api/attachment/${selected.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
-                  >
-                    <Download className="size-4" />
-                    Open in new tab
-                  </a>
-                </div>
-              )}
+            <div
+              data-attachment-viewer
+              className={`w-full bg-muted/30 ${viewerClassName ?? "h-[75vh]"}`}
+            >
+              <AttachmentPreview attachment={selected} />
             </div>
           )}
         </>
@@ -366,7 +350,7 @@ export function AttachmentSection({
                       {a.createdBy?.name ? ` · by ${a.createdBy.name}` : ""}
                     </div>
                   </div>
-                  {isPdfAttachment(a) ? (
+                  {isPreviewable(a) ? (
                     <button
                       type="button"
                       onClick={() => setViewing(a)}

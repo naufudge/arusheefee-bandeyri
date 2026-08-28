@@ -6,11 +6,13 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AttachmentPreview } from "@/components/attachments/AttachmentPreview";
 
 interface ViewerAttachment {
   id: number;
   description: string;
   originalName: string | null;
+  mimeType: string | null;
 }
 
 interface AttachmentViewerModalProps {
@@ -21,15 +23,11 @@ interface AttachmentViewerModalProps {
 }
 
 /**
- * Inline PDF viewer modal. The browser's native PDF viewer handles
- * scroll / zoom / page-nav inside an `<iframe>` pointed at
- * `/api/attachment/{id}` — the route serves the file with
- * `Content-Disposition: inline`, which is what makes the browser
- * render rather than download.
- *
- * The `key` on the iframe is the attachment id, so opening a different
- * attachment forces a fresh iframe load (browsers cache the previous
- * src otherwise).
+ * Inline attachment viewer modal. `AttachmentPreview` picks the right
+ * renderer for the file type — an `<iframe>` for PDFs (the browser's
+ * native viewer handles scroll / zoom / page-nav) or an `<img>` for
+ * images. It keys on the attachment id, so opening a different
+ * attachment forces a fresh load rather than showing the cached src.
  */
 export function AttachmentViewerModal({
   open,
@@ -49,13 +47,12 @@ export function AttachmentViewerModal({
             </span>
           )}
         </div>
+        {/* `min-h-0` lets this flex child shrink below its content —
+            without it an image overflows the `h-[90vh]` dialog. */}
         {attachment && (
-          <iframe
-            key={attachment.id}
-            src={`/api/attachment/${attachment.id}`}
-            title={attachment.description}
-            className="h-full w-full flex-1 border-0"
-          />
+          <div className="min-h-0 flex-1 bg-muted/30">
+            <AttachmentPreview attachment={attachment} />
+          </div>
         )}
       </DialogContent>
     </Dialog>

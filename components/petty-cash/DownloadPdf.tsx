@@ -73,8 +73,9 @@ const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
         <PrintView pettyCash={transformed} />,
       ).toBlob();
 
-      // Append any PDF reference documents attached to this record.
-      // Errors are non-fatal — the base petty cash PDF still downloads.
+      // Append the reference documents attached to this record — PDFs
+      // page-for-page, images one page each. Errors are non-fatal: the
+      // base petty cash PDF still downloads.
       let finalBlob = blob;
       try {
         const listRes = await fetch(
@@ -94,10 +95,20 @@ const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
             );
             const result = await bundleAttachmentsIntoPdf(blob, attachments);
             finalBlob = result.blob;
+
+            const notes: string[] = [];
             if (result.errors.length > 0) {
+              notes.push(`Couldn't be added: ${result.errors.join(", ")}`);
+            }
+            if (result.skipped.length > 0) {
+              notes.push(
+                `Only PDFs and images can be bundled — left out: ${result.skipped.join(", ")}`,
+              );
+            }
+            if (notes.length > 0) {
               toast({
-                title: "Some attachments couldn't be bundled",
-                description: result.errors.join(", "),
+                title: "Some attachments weren't included",
+                description: notes.join(" · "),
               });
             }
           }

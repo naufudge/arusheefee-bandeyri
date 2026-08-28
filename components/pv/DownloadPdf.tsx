@@ -102,9 +102,10 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
 
       const blob = await pdf(<PrintViewPdf pv={pv} />).toBlob();
 
-      // Append any PDF reference documents attached to this PV. Errors
-      // are non-fatal — the base PV PDF still downloads, with a toast
-      // naming any attachments that couldn't be included.
+      // Append the reference documents attached to this PV — PDFs
+      // page-for-page, images one page each. Errors are non-fatal: the
+      // base PV PDF still downloads, with a toast naming anything that
+      // couldn't be included.
       let finalBlob = blob;
       try {
         const listRes = await fetch(
@@ -124,10 +125,20 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
             );
             const result = await bundleAttachmentsIntoPdf(blob, attachments);
             finalBlob = result.blob;
+
+            const notes: string[] = [];
             if (result.errors.length > 0) {
+              notes.push(`Couldn't be added: ${result.errors.join(", ")}`);
+            }
+            if (result.skipped.length > 0) {
+              notes.push(
+                `Only PDFs and images can be bundled — left out: ${result.skipped.join(", ")}`,
+              );
+            }
+            if (notes.length > 0) {
               toast({
-                title: "Some attachments couldn't be bundled",
-                description: result.errors.join(", "),
+                title: "Some attachments weren't included",
+                description: notes.join(" · "),
               });
             }
           }

@@ -347,20 +347,17 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
               </section>
             </aside>
 
-            {/* Reference docs — clip the embedded viewer so it doesn't
-                dominate the page. The inner iframe defaults to 75vh; the
-                outer wrapper caps that at ~55vh while still scrolling
-                cleanly. */}
+            {/* Reference docs — the embedded viewer defaults to 75vh,
+                which dominates the page here, so pass a shorter frame. */}
             <div className="lg:col-span-3">
-              <div className="[&_div:has(>iframe)]:!h-[55vh] sm:[&_div:has(>iframe)]:!h-[70vh]">
-                <AttachmentSection
-                  referenceType="pv"
-                  referenceId={pv.id}
-                  canAdd={editAllowed && canUploadAttachments}
-                  canDelete={editAllowed && canDeleteAttachments}
-                  embedViewer
-                />
-              </div>
+              <AttachmentSection
+                referenceType="pv"
+                referenceId={pv.id}
+                canAdd={editAllowed && canUploadAttachments}
+                canDelete={editAllowed && canDeleteAttachments}
+                viewerClassName="h-[55vh] sm:h-[70vh]"
+                embedViewer
+              />
             </div>
 
             {/* Timeline */}
