@@ -36,6 +36,9 @@ yarn-error.log*
 .git
 .gitignore
 
+# CI (changing a workflow shouldn't invalidate the COPY . . layer)
+.github
+
 # Docker
 Dockerfile
 docker-compose.yml

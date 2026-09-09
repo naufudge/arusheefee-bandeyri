@@ -1,0 +1,39 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [master]
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: self-hosted
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # --legacy-peer-deps is required: next-auth v5 beta declares React 18
+      # peers against React 19. Same flag as the Dockerfile.
+      - run: npm ci --legacy-peer-deps
+
+      # Types for @prisma/client do not exist until this runs. The dummy URL
+      # mirrors the Dockerfile — prisma.config.ts reads env("DATABASE_URL") at
+      # load time even though generate never connects.
+      - name: Generate Prisma client
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
+        run: npx prisma generate
+
+      - run: npm run lint
+
+      - run: npm run typecheck

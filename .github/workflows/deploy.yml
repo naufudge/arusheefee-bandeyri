@@ -1,0 +1,87 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Two deploys at once would race on the checkout and the database.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  # The repo checkout on the VM. docker-compose.yml and .env both live inside
+  # this folder, so there is no separate stack directory. Override with the
+  # DEPLOY_DIR repository variable
+  # (Settings -> Secrets and variables -> Actions -> Variables).
+  DEPLOY_DIR: ${{ vars.DEPLOY_DIR || '/opt/arusheefee-bandeyri' }}
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 30
+
+    steps:
+      # No actions/checkout: the stack builds from $DEPLOY_DIR, so that working
+      # copy is what has to be updated. The runner's own workspace is unused.
+      - name: Verify deploy layout
+        run: |
+          test -d "$DEPLOY_DIR/.git" \
+            || { echo "::error::$DEPLOY_DIR is not a git checkout — set the DEPLOY_DIR repository variable"; exit 1; }
+          test -f "$DEPLOY_DIR/docker-compose.yml" \
+            || { echo "::error::no docker-compose.yml in $DEPLOY_DIR"; exit 1; }
+          test -f "$DEPLOY_DIR/.env" \
+            || { echo "::error::no .env in $DEPLOY_DIR — create it manually on the server"; exit 1; }
+
+      # Discards local edits to tracked files. .env is gitignored, so it is
+      # untouched by reset --hard. Never add `git clean -x` here.
+      - name: Update checkout
+        run: |
+          cd "$DEPLOY_DIR"
+          git fetch --prune origin
+          git checkout master
+          git reset --hard origin/master
+          echo "Deploying $(git rev-parse --short HEAD): $(git log -1 --pretty=%s)"
+
+      - name: Build image
+        run: docker compose -f "$DEPLOY_DIR/docker-compose.yml" build app
+
+      # Runs against the image just built, so building first is what makes this
+      # apply the new migrations. The running container keeps serving
+      # throughout; `run` publishes no ports so it cannot collide on :3000.
+      #
+      # migrate deploy, not db push: this project keeps a real prisma/migrations
+      # history. migrate deploy only applies pending migrations and never
+      # reshapes the schema on its own, so a failure here stops the deploy
+      # before the new container starts.
+      - name: Apply database migrations
+        run: |
+          docker compose -f "$DEPLOY_DIR/docker-compose.yml" \
+            run --rm --entrypoint sh app -c "npx prisma migrate deploy"
+
+      # Whole stack, not just app: caddy and tunnel belong to this compose
+      # project too. Compose only recreates services whose image or config
+      # changed, so those two are left running.
+      - name: Start stack
+        run: docker compose -f "$DEPLOY_DIR/docker-compose.yml" up -d --remove-orphans
+
+      # /login is the one unauthenticated route (proxy.ts PUBLIC_PREFIXES) and
+      # port 3000 is published on the host, which the runner shares.
+      - name: Health check
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/login; then
+              echo "App is up."
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "::error::App did not become healthy within 150s"
+          docker compose -f "$DEPLOY_DIR/docker-compose.yml" logs --tail=80 app
+          exit 1
+
+      - name: Clean up dangling images
+        if: always()
+        run: docker image prune -f
