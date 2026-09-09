@@ -124,6 +124,10 @@ const getGrossTotal = (pv: PvValues) =>
 const PrintViewPdf: React.FC<Props> = ({ pv }) => {
   const grossTotal = getGrossTotal(pv);
   const isMVR = pv.currency.toLowerCase() === "mvr";
+  // Units for spelling out the document-currency total. Undefined for a
+  // currency we hold no names for, in which case numberToWords falls back
+  // to its Rufiyaa/Laari defaults.
+  const docUnits = CurrencyNames[pv.currency as keyof typeof CurrencyNames];
 
   // Single-invoice document number prints top-left above the header.
   // (Multi-invoice doc numbers print inside each invoice's comments cell.)
@@ -461,10 +465,7 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
             <View style={{ width: "54%" }}>
               <Cell width="100%">
                 {!isMVR
-                  ? numberToWords(
-                      grossTotal,
-                      CurrencyNames[pv.currency as keyof typeof CurrencyNames],
-                    )
+                  ? numberToWords(grossTotal, docUnits?.major, docUnits?.minor)
                   : numberToWords(grossTotal * pv.exchangeRate)}
               </Cell>
               <Cell width="100%">

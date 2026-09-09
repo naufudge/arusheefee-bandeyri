@@ -1,10 +1,11 @@
 
 /**
-    * Returns input number in words (in Rufiyaa and Laari).
+    * Returns input number in words (in Rufiyaa and Laari by default).
     * @param {number} num - The number that you want to convert.
-    * @param {string} currency - The name of the currency.
+    * @param {string} major - The name of the currency's major unit.
+    * @param {string} minor - The name of the currency's minor unit.
 */
-export function numberToWords(num: number, currency: string = "Rufiyaa") {
+export function numberToWords(num: number, major: string = "Rufiyaa", minor: string = "Laari") {
     
     const belowTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
     const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
@@ -36,7 +37,7 @@ export function numberToWords(num: number, currency: string = "Rufiyaa") {
 
     const decimalWords = decimalPart > 0 ? helper(decimalPart) : "";
 
-    return `${words.trim()} ${currency}` + (decimalWords ? ", " + `${decimalWords.trim()} Laari` : "");
+    return `${words.trim()} ${major}` + (decimalWords ? ", " + `${decimalWords.trim()} ${minor}` : "");
 }
 
 export function formatNumberWithCommas(num: number | string, withDecimals: boolean = true) {

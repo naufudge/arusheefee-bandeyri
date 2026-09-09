@@ -20,7 +20,7 @@ export const invoiceSchema = z.object({
 });
 
 // Create PV schema - accepts staff IDs
-export const createPvSchema = z.object({
+const pvFieldsSchema = z.object({
   pvNum: z.string().min(6),
   businessArea: z.coerce.number().int().default(1506),
   agency: z.string().default("National Archives of Maldives"),
@@ -51,6 +51,22 @@ export const createPvSchema = z.object({
   // Marks the PV as a petty cash float reimbursement (surfaces in the
   // petty cash register export as a "Received" row).
   isPettyCashReimbursement: z.coerce.boolean().default(false),
+});
+
+// A foreign-currency PV must carry a real rate. `exchangeRate` defaults to
+// 1 when it arrives undefined, which used to turn a failed MMA lookup into
+// a silently-stored 1 — every "Amt. in MVR" on the printed voucher then
+// matched the document-currency column exactly. Reject it at the boundary
+// instead of writing a voucher that reads wrong.
+export const createPvSchema = pvFieldsSchema.superRefine((pv, ctx) => {
+  if (pv.currency.toLowerCase() === "mvr") return;
+  if (pv.exchangeRate === 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["exchangeRate"],
+      message: `A ${pv.currency} PV needs an exchange rate to MVR. The rate is filled in from the MMA statistics database — if it didn't load, enter it manually.`,
+    });
+  }
 });
 
 // Update PV schema - same as create

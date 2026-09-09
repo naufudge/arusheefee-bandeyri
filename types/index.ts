@@ -26,27 +26,13 @@ export type NormalServerResponseType = {
     result: string,
 }
 
-export type ExchangeRates = {
-    USD: number,
-    AUD: number,
-    CAD: number,
-    DKK: number,
-    EUR: number,
-    HKD: number,
-    JPY: number,
-    NOK: number,
-    SGD: number,
-    SAR: number,
-    GBP: number,
-    CHF: number,
-    SEK: number,
-    LKR: number,
-    INR: number,
-    THB: number,
-    MYR: number,
-    IDR: number,
-    AED: number,
-}
+/**
+ * MVR per one unit of each foreign currency, keyed by ISO code. A code is
+ * absent when MMA publishes no series for it, so lookups must be guarded —
+ * writing an undefined rate onto a PV is what made foreign-currency
+ * vouchers silently fall back to a rate of 1.
+ */
+export type ExchangeRates = Record<string, number | undefined>
 
 export type Staff = {
     _id: string,

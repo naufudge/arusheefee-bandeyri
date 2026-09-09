@@ -189,7 +189,7 @@ const PrintView: React.FC<PrintProps> = ({ pv }) => {
                 </div>
                 <div className='col-span-6'>
                     <div className='grid child:py-2 child:border child:justify child:px-4'>
-                        <div>{pv.currency.toLowerCase() != "mvr" ? numberToWords(getGrossTotal(), CurrencyNames[pv.currency as keyof typeof CurrencyNames]) : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
+                        <div>{pv.currency.toLowerCase() != "mvr" ? numberToWords(getGrossTotal(), CurrencyNames[pv.currency as keyof typeof CurrencyNames]?.major, CurrencyNames[pv.currency as keyof typeof CurrencyNames]?.minor) : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
                         <div>{pv.currency.toLowerCase() === "mvr" ? numberToWords(getGrossTotal()) : numberToWords(getGrossTotal() * pv.exchangeRate)}</div>
                     </div>
                 </div>

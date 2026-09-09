@@ -185,11 +185,6 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const { toast } = useToast();
   const trpc = useTRPC();
 
-  // Fetch exchange rates
-  const { data: exchangeRates } = useQuery(
-    trpc.exchangeRates.get.queryOptions()
-  );
-
   // Fetch staff list
   const { data: staffData } = useQuery(trpc.staff.list.queryOptions());
   const staff: Staff[] | undefined = staffData?.map((s) => ({
@@ -216,6 +211,72 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const setValue = form.setValue;
   const getValue = form.getValues;
 
+  const watchedDate = form.watch("date");
+  const watchedCurrency = form.watch("currency");
+
+  // MMA publishes exchange rates monthly, so a voucher takes the rate for
+  // its own month rather than today's — a March PV keeps March's rate even
+  // if it's edited in September. Anchored at UTC mid-month so the month the
+  // server reads back can't shift across the timezone boundary.
+  const rateMonth =
+    watchedDate instanceof Date && !isNaN(watchedDate.getTime())
+      ? new Date(
+          Date.UTC(watchedDate.getFullYear(), watchedDate.getMonth(), 15),
+        )
+      : undefined;
+
+  const { data: rateData } = useQuery({
+    ...trpc.exchangeRates.get.queryOptions({ date: rateMonth }),
+    retry: false,
+  });
+  const exchangeRates = rateData as ExchangeRates | undefined;
+
+  const isMvrSelected = (watchedCurrency ?? "").toLowerCase() === "mvr";
+  const lookedUpRate = isMvrSelected
+    ? 1
+    : watchedCurrency
+      ? exchangeRates?.[watchedCurrency]
+      : undefined;
+
+  // The rate is read-only whenever MMA gave us one. It unlocks only when
+  // the lookup failed — otherwise a broken lookup would leave the user with
+  // no way to enter a rate, which is how foreign-currency PVs ended up
+  // saved at 1 and printing the document-currency amount in the MVR column.
+  const rateLocked = typeof lookedUpRate === "number";
+
+  // Month whose rate is currently in the field. Left unset on first render
+  // so loading an existing PV never silently rewrites its stored rate.
+  const ratedMonthRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const date = getValue("date");
+    const month =
+      date instanceof Date && !isNaN(date.getTime())
+        ? `${date.getFullYear()}-${date.getMonth()}`
+        : null;
+    const previousMonth = ratedMonthRef.current;
+    ratedMonthRef.current = month;
+
+    if (!exchangeRates) return;
+    const currency = getValue("currency");
+    if (!currency || currency.toLowerCase() === "mvr") return;
+
+    const rate = exchangeRates[currency];
+    if (typeof rate !== "number") return;
+
+    const current = getValue("exchangeRate");
+    // A foreign-currency PV holding a rate of 1 predates this fix and is
+    // wrong by definition, so repair it on open. Otherwise only refill when
+    // the user has actually moved the PV into a different month.
+    const needsRepair = !current || current === 1;
+    const monthChanged = previousMonth !== null && previousMonth !== month;
+    if (!needsRepair && !monthChanged) return;
+
+    if (current !== rate) {
+      setValue("exchangeRate", rate, { shouldDirty: true });
+    }
+  }, [exchangeRates, watchedDate, watchedCurrency, getValue, setValue]);
+
   // Auto-fill pvNum in create mode once we know the latest PV. We only
   // overwrite an empty field, so a user who has already typed something
   // (or restored a draft) keeps their input.
@@ -241,16 +302,19 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
     );
   }, [pv, latestPV, isLatestLoading, getValue, setValue]);
 
-  // Handles currency dropdown selection
+  // Handles currency dropdown selection. Never writes an undefined rate:
+  // the field is left as-is when MMA has no figure for the currency, so the
+  // unlocked input (and the server-side guard) can catch it.
   const handleCurrencyChange = (currency: string) => {
-    setValue("currency", currency);
-    if (currency === "MVR") {
-      setValue("exchangeRate", 1);
+    setValue("currency", currency, { shouldDirty: true });
+    if (currency.toLowerCase() === "mvr") {
+      setValue("exchangeRate", 1, { shouldDirty: true });
+      return;
     }
-    if (exchangeRates) {
-      setValue("exchangeRate", exchangeRates[currency as keyof ExchangeRates]);
+    const rate = exchangeRates?.[currency];
+    if (typeof rate === "number") {
+      setValue("exchangeRate", rate, { shouldDirty: true });
     }
-    return;
   };
 
   const { fields, append, remove } = useFieldArray({
@@ -609,8 +673,14 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
               control={control}
               name={"exchangeRate"}
               label="Exchange Rate"
-              disabled={true}
-              description="Rate is taken from MMA website."
+              disabled={rateLocked}
+              description={
+                isMvrSelected
+                  ? "MVR vouchers always use a rate of 1."
+                  : rateLocked
+                    ? "MMA's published rate for the month of this PV's date."
+                    : "MMA has no rate for this currency and month — enter it manually."
+              }
             />
           </div>
         </section>
