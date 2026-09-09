@@ -33,6 +33,7 @@ import { NoAccessCard } from "@/components/shared/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { formatNumberWithCommas } from "@/utils/helpers";
+import { toMvr } from "@/utils/currency";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery } from "@tanstack/react-query";
 
@@ -68,7 +69,9 @@ export default function Home() {
       invoiceCount += pv.invoices.length;
       for (const inv of pv.invoices) {
         for (const gl of inv.glDetails) {
-          totalExpenditure += gl.amount;
+          // GL amounts are in the PV's document currency; this figure is
+          // reported as MVR.
+          totalExpenditure += toMvr(gl.amount, pv.exchangeRate);
         }
       }
     }

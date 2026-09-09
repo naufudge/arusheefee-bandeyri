@@ -12,12 +12,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatNumberWithCommas } from "@/utils/helpers";
+import { pvTotal } from "@/utils/currency";
 
 interface PvData {
   pvNum: string;
   notes: string;
   vendor: string;
   transferNum?: string | null;
+  exchangeRate: number;
   invoices: { invoiceTotal: number }[];
 }
 
@@ -28,8 +30,8 @@ interface RecentPvsProps {
 const RecentPvs: React.FC<RecentPvsProps> = ({ pvs }) => {
   const recent = useMemo(() => pvs.slice(0, 7), [pvs]);
 
-  const totalFor = (pv: PvData) =>
-    pv.invoices.reduce((sum, i) => sum + i.invoiceTotal, 0);
+  // The column is headed MVR, so convert from the PV's document currency.
+  const totalFor = (pv: PvData) => pvTotal(pv).mvr;
 
   return (
     <div>

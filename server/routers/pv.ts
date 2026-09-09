@@ -13,6 +13,7 @@ import {
   assertActorHasSignature,
   getSignatureDataUrl,
 } from "../lib/approval";
+import { toMvr } from "@/utils/currency";
 
 // Common include for PV queries with all relations. The approvalEvents
 // array drives the timeline on the detail page.
@@ -119,7 +120,8 @@ export const pvRouter = router({
         },
       });
 
-      // Aggregate GL totals by code
+      // Aggregate GL totals by code, in MVR — GL amounts are stored in the
+      // PV's document currency, and the chart reports a single currency.
       const glTotals: Record<number, number> = {};
 
       for (const pv of pvs) {
@@ -128,7 +130,7 @@ export const pvRouter = router({
             if (glTotals[gl.code] === undefined) {
               glTotals[gl.code] = 0;
             }
-            glTotals[gl.code] += gl.amount;
+            glTotals[gl.code] += toMvr(gl.amount, pv.exchangeRate);
           }
         }
       }

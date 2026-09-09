@@ -27,12 +27,43 @@ import { PVActionBar } from "@/components/approval/PVActionBar";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
 import DownloadPdf from "@/components/pv/DownloadPdf";
 import VoucherCard from "@/components/pv/VoucherCard";
+import { cn } from "@/lib/utils";
+import { isForeignCurrency, toMvr } from "@/utils/currency";
 
 function formatCurrency(amount: number, currency: string) {
   return `${currency} ${amount.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
+}
+
+/**
+ * The MVR equivalent of a document-currency amount, shown beneath the primary
+ * figure on foreign-currency vouchers. Renders nothing for MVR PVs, where the
+ * two numbers would be identical.
+ */
+function MvrEquivalent({
+  amount,
+  pv,
+  className,
+}: {
+  amount: number;
+  pv: { currency: string; exchangeRate: number };
+  className?: string;
+}) {
+  if (!isForeignCurrency(pv.currency)) return null;
+  // A <span> rather than a <div> so it nests validly inside the inline
+  // wrappers on the GL lines as well as the block ones elsewhere.
+  return (
+    <span
+      className={cn(
+        "block font-mono tabular-nums text-muted-foreground",
+        className ?? "text-[11px]"
+      )}
+    >
+      ≈ {formatCurrency(toMvr(amount, pv.exchangeRate), "MVR")}
+    </span>
+  );
 }
 
 const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
@@ -142,6 +173,11 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                   })}
                 </span>
               </div>
+              <MvrEquivalent
+                amount={totalAmount}
+                pv={pv}
+                className="mt-1.5 text-sm"
+              />
             </div>
           )}
         </div>
@@ -160,7 +196,7 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                 {pv.postedBy?.name ? ` by ${pv.postedBy.name}` : ""}
               </span>
             )}
-            {pv.exchangeRate !== 1 && (
+            {isForeignCurrency(pv.currency) && (
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.14em]">
                   FX
@@ -238,13 +274,16 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                       {pv.invoices.length}
                     </span>
                   </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                      Total
-                    </span>
-                    <span className="font-mono text-sm tabular-nums">
-                      {formatCurrency(totalAmount, pv.currency)}
-                    </span>
+                  <div className="text-right">
+                    <div className="flex items-baseline justify-end gap-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        Total
+                      </span>
+                      <span className="font-mono text-sm tabular-nums">
+                        {formatCurrency(totalAmount, pv.currency)}
+                      </span>
+                    </div>
+                    <MvrEquivalent amount={totalAmount} pv={pv} />
                   </div>
                 </header>
                 <div className="divide-y">
@@ -269,8 +308,11 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                             </span>
                           )}
                         </div>
-                        <div className="font-mono text-sm font-semibold tabular-nums">
-                          {formatCurrency(inv.invoiceTotal, pv.currency)}
+                        <div className="text-right">
+                          <div className="font-mono text-sm font-semibold tabular-nums">
+                            {formatCurrency(inv.invoiceTotal, pv.currency)}
+                          </div>
+                          <MvrEquivalent amount={inv.invoiceTotal} pv={pv} />
                         </div>
                       </div>
                       {inv.comments && (
@@ -294,8 +336,15 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                                     {gl.fund}
                                   </span>
                                 </span>
-                                <span className="font-mono tabular-nums text-foreground/80">
-                                  {formatCurrency(gl.amount, pv.currency)}
+                                <span className="shrink-0 text-right">
+                                  <span className="block font-mono tabular-nums text-foreground/80">
+                                    {formatCurrency(gl.amount, pv.currency)}
+                                  </span>
+                                  <MvrEquivalent
+                                    amount={gl.amount}
+                                    pv={pv}
+                                    className="text-[10px]"
+                                  />
                                 </span>
                               </li>
                             ))}

@@ -20,6 +20,7 @@ import {
   getSignatureDataUrl,
   type PCRole,
 } from "../lib/approval";
+import { pvTotal } from "@/utils/currency";
 
 const pettyCashInclude = {
   handledBy: { include: { staff: true } },
@@ -181,9 +182,10 @@ export const pettyCashRouter = router({
       ]);
 
       const paid = paidAgg._sum.totalRequiredAmount ?? 0;
+      // The float is held in MVR, so a foreign-currency reimbursement PV has
+      // to be converted before it enters the balance.
       const received = reimbursements.reduce(
-        (sum, pv) =>
-          sum + pv.invoices.reduce((s, inv) => s + inv.invoiceTotal, 0),
+        (sum, pv) => sum + pvTotal(pv).mvr,
         0,
       );
       const opening = prevOpening?.amount ?? 0;

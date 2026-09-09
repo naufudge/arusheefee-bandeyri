@@ -48,6 +48,7 @@ import { NoAccessCard } from "@/components/shared/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { formatNumberWithCommas, removeDuplicates } from "@/utils/helpers";
+import { pvTotal } from "@/utils/currency";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -166,10 +167,9 @@ const PvRegisterPage = () => {
       (p) => p.transferNum && p.transferNum !== ""
     ).length;
     const pending = filteredPvs.length - processed;
-    const totalValue = filteredPvs.reduce(
-      (sum, p) => sum + p.invoices.reduce((s, i) => s + i.invoiceTotal, 0),
-      0
-    );
+    // In MVR: summing document-currency totals across mixed currencies would
+    // add pounds to rufiyaa and label the result MVR.
+    const totalValue = filteredPvs.reduce((sum, p) => sum + pvTotal(p).mvr, 0);
     return {
       total: filteredPvs.length,
       processed,
@@ -178,8 +178,12 @@ const PvRegisterPage = () => {
     };
   }, [filteredPvs]);
 
-  const totalForPv = (pv: { invoices: { invoiceTotal: number }[] }) =>
-    pv.invoices.reduce((sum, i) => sum + i.invoiceTotal, 0);
+  // The register reports one currency, so rows show the MVR value. The
+  // document-currency figure is on the PV's own page.
+  const totalForPv = (pv: {
+    exchangeRate: number;
+    invoices: { invoiceTotal: number }[];
+  }) => pvTotal(pv).mvr;
 
   const formatDate = (d: Date | string) => {
     const dt = new Date(d);
@@ -459,7 +463,7 @@ const PvRegisterPage = () => {
                   {/* Amount */}
                   <div className="hidden text-right md:block">
                     <div className="font-mono text-sm tabular-nums">
-                      {formatNumberWithCommas(totalForPv(pv))}
+                      {formatNumberWithCommas(totalForPv(pv)) ?? "0.00"}
                     </div>
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                       MVR
