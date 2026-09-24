@@ -19,6 +19,12 @@ interface SignatoryCardProps {
    * the row when present.
    */
   actions?: React.ReactNode;
+  /**
+   * Slot rendered inline in the header, left of the state badge — for a
+   * small icon control such as the PV signatory edit pencil. Optional, so
+   * the pages that don't pass it are unaffected.
+   */
+  headerAction?: React.ReactNode;
 }
 
 export function SignatoryCard({
@@ -28,6 +34,7 @@ export function SignatoryCard({
   rejectedAt,
   comment,
   actions,
+  headerAction,
 }: SignatoryCardProps) {
   const state: "signed" | "rejected" | "awaiting" | "unassigned" = !staff
     ? "unassigned"
@@ -84,7 +91,10 @@ export function SignatoryCard({
         <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
           {label}
         </div>
-        {badge}
+        <div className="flex shrink-0 items-center gap-1">
+          {headerAction}
+          {badge}
+        </div>
       </div>
       <div className="mt-2">
         {staff ? (

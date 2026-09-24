@@ -22,6 +22,7 @@ import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
 import { StatusPill } from "@/components/approval/StatusPill";
 import { SignatoryCard } from "@/components/approval/SignatoryCard";
+import { EditSignatoryDialog } from "@/components/approval/EditSignatoryDialog";
 import { ApprovalTimeline } from "@/components/approval/ApprovalTimeline";
 import { PVActionBar } from "@/components/approval/PVActionBar";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
@@ -365,25 +366,72 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                   <h2 className="text-sm font-semibold">Signatories</h2>
                 </header>
                 <div className="space-y-2 p-3">
+                  {/* The pencil follows the same rule as the Edit button:
+                      pv:update on a draft, plus pv:edit_locked once the PV
+                      has left DRAFT. */}
                   <SignatoryCard
                     label="Prepared by"
                     staff={pv.preparedBy}
                     signedAt={pv.status !== "DRAFT" ? pv.createdAt : null}
+                    headerAction={
+                      editAllowed && (
+                        <EditSignatoryDialog
+                          pvNum={pv.pvNum}
+                          role="preparedBy"
+                          label="Prepared by"
+                          currentStaffId={pv.preparedById}
+                          hasSigned={false}
+                        />
+                      )
+                    }
                   />
                   <SignatoryCard
                     label="Verified by"
                     staff={pv.verifiedBy}
                     signedAt={pv.verifiedAt}
+                    headerAction={
+                      editAllowed && (
+                        <EditSignatoryDialog
+                          pvNum={pv.pvNum}
+                          role="verifiedBy"
+                          label="Verified by"
+                          currentStaffId={pv.verifiedById}
+                          hasSigned={pv.verifiedAt !== null}
+                        />
+                      )
+                    }
                   />
                   <SignatoryCard
                     label="Authorised by (1)"
                     staff={pv.authorisedByOne}
                     signedAt={pv.authorisedByOneAt}
+                    headerAction={
+                      editAllowed && (
+                        <EditSignatoryDialog
+                          pvNum={pv.pvNum}
+                          role="authorisedByOne"
+                          label="Authorised by (1)"
+                          currentStaffId={pv.authorisedByOneId}
+                          hasSigned={pv.authorisedByOneAt !== null}
+                        />
+                      )
+                    }
                   />
                   <SignatoryCard
                     label="Authorised by (2)"
                     staff={pv.authorisedByTwo}
                     signedAt={pv.authorisedByTwoAt}
+                    headerAction={
+                      editAllowed && (
+                        <EditSignatoryDialog
+                          pvNum={pv.pvNum}
+                          role="authorisedByTwo"
+                          label="Authorised by (2)"
+                          currentStaffId={pv.authorisedByTwoId}
+                          hasSigned={pv.authorisedByTwoAt !== null}
+                        />
+                      )
+                    }
                   />
                   {pv.postedBy && (
                     <SignatoryCard

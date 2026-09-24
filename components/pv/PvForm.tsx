@@ -804,111 +804,117 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           </div>
         </section>
 
-        <section>
-          <div className="mb-4">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Signatories
-            </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Staff who prepared, verified, and authorised this voucher
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Prepared By Section */}
-          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
-            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Prepared By
+        {/* Signatories — create mode only. On an existing PV these are
+            edited per-role from the detail page (EditSignatoryDialog),
+            because `pv.update` strips signatory FKs once the PV leaves
+            DRAFT and rewrites every invoice row on the way through. */}
+        {!pv && (
+          <section>
+            <div className="mb-4">
+              <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Signatories
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Staff who prepared, verified, and authorised this voucher
+              </p>
             </div>
-            <StaffDropDownField
-              control={control}
-              name="preparedBy"
-              label="Name"
-              staffs={staff ?? []}
-              formSetValue={setValue}
-            />
-            <PvInputField
-              control={control}
-              name={"preparedBy.designation"}
-              label="Designation"
-              disabled={true}
-            />
-          </div>
-
-          {/* Verified By Section */}
-          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
-            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Verified By
-            </div>
-            <StaffDropDownField
-              control={control}
-              name="verifiedBy"
-              label="Name"
-              staffs={staff ?? []}
-              formSetValue={setValue}
-            />
-            <PvInputField
-              control={control}
-              name={"verifiedBy.designation"}
-              label="Designation"
-              disabled={true}
-            />
-          </div>
-
-          {/* Authorised By Section One */}
-          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
-            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Authorised By
-            </div>
-            <StaffDropDownField
-              control={control}
-              name="authorisedByOne"
-              label="Name"
-              staffs={staff ?? []}
-              formSetValue={setValue}
-            />
-            <PvInputField
-              control={control}
-              name={"authorisedByOne.designation"}
-              label="Designation"
-              disabled={true}
-            />
-          </div>
-
-          {/* Authorised By Section Two */}
-          <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
-            <div className="flex items-center justify-between gap-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Prepared By Section */}
+            <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
               <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                Authorised By <span className="font-mono normal-case tracking-normal">· 2</span>
+                Prepared By
               </div>
-              {form.watch("authorisedByTwo.name") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue("authorisedByTwo.name", "", { shouldDirty: true });
-                    setValue("authorisedByTwo.designation", "", { shouldDirty: true });
-                  }}
-                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition hover:text-foreground"
-                >
-                  Clear
-                </button>
-              )}
+              <StaffDropDownField
+                control={control}
+                name="preparedBy"
+                label="Name"
+                staffs={staff ?? []}
+                formSetValue={setValue}
+              />
+              <PvInputField
+                control={control}
+                name={"preparedBy.designation"}
+                label="Designation"
+                disabled={true}
+              />
             </div>
-            <StaffDropDownField
-              control={control}
-              name="authorisedByTwo"
-              label="Name"
-              staffs={staff ?? []}
-              formSetValue={setValue}
-            />
-            <PvInputField
-              control={control}
-              name={"authorisedByTwo.designation"}
-              label="Designation"
-              disabled={true}
-            />
-          </div>
-          </div>
-        </section>
+
+            {/* Verified By Section */}
+            <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+              <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Verified By
+              </div>
+              <StaffDropDownField
+                control={control}
+                name="verifiedBy"
+                label="Name"
+                staffs={staff ?? []}
+                formSetValue={setValue}
+              />
+              <PvInputField
+                control={control}
+                name={"verifiedBy.designation"}
+                label="Designation"
+                disabled={true}
+              />
+            </div>
+
+            {/* Authorised By Section One */}
+            <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+              <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Authorised By
+              </div>
+              <StaffDropDownField
+                control={control}
+                name="authorisedByOne"
+                label="Name"
+                staffs={staff ?? []}
+                formSetValue={setValue}
+              />
+              <PvInputField
+                control={control}
+                name={"authorisedByOne.designation"}
+                label="Designation"
+                disabled={true}
+              />
+            </div>
+
+            {/* Authorised By Section Two */}
+            <div className="flex flex-col gap-4 rounded-md border bg-card p-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                  Authorised By <span className="font-mono normal-case tracking-normal">· 2</span>
+                </div>
+                {form.watch("authorisedByTwo.name") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValue("authorisedByTwo.name", "", { shouldDirty: true });
+                      setValue("authorisedByTwo.designation", "", { shouldDirty: true });
+                    }}
+                    className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <StaffDropDownField
+                control={control}
+                name="authorisedByTwo"
+                label="Name"
+                staffs={staff ?? []}
+                formSetValue={setValue}
+              />
+              <PvInputField
+                control={control}
+                name={"authorisedByTwo.designation"}
+                label="Designation"
+                disabled={true}
+              />
+            </div>
+            </div>
+          </section>
+        )}
 
         <section className="rounded-md border bg-card p-6">
           <div className="mb-5">
