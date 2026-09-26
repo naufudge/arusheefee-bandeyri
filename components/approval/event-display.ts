@@ -7,6 +7,7 @@ import {
   XCircle,
   RotateCcw,
   BookCheck,
+  UserPen,
 } from "lucide-react";
 import type { ApprovalEventKind } from "@prisma/client";
 
@@ -23,6 +24,7 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   AUTHORISED_TWO: "Authorised (stage 2)",
   REJECTED: "Rejected",
   POSTED: "Posted",
+  PV_SIGNATORY_CHANGED: "Signatory changed",
   PC_ROLE_APPROVED: "Approved",
   PC_ROLE_REJECTED: "Rejected",
   PC_ROLE_RESET_ON_EDIT: "Reset on edit",
@@ -49,6 +51,7 @@ export const KIND_ICON: Record<
   AUTHORISED_TWO: ShieldCheck,
   REJECTED: XCircle,
   POSTED: BookCheck,
+  PV_SIGNATORY_CHANGED: UserPen,
   PC_ROLE_APPROVED: CheckCircle2,
   PC_ROLE_REJECTED: XCircle,
   PC_ROLE_RESET_ON_EDIT: RotateCcw,
@@ -102,6 +105,11 @@ export const KIND_TONE: Record<
     bg: "bg-indigo-50 dark:bg-indigo-900/20",
     ring: "ring-indigo-200 dark:ring-indigo-800/60",
     icon: "text-indigo-600 dark:text-indigo-400",
+  },
+  PV_SIGNATORY_CHANGED: {
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+    ring: "ring-amber-200 dark:ring-amber-800/60",
+    icon: "text-amber-600 dark:text-amber-400",
   },
   PC_ROLE_APPROVED: {
     bg: "bg-emerald-50 dark:bg-emerald-900/20",

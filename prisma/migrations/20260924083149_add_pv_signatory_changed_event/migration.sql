@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ApprovalEventKind" ADD VALUE 'PV_SIGNATORY_CHANGED';

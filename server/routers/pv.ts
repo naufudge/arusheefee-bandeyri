@@ -8,11 +8,74 @@ import {
   yearFilterSchema,
   pvWorkflowActionSchema,
   rejectPvSchema,
+  setPvSignatorySchema,
+  type PvSignatoryRole,
 } from "../schemas/pv.schema";
 import {
   assertActorHasSignature,
   getSignatureDataUrl,
 } from "../lib/approval";
+import { toMvr } from "@/utils/currency";
+
+// Which stage each signatory role owns, for reassignment. `stampField` is
+// the column the workflow writes when that role signs; `rollbackTo` is the
+// status the PV returns to when an already-signed role is reassigned, and
+// `clears` lists that stage's stamp plus every downstream one.
+//
+// Rollback is not optional polish: `verify` / `authoriseOne` / `authoriseTwo`
+// each guard on an exact status, so clearing a stamp without moving `status`
+// back would strand the PV — the new signatory could never sign, and the card
+// would read "Awaiting" next to an APPROVED voucher.
+//
+// `preparedBy` has no stamp column and no procedure to re-run (`send` is
+// gated on pv:update, not on preparedById), so reassigning it is a plain FK
+// swap at any status. The visible effect is that `pdfPayload` stamps the new
+// preparer's signature, since it keys off `status !== "DRAFT"`.
+const SIGNATORY_STAGES: Record<
+  PvSignatoryRole,
+  {
+    fkField: "preparedById" | "verifiedById" | "authorisedByOneId" | "authorisedByTwoId";
+    label: string;
+    stampField: "verifiedAt" | "authorisedByOneAt" | "authorisedByTwoAt" | null;
+    rollbackTo: "PENDING_VERIFICATION" | "PENDING_AUTHORISATION_ONE" | "PENDING_AUTHORISATION_TWO" | null;
+    /** How `rollbackTo` reads in the timeline comment. */
+    rollbackLabel: string | null;
+    clears: ("verifiedAt" | "authorisedByOneAt" | "authorisedByTwoAt")[];
+  }
+> = {
+  preparedBy: {
+    fkField: "preparedById",
+    label: "Prepared by",
+    stampField: null,
+    rollbackTo: null,
+    rollbackLabel: null,
+    clears: [],
+  },
+  verifiedBy: {
+    fkField: "verifiedById",
+    label: "Verified by",
+    stampField: "verifiedAt",
+    rollbackTo: "PENDING_VERIFICATION",
+    rollbackLabel: "pending verification",
+    clears: ["verifiedAt", "authorisedByOneAt", "authorisedByTwoAt"],
+  },
+  authorisedByOne: {
+    fkField: "authorisedByOneId",
+    label: "Authorised by (1)",
+    stampField: "authorisedByOneAt",
+    rollbackTo: "PENDING_AUTHORISATION_ONE",
+    rollbackLabel: "pending authorisation (1)",
+    clears: ["authorisedByOneAt", "authorisedByTwoAt"],
+  },
+  authorisedByTwo: {
+    fkField: "authorisedByTwoId",
+    label: "Authorised by (2)",
+    stampField: "authorisedByTwoAt",
+    rollbackTo: "PENDING_AUTHORISATION_TWO",
+    rollbackLabel: "pending authorisation (2)",
+    clears: ["authorisedByTwoAt"],
+  },
+};
 
 // Common include for PV queries with all relations. The approvalEvents
 // array drives the timeline on the detail page.
@@ -119,7 +182,8 @@ export const pvRouter = router({
         },
       });
 
-      // Aggregate GL totals by code
+      // Aggregate GL totals by code, in MVR — GL amounts are stored in the
+      // PV's document currency, and the chart reports a single currency.
       const glTotals: Record<number, number> = {};
 
       for (const pv of pvs) {
@@ -128,7 +192,7 @@ export const pvRouter = router({
             if (glTotals[gl.code] === undefined) {
               glTotals[gl.code] = 0;
             }
-            glTotals[gl.code] += gl.amount;
+            glTotals[gl.code] += toMvr(gl.amount, pv.exchangeRate);
           }
         }
       }
@@ -259,6 +323,107 @@ export const pvRouter = router({
               })),
             },
           },
+          include: pvInclude,
+        });
+      });
+    }),
+
+  // Reassign a single signatory from the PV detail page. Deliberately
+  // narrow: it never touches invoices, unlike `update` which rewrites
+  // every invoice and GL row and strips signatory FKs on live PVs.
+  setSignatory: permissionProcedure("pv:update")
+    .input(setPvSignatorySchema)
+    .mutation(async ({ ctx, input }) => {
+      const stage = SIGNATORY_STAGES[input.role];
+
+      const existing = await ctx.prisma.pV.findUnique({
+        where: { pvNum: input.pvNum },
+        include: {
+          preparedBy: { select: { name: true } },
+          verifiedBy: { select: { name: true } },
+          authorisedByOne: { select: { name: true } },
+          authorisedByTwo: { select: { name: true } },
+        },
+      });
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `PV ${input.pvNum} not found`,
+        });
+      }
+
+      // Same rule as `update`: `pv:edit_locked` is an additive override
+      // that relaxes the DRAFT lock, not a replacement for `pv:update`.
+      if (
+        existing.status !== "DRAFT" &&
+        !ctx.session.permissions?.includes("pv:edit_locked")
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PV is locked: callback it back to DRAFT before editing.",
+        });
+      }
+
+      // Only the second authoriser is optional — the workflow skips that
+      // stage when it is unset. Blanking any other role would leave a PV
+      // nobody can move forward.
+      if (input.staffId === null && input.role !== "authorisedByTwo") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `${stage.label} cannot be left unassigned.`,
+        });
+      }
+
+      let newName = "Unassigned";
+      if (input.staffId !== null) {
+        const staff = await ctx.prisma.staff.findUnique({
+          where: { id: input.staffId },
+          select: { name: true },
+        });
+        if (!staff) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "That staff member no longer exists.",
+          });
+        }
+        newName = staff.name;
+      }
+
+      const currentId = existing[stage.fkField];
+      if (currentId === input.staffId) return existing;
+
+      const previousName = existing[input.role]?.name ?? "Unassigned";
+
+      // Rollback only bites when this role had actually signed. An
+      // unsigned role (or preparedBy, which has no stamp) is a plain swap.
+      const hadSigned =
+        stage.stampField !== null && existing[stage.stampField] !== null;
+
+      const data: Record<string, unknown> = { [stage.fkField]: input.staffId };
+      if (hadSigned && stage.rollbackTo) {
+        for (const field of stage.clears) data[field] = null;
+        data.status = stage.rollbackTo;
+        // A posted voucher that loses an approval is no longer posted.
+        data.postedAt = null;
+        data.postedById = null;
+      }
+
+      const comment = hadSigned
+        ? `${stage.label}: ${previousName} → ${newName}. Signed stages from this point were cleared; the PV returns to ${stage.rollbackLabel}.`
+        : `${stage.label}: ${previousName} → ${newName}`;
+
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.approvalEvent.create({
+          data: {
+            kind: "PV_SIGNATORY_CHANGED",
+            pvId: existing.id,
+            actorId: ctx.session.user.id,
+            comment,
+          },
+        });
+        return tx.pV.update({
+          where: { id: existing.id },
+          data,
           include: pvInclude,
         });
       });

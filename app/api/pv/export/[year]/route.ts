@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
+import { toMvrRounded } from "@/utils/currency";
 import ExcelJS from "exceljs";
 
 // Column configuration
@@ -107,7 +108,10 @@ export async function GET(
               vendor: pv.vendor,
               details: invoice.comments,
               code: gl.code,
-              total: gl.amount,
+              // GL amounts are held in the PV's document currency; the
+              // register reports MVR. Rounded per line because the sheet
+              // stores the raw float, not a formatted string.
+              total: toMvrRounded(gl.amount, pv.exchangeRate),
               parkedDate: formatDate(pv.parkedDate),
               postingDate: formatDate(pv.postingDate),
               paymentMethod: pv.paymentMethod,

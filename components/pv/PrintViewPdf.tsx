@@ -20,6 +20,31 @@ Font.register({ family: "MVWaheed", src: "/fonts/MVWaheed.otf" });
 const BORDER = "#000000";
 const NBSP = " ";
 
+// Column geometry, as a percent of a bordered section's content width. The GL
+// table is six equal columns; the Gross Total band below it reuses that grid
+// for its outer dividers so the totals sit directly under the figures they
+// total. Both sections carry a 1pt frame, so their percentages resolve against
+// the same box and the dividers line up exactly.
+const GL_COL = 16.66;
+
+const GROSS_LABEL = GL_COL; // meets the GL table's first divider
+const GROSS_AMOUNT = 100 - GL_COL * 5; // starts under "Amt. in MVR"
+const GROSS_CURRENCY = 10;
+const GROSS_WORDS = 100 - GROSS_LABEL - GROSS_CURRENCY - GROSS_AMOUNT;
+const GROSS_BODY = 100 - GROSS_LABEL;
+
+const DELIVERY_SIGNATURE = 28;
+const DELIVERY_BODY = 100 - DELIVERY_SIGNATURE;
+
+/**
+ * Re-bases a width given as a percent of the section onto a nested container
+ * that is only `container` percent wide. Needed wherever a cell spans several
+ * rows: the spanning cell sits beside a nested column holding those rows, so
+ * the rows measure against the nested width rather than the section's.
+ */
+const rebase = (width: number, container: number) =>
+  `${(width / container) * 100}%`;
+
 const formatDate = (date?: Date | null) => {
   if (!date) return "";
   const opts: Intl.DateTimeFormatOptions = {
@@ -90,6 +115,19 @@ interface Props {
   pv: PvValues;
 }
 
+/**
+ * A bordered table cell.
+ *
+ * `minHeight` is a floor, not a fixed height, and there is no `flex` — so a
+ * cell is exactly as tall as its own content. Lay cells out ROW-MAJOR (one
+ * `styles.row` per record, cells inside it): siblings in a flex row stretch to
+ * the tallest of them, which is what keeps dividers level when a cell wraps.
+ * Stacking cells into columns and placing those columns side by side does NOT
+ * align them — each column sizes its rows independently. To span a cell across
+ * several rows, put it beside a nested column holding those rows (see the
+ * Gross Total and Payment Delivery blocks) rather than padding it out to a
+ * fixed height.
+ */
 const Cell: React.FC<{
   width: string | number;
   style?: object;
@@ -321,42 +359,37 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
                 ]}
                 wrap={false}
               >
-                {/* Invoice header */}
+                {/* Invoice header. Row-major, so a long invoice number wraps
+                    without dragging its heading out of line with the rest. */}
                 <View style={styles.row}>
-                  <View style={{ width: "25%" }}>
-                    <Cell width="100%" style={[styles.bold, styles.center]}>
-                      Invoice No.
-                    </Cell>
-                    <Cell width="100%" style={styles.center}>
-                      {invoice.invoiceNumber ?? ""}
-                    </Cell>
-                  </View>
-                  <View style={{ width: "25%" }}>
-                    <Cell width="100%" style={[styles.bold, styles.center]}>
-                      Invoice Date
-                    </Cell>
-                    <Cell width="100%" style={styles.center}>
-                      {formatDate(invoice.invoiceDate)}
-                    </Cell>
-                  </View>
-                  <View style={{ width: "25%" }}>
-                    <Cell width="100%" style={[styles.bold, styles.center]}>
-                      Invoice Total
-                    </Cell>
-                    <Cell width="100%" style={styles.center}>
-                      {isMVR
-                        ? formatNumberWithCommas(invMvr)
-                        : formatNumberWithCommas(invoice.invoiceTotal)}
-                    </Cell>
-                  </View>
-                  <View style={{ width: "25%" }}>
-                    <Cell width="100%" style={[styles.bold, styles.center]}>
-                      MVR
-                    </Cell>
-                    <Cell width="100%" style={styles.center}>
-                      {formatNumberWithCommas(invMvr)}
-                    </Cell>
-                  </View>
+                  <Cell width="25%" style={[styles.bold, styles.center]}>
+                    Invoice No.
+                  </Cell>
+                  <Cell width="25%" style={[styles.bold, styles.center]}>
+                    Invoice Date
+                  </Cell>
+                  <Cell width="25%" style={[styles.bold, styles.center]}>
+                    Invoice Total
+                  </Cell>
+                  <Cell width="25%" style={[styles.bold, styles.center]}>
+                    MVR
+                  </Cell>
+                </View>
+                <View style={styles.row}>
+                  <Cell width="25%" style={styles.center}>
+                    {invoice.invoiceNumber ?? ""}
+                  </Cell>
+                  <Cell width="25%" style={styles.center}>
+                    {formatDate(invoice.invoiceDate)}
+                  </Cell>
+                  <Cell width="25%" style={styles.center}>
+                    {isMVR
+                      ? formatNumberWithCommas(invMvr)
+                      : formatNumberWithCommas(invoice.invoiceTotal)}
+                  </Cell>
+                  <Cell width="25%" style={styles.center}>
+                    {formatNumberWithCommas(invMvr)}
+                  </Cell>
                 </View>
 
                 {/* Comments */}
@@ -439,48 +472,72 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
             );
           })}
 
-          {/* Gross Total */}
-          <View style={[styles.row, styles.sectionGap]} wrap={false}>
-            <View
-              style={[
-                styles.cell,
-                {
-                  width: "16%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                },
-              ]}
-            >
-              <Text style={styles.bold}>Gross Total</Text>
-              <Text style={styles.dhivehi}>މުޅި ޖުމްލަ</Text>
-            </View>
-            <View style={{ width: "10%" }}>
-              <Cell width="100%" style={styles.center}>
-                {pv.currency}
-              </Cell>
-              <Cell width="100%" style={styles.center}>
-                MVR
-              </Cell>
-            </View>
-            <View style={{ width: "54%" }}>
-              <Cell width="100%">
-                {!isMVR
-                  ? numberToWords(grossTotal, docUnits?.major, docUnits?.minor)
-                  : numberToWords(grossTotal * pv.exchangeRate)}
-              </Cell>
-              <Cell width="100%">
-                {isMVR
-                  ? numberToWords(grossTotal)
-                  : numberToWords(grossTotal * pv.exchangeRate)}
-              </Cell>
-            </View>
-            <View style={{ width: "20%" }}>
-              <Cell width="100%" style={styles.right}>
-                {formatNumberWithCommas(grossTotal, true)}
-              </Cell>
-              <Cell width="100%" style={styles.right}>
-                {formatNumberWithCommas(grossTotal * pv.exchangeRate, true)}
-              </Cell>
+          {/* Gross Total. The label spans both rows by sitting beside a nested
+              column that holds them, so each row's cells stretch together and
+              the amount in words can wrap to any number of lines without
+              knocking the dividers out of line. The 1pt frame matches the
+              invoice block, which is what puts the figures on its column
+              grid. */}
+          <View
+            style={[styles.sectionGap, { borderWidth: 1, borderColor: BORDER }]}
+            wrap={false}
+          >
+            <View style={styles.row}>
+              <View
+                style={[
+                  styles.cell,
+                  {
+                    width: `${GROSS_LABEL}%`,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                ]}
+              >
+                <Text style={styles.bold}>Gross Total</Text>
+                <Text style={styles.dhivehi}>މުޅި ޖުމްލަ</Text>
+              </View>
+              <View style={{ width: `${GROSS_BODY}%` }}>
+                {(
+                  [
+                    {
+                      code: pv.currency,
+                      words: isMVR
+                        ? numberToWords(grossTotal * pv.exchangeRate)
+                        : numberToWords(
+                            grossTotal,
+                            docUnits?.major,
+                            docUnits?.minor,
+                          ),
+                      amount: grossTotal,
+                    },
+                    {
+                      code: "MVR",
+                      words: isMVR
+                        ? numberToWords(grossTotal)
+                        : numberToWords(grossTotal * pv.exchangeRate),
+                      amount: grossTotal * pv.exchangeRate,
+                    },
+                  ] as const
+                ).map((row, idx) => (
+                  <View key={idx} style={styles.row}>
+                    <Cell
+                      width={rebase(GROSS_CURRENCY, GROSS_BODY)}
+                      style={styles.center}
+                    >
+                      {row.code}
+                    </Cell>
+                    <Cell width={rebase(GROSS_WORDS, GROSS_BODY)}>
+                      {row.words}
+                    </Cell>
+                    <Cell
+                      width={rebase(GROSS_AMOUNT, GROSS_BODY)}
+                      style={styles.right}
+                    >
+                      {formatNumberWithCommas(row.amount, true)}
+                    </Cell>
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
 
@@ -584,58 +641,56 @@ const PrintViewPdf: React.FC<Props> = ({ pv }) => {
               <Text style={styles.bold}>Payment Delivery</Text>
             </View>
 
-            {/* Row 1: Payment Type / Cheque / Transfer / blank / Received By / blank / signature box (spans 3 rows) */}
+            {/* The signature box spans all three rows by sitting beside a
+                nested column that holds them, so it tracks their real height
+                instead of being padded out to a fixed multiple of a row. */}
             <View style={styles.row}>
-              <Cell width="16%" style={styles.bold}>
-                Payment Type:
-              </Cell>
-              <Cell width="8%" style={styles.center}>
-                Cheque
-              </Cell>
-              <Cell width="8%" style={styles.center}>
-                Transfer
-              </Cell>
-              <Cell width="8%" />
-              <Cell width="16%" style={styles.bold}>
-                Received By:
-              </Cell>
-              <Cell width="16%" />
-              {/* Signature box spans the height of 3 rows */}
-              <View
-                style={[
-                  styles.cell,
-                  {
-                    width: "28%",
-                    minHeight: 16 * 3,
-                  },
-                ]}
-              >
-                <Text>{NBSP}</Text>
+              <View style={{ width: `${DELIVERY_BODY}%` }}>
+                {/* Row 1: Payment Type / Cheque / Transfer / blank / Received By */}
+                <View style={styles.row}>
+                  <Cell width={rebase(16, DELIVERY_BODY)} style={styles.bold}>
+                    Payment Type:
+                  </Cell>
+                  <Cell width={rebase(8, DELIVERY_BODY)} style={styles.center}>
+                    Cheque
+                  </Cell>
+                  <Cell width={rebase(8, DELIVERY_BODY)} style={styles.center}>
+                    Transfer
+                  </Cell>
+                  <Cell width={rebase(8, DELIVERY_BODY)} />
+                  <Cell width={rebase(16, DELIVERY_BODY)} style={styles.bold}>
+                    Received By:
+                  </Cell>
+                  <Cell width={rebase(16, DELIVERY_BODY)} />
+                </View>
+
+                {/* Row 2: blank cells under payment type cells + NID/PP/WP */}
+                <View style={styles.row}>
+                  <Cell width={rebase(16, DELIVERY_BODY)} />
+                  <Cell width={rebase(8, DELIVERY_BODY)} />
+                  <Cell width={rebase(8, DELIVERY_BODY)} />
+                  <Cell width={rebase(8, DELIVERY_BODY)} />
+                  <Cell width={rebase(16, DELIVERY_BODY)} style={styles.bold}>
+                    NID/PP/WP No.:
+                  </Cell>
+                  <Cell width={rebase(16, DELIVERY_BODY)} />
+                </View>
+
+                {/* Row 3: Instr No / Date */}
+                <View style={styles.row}>
+                  <Cell width={rebase(8, DELIVERY_BODY)} style={styles.bold}>
+                    Instr. No.:
+                  </Cell>
+                  <Cell width={rebase(24, DELIVERY_BODY)} />
+                  <Cell width={rebase(16, DELIVERY_BODY)} style={styles.bold}>
+                    Date:
+                  </Cell>
+                  <Cell width={rebase(24, DELIVERY_BODY)} />
+                </View>
               </View>
-            </View>
 
-            {/* Row 2: blank cells under payment type cells + NID/PP/WP */}
-            <View style={styles.row}>
-              <Cell width="16%" />
-              <Cell width="8%" />
-              <Cell width="8%" />
-              <Cell width="8%" />
-              <Cell width="16%" style={styles.bold}>
-                NID/PP/WP No.:
-              </Cell>
-              <Cell width="16%" />
-            </View>
-
-            {/* Row 3: Instr No / Date */}
-            <View style={styles.row}>
-              <Cell width="8%" style={styles.bold}>
-                Instr. No.:
-              </Cell>
-              <Cell width="24%" />
-              <Cell width="16%" style={styles.bold}>
-                Date:
-              </Cell>
-              <Cell width="24%" />
+              {/* Signature box */}
+              <Cell width={`${DELIVERY_SIGNATURE}%`} />
             </View>
           </View>
         </View>

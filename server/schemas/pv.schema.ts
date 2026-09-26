@@ -72,6 +72,26 @@ export const createPvSchema = pvFieldsSchema.superRefine((pv, ctx) => {
 // Update PV schema - same as create
 export const updatePvSchema = createPvSchema;
 
+// Reassign one signatory on an existing PV, without touching invoices.
+// `pv.update` can't do this: it demands the whole voucher (and rewrites
+// every invoice row), and it strips signatory FKs outright once the PV
+// leaves DRAFT.
+export const setPvSignatorySchema = z.object({
+  pvNum: z.string().min(1),
+  role: z.enum([
+    "preparedBy",
+    "verifiedBy",
+    "authorisedByOne",
+    "authorisedByTwo",
+  ]),
+  // null unassigns. Only meaningful for authorisedByTwo — the second
+  // authoriser is optional (authoriseOne jumps straight to APPROVED when
+  // it is unset); the resolver rejects null for the other three roles.
+  staffId: z.string().cuid().nullable(),
+});
+
+export type PvSignatoryRole = z.infer<typeof setPvSignatorySchema>["role"];
+
 // Get PV by pvNum
 export const getPvByNumSchema = z.object({
   pvNum: z.string().min(1),
@@ -111,3 +131,4 @@ export type DeletePvInput = z.infer<typeof deletePvSchema>;
 export type YearFilterInput = z.infer<typeof yearFilterSchema>;
 export type PvWorkflowActionInput = z.infer<typeof pvWorkflowActionSchema>;
 export type RejectPvInput = z.infer<typeof rejectPvSchema>;
+export type SetPvSignatoryInput = z.infer<typeof setPvSignatorySchema>;
