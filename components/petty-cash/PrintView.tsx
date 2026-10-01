@@ -43,6 +43,8 @@ export interface PettyCashPrintData {
 }
 
 const BORDER = "#000000";
+/** Lighter grid lines for the Details / Quantity item rows. */
+const ITEM_BORDER = "#c4c4c4";
 const NBSP = " ";
 const BAND_BG = "#f3f4f6";
 
@@ -82,6 +84,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     justifyContent: "center",
   },
+  itemCell: {
+    borderColor: ITEM_BORDER,
+  },
   bold: { fontFamily: "Helvetica-Bold" },
   center: { textAlign: "center" },
   right: { textAlign: "right" },
@@ -89,8 +94,8 @@ const styles = StyleSheet.create({
   dhivehiC: { fontFamily: "Faruma", fontSize: 9, textAlign: "center" },
   enSub: { fontFamily: "Helvetica-Bold", fontSize: 6.5, marginTop: 0.5 },
 
-  // ----- Info box -----
-  infoWrap: { flexDirection: "row", marginTop: 7 },
+  // ----- Info box (left column of the letterhead, inline with the logo) -----
+  infoWrap: { width: "100%" },
 
   // ----- Title band -----
   titleBand: {
@@ -123,7 +128,7 @@ const styles = StyleSheet.create({
     maxHeight: 28,
     maxWidth: "100%",
     objectFit: "contain",
-    alignSelf: "center",
+    alignSelf: "flex-end",
   },
 });
 
@@ -191,10 +196,26 @@ const Val: React.FC<{
   // Auto-detect Dhivehi text and render it in Faruma (RTL).
   const useDhivehi =
     dhivehi || (typeof children === "string" && isDhivehi(children));
+  // Mirror the cell's textAlign onto the Text node — react-pdf doesn't
+  // always inherit alignment from the parent View. Style may be a single
+  // object or an array (later entries win).
+  const flatStyle = Array.isArray(style)
+    ? Object.assign({}, ...style.filter(Boolean))
+    : style;
+  const align =
+    flatStyle && typeof flatStyle === "object" && "textAlign" in flatStyle
+      ? { textAlign: flatStyle.textAlign }
+      : undefined;
   return (
     <View style={[styles.cell, { width, minHeight }, style] as AnyStyle}>
       {typeof children === "string" || typeof children === "number" ? (
-        <Text style={useDhivehi ? styles.dhivehi : undefined}>
+        <Text
+          style={
+            (useDhivehi
+              ? styles.dhivehi
+              : align) as AnyStyle
+          }
+        >
           {children === "" ? NBSP : children}
         </Text>
       ) : (
@@ -223,7 +244,12 @@ const DetailRow: React.FC<{
   dhivehiValue,
 }) => (
   <View style={styles.row}>
-    <Val width={valueW} minHeight={minHeight} dhivehi={dhivehiValue}>
+    <Val
+      width={valueW}
+      minHeight={minHeight}
+      dhivehi={dhivehiValue}
+      style={styles.right}
+    >
       {value}
     </Val>
     <BiLabel width={labelW} dv={dv} en={en} />
@@ -324,12 +350,9 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
       author="National Archives of Maldives"
     >
       <Page size="A4" style={styles.page}>
-        {/* ---------- Letterhead ---------- */}
-        <PdfLetterhead />
-
-        {/* ---------- Info box: Number / Date ---------- */}
-        <View style={styles.infoWrap}>
-          <View style={{ width: "55%" }}>
+        {/* ---------- Letterhead + Number / Date above the rule ---------- */}
+        <PdfLetterhead>
+          <View style={styles.infoWrap}>
             <DetailRow
               dv="ނަންބަރ:"
               en="Number"
@@ -345,8 +368,7 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
               valueW="58%"
             />
           </View>
-          <View style={{ width: "45%" }} />
-        </View>
+        </PdfLetterhead>
 
         {/* ---------- Title band ---------- */}
         <View style={styles.titleBand}>
@@ -362,9 +384,13 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
         <View style={{ marginTop: 6 }}>
           {/* Section / Unit + Form Number (RTL: labels on the right) */}
           <View style={styles.row}>
-            <Val width="22%">{pettyCash.formNum}</Val>
+            <Val width="22%" style={styles.right}>
+              {pettyCash.formNum}
+            </Val>
             <BiLabel width="20%" dv="ފޯމް ނަންބަރ:" en="Form Number" />
-            <Val width="28%">{pettyCash.sectionUnit}</Val>
+            <Val width="28%" style={styles.right}>
+              {pettyCash.sectionUnit}
+            </Val>
             <BiLabel
               width="30%"
               dv="އެދުނު ސެކްޝަން/ޔުނިޓް ނަން:"
@@ -379,10 +405,18 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
           </View>
           {padded.map((item, idx) => (
             <View style={styles.row} key={idx}>
-              <Val width="72%" minHeight={15} style={styles.right}>
+              <Val
+                width="72%"
+                minHeight={15}
+                style={[styles.right, styles.itemCell]}
+              >
                 {item.name}
               </Val>
-              <Val width="28%" minHeight={15} style={styles.center}>
+              <Val
+                width="28%"
+                minHeight={15}
+                style={[styles.center, styles.itemCell]}
+              >
                 {item.qty ?? NBSP}
               </Val>
             </View>
@@ -395,7 +429,7 @@ const PrintView: React.FC<Props> = ({ pettyCash }) => {
             labelW="40%"
             valueW="60%"
             value={
-              <Text style={styles.bold}>
+              <Text style={[styles.bold, styles.right]}>
                 {formatNumberWithCommas(pettyCash.totalRequiredAmount)}
               </Text>
             }

@@ -16,6 +16,11 @@ type PCRole =
   | "balanceHandedOverBy"
   | "balanceCollectedBy";
 
+const APPROVE_CLS =
+  "bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700";
+const REJECT_CLS =
+  "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700";
+
 interface PCActionBarProps {
   pettyCashNum: string;
   role: PCRole;
@@ -95,6 +100,7 @@ export function PCActionBar({ pettyCashNum, role, visible }: PCActionBarProps) {
         size="sm"
         onClick={() => approveMutation.mutate({ pettyCashNum, role })}
         disabled={anyPending}
+        className={APPROVE_CLS}
       >
         <CheckCircle2 className="size-3.5" />
         Approve
@@ -102,10 +108,9 @@ export function PCActionBar({ pettyCashNum, role, visible }: PCActionBarProps) {
       <Button
         type="button"
         size="sm"
-        variant="outline"
         onClick={() => setRejectOpen(true)}
         disabled={anyPending}
-        className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-900/20"
+        className={REJECT_CLS}
       >
         <XCircle className="size-3.5" />
         Reject

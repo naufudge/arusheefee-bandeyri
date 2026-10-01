@@ -9,6 +9,8 @@ import type { PettyCashPrintData } from "@/components/petty-cash/PrintView";
 
 interface Props {
   pettyCashNum: string;
+  /** Render as a labelled button instead of a bare icon. */
+  withLabel?: boolean;
 }
 
 const ROLE_LABELS = [
@@ -33,7 +35,10 @@ function transform(record: any): PettyCashPrintData {
     systemApproved: !!record.systemApproved,
     items:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      record.items?.map((it: any) => ({ qty: it.qty, name: it.name })) ?? [],
+      record.items?.map((it: any) => ({
+        qty: it.qty,
+        name: it.name || it.nameDhivehi || "",
+      })) ?? [],
     roles: ROLE_LABELS.map(({ key, label }) => {
       const role = record[key];
       return {
@@ -49,7 +54,7 @@ function transform(record: any): PettyCashPrintData {
   };
 }
 
-const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
+const DownloadPdf: React.FC<Props> = ({ pettyCashNum, withLabel }) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -64,14 +69,14 @@ const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
       );
       const transformed = transform(record);
 
-      const [{ pdf }, { default: PrintView }] = await Promise.all([
-        import("@react-pdf/renderer"),
+      const [{ renderPdfBlob }, { default: PrintView }] = await Promise.all([
+        import("@/lib/pdf-render"),
         import("@/components/petty-cash/PrintView"),
       ]);
 
-      const blob = await pdf(
+      const blob = await renderPdfBlob(
         <PrintView pettyCash={transformed} />,
-      ).toBlob();
+      );
 
       // Append the reference documents attached to this record — PDFs
       // page-for-page, images one page each. Errors are non-fatal: the
@@ -135,6 +140,24 @@ const DownloadPdf: React.FC<Props> = ({ pettyCashNum }) => {
       setBusy(false);
     }
   };
+
+  if (withLabel) {
+    return (
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={busy}
+        className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted disabled:opacity-50"
+      >
+        {busy ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <Download className="size-4" />
+        )}
+        Download PDF
+      </button>
+    );
+  }
 
   return (
     <button

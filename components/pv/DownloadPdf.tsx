@@ -95,12 +95,12 @@ const DownloadPdf: React.FC<DownloadPdfProps> = ({ pvNum }) => {
       );
       const pv = transformToPv(data);
 
-      const [{ pdf }, { default: PrintViewPdf }] = await Promise.all([
-        import("@react-pdf/renderer"),
+      const [{ renderPdfBlob }, { default: PrintViewPdf }] = await Promise.all([
+        import("@/lib/pdf-render"),
         import("@/components/pv/PrintViewPdf"),
       ]);
 
-      const blob = await pdf(<PrintViewPdf pv={pv} />).toBlob();
+      const blob = await renderPdfBlob(<PrintViewPdf pv={pv} />);
 
       // Append the reference documents attached to this PV — PDFs
       // page-for-page, images one page each. Errors are non-fatal: the

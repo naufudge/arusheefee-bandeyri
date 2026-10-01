@@ -140,14 +140,15 @@ const DownloadReconciliationPdf: React.FC<DownloadReconciliationPdfProps> = ({
         trpc.pcRecon.pdfPayload.queryOptions({ reportNum }),
       );
 
-      const [{ pdf }, { default: TreasuryWeeklyPdf }] = await Promise.all([
-        import("@react-pdf/renderer"),
-        import("@/components/treasury/TreasuryWeeklyPdf"),
-      ]);
+      const [{ renderPdfBlob }, { default: TreasuryWeeklyPdf }] =
+        await Promise.all([
+          import("@/lib/pdf-render"),
+          import("@/components/treasury/TreasuryWeeklyPdf"),
+        ]);
 
-      const blob = await pdf(
+      const blob = await renderPdfBlob(
         <TreasuryWeeklyPdf data={transform(data)} />,
-      ).toBlob();
+      );
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

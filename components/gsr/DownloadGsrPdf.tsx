@@ -89,14 +89,15 @@ const DownloadGsrPdf: React.FC<DownloadGsrPdfProps> = ({
         trpc.gsr.pdfPayload.queryOptions({ gsrFormNum }),
       );
 
-      const [{ pdf }, { default: RequisitionFormPdf }] = await Promise.all([
-        import("@react-pdf/renderer"),
-        import("@/components/gsr/RequisitionFormPdf"),
-      ]);
+      const [{ renderPdfBlob }, { default: RequisitionFormPdf }] =
+        await Promise.all([
+          import("@/lib/pdf-render"),
+          import("@/components/gsr/RequisitionFormPdf"),
+        ]);
 
-      const blob = await pdf(
+      const blob = await renderPdfBlob(
         <RequisitionFormPdf data={transformToRequisition(data)} />,
-      ).toBlob();
+      );
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

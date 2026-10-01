@@ -10,8 +10,8 @@ import {
   ChevronLeft,
   AlertCircle,
   Pencil,
-  Lock,
-  FileText,
+  Package,
+  History,
   ShieldCheck,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,6 +25,7 @@ import { ApprovalTimeline } from "@/components/approval/ApprovalTimeline";
 import { PCActionBar } from "@/components/approval/PCActionBar";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
 import PettyCashDownloadPdf from "@/components/petty-cash/DownloadPdf";
+import PettyCashCard from "@/components/petty-cash/PettyCashCard";
 
 type PCRole =
   | "handledBy"
@@ -40,6 +41,14 @@ const PC_ROLES: { key: PCRole; label: string; showAmount: boolean }[] = [
   { key: "balanceHandedOverBy", label: "Balance Returned By", showAmount: true },
   { key: "balanceCollectedBy", label: "Balance Received By", showAmount: true },
 ];
+
+const dhivehiStyle: React.CSSProperties = {
+  fontFamily: "var(--font-faruma), sans-serif",
+  direction: "rtl",
+  textAlign: "right",
+};
+
+const isDhivehi = (s: string) => /[ހ-޿]/.test(s);
 
 function formatMVR(amount: number | null | undefined) {
   if (amount == null) return null;
@@ -91,8 +100,8 @@ const PettyCashDetailPage = ({
 
   return (
     <div className="font-poppins h-full">
-      <header className="flex flex-col gap-4 border-b pb-6 md:flex-row md:items-end md:justify-between">
-        <div>
+      <header className="border-b pb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             <Link
               href="/petty-cash-register"
@@ -107,42 +116,22 @@ const PettyCashDetailPage = ({
               {pettyCashNum}
             </span>
           </div>
-          <div className="mt-1 flex flex-wrap items-baseline gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Petty Cash
-            </h1>
-            {pc && (
-              <PettyCashStatusPill
-                approvedCount={approvedCount}
-                totalAssigned={totalAssigned}
-                systemApproved={systemApproved}
-              />
-            )}
-          </div>
-          {pc && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {pc.sectionUnit} ·{" "}
-              <span className="font-mono tabular-nums">
-                {formatMVR(pc.totalRequiredAmount)}
-              </span>
-            </p>
-          )}
-        </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={router.back}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
-          >
-            <ChevronLeft className="size-4" />
-            Back
-          </button>
-          {canUpdate &&
-            (editAllowed ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={router.back}
+              className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted"
+            >
+              <ChevronLeft className="size-4" />
+              Back
+            </button>
+            {editAllowed && (
               <Link
                 href={`/petty-cash/edit/${pettyCashNum}`}
-                title={allApproved ? "Override edit (fully approved)" : undefined}
+                title={
+                  allApproved ? "Override edit (fully approved)" : undefined
+                }
                 className={`inline-flex h-9 items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium transition hover:bg-muted ${
                   allApproved
                     ? "border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300"
@@ -152,22 +141,67 @@ const PettyCashDetailPage = ({
                 <Pencil className="size-4" />
                 {allApproved ? "Override edit" : "Edit"}
               </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                title="Locked: fully approved"
-                className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium text-muted-foreground"
-              >
-                <Lock className="size-4" />
-                Edit
-              </button>
-            ))}
-          {pc && <PettyCashDownloadPdf pettyCashNum={pettyCashNum} />}
+            )}
+            {pc && (
+              <PettyCashDownloadPdf pettyCashNum={pettyCashNum} withLabel />
+            )}
+          </div>
         </div>
+
+        {/* Hero */}
+        <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <div className="hidden text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:block">
+              Petty cash
+            </div>
+            <h1 className="font-mono text-2xl font-semibold tracking-tight sm:mt-1 sm:text-3xl">
+              {pc ? (
+                pc.pettyCashNum
+              ) : (
+                <Skeleton className="inline-block h-8 w-64" />
+              )}
+            </h1>
+          </div>
+          {pc && (
+            <div className="md:text-right">
+              <div className="hidden text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:block">
+                Total
+              </div>
+              <div className="flex items-baseline gap-1.5 sm:mt-1 md:justify-end">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground sm:text-sm">
+                  MVR
+                </span>
+                <span className="font-mono text-3xl font-semibold tabular-nums leading-none sm:text-4xl">
+                  {pc.totalRequiredAmount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Meta row */}
+        {pc && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:mt-4 sm:gap-x-5">
+            <PettyCashStatusPill
+              approvedCount={approvedCount}
+              totalAssigned={totalAssigned}
+              systemApproved={systemApproved}
+            />
+            <span className="italic tabular-nums text-foreground">
+              {format(new Date(pc.date), "d MMM yyyy")}
+            </span>
+            <span className="tabular-nums">
+              {pc.items.length} {pc.items.length === 1 ? "item" : "items"}
+            </span>
+            <span>{pc.sectionUnit}</span>
+          </div>
+        )}
       </header>
 
-      <div className="mx-auto mt-8 grid max-w-5xl gap-6 pb-16 lg:grid-cols-3">
+      <div className="mx-auto mt-6 grid max-w-5xl gap-4 pb-16 sm:mt-8 sm:gap-6 lg:grid-cols-3 lg:items-start">
         {isLoading ? (
           <>
             <Skeleton className="h-[220px] w-full rounded-md lg:col-span-3" />
@@ -192,67 +226,43 @@ const PettyCashDetailPage = ({
           </div>
         ) : (
           <>
-            {/* Petty cash details */}
-            <section className="rounded-md border bg-card lg:col-span-3">
-              <header className="flex items-center gap-2 border-b px-4 py-3">
-                <FileText className="size-4 text-muted-foreground" />
-                <h2 className="text-sm font-semibold">Request</h2>
-              </header>
-              <dl className="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-                <Field label="PC #" value={pc.pettyCashNum} mono />
-                <Field label="Form #" value={pc.formNum} mono />
-                <Field
-                  label="Date"
-                  value={format(new Date(pc.date), "d MMM yyyy")}
-                />
-                <Field label="Section / Unit" value={pc.sectionUnit} />
-                <Field label="GL code" value={pc.glCode.toString()} mono />
-                <Field
-                  label="Total required"
-                  value={formatMVR(pc.totalRequiredAmount)!}
-                  mono
-                />
-                <Field
-                  label="Parked"
-                  value={
-                    pc.parkedDate
-                      ? format(new Date(pc.parkedDate), "d MMM yyyy")
-                      : "—"
-                  }
-                />
-                <Field
-                  label="Posting"
-                  value={
-                    pc.postingDate
-                      ? format(new Date(pc.postingDate), "d MMM yyyy")
-                      : "—"
-                  }
-                />
-              </dl>
-            </section>
+            <div className="space-y-4 sm:space-y-6 lg:col-span-3">
+              <PettyCashCard pettyCash={pc} />
 
-            {/* Items */}
-            <section className="rounded-md border bg-card lg:col-span-3">
-              <header className="flex items-center justify-between border-b px-4 py-3">
-                <h2 className="text-sm font-semibold">Items</h2>
-                <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground tabular-nums">
-                  {pc.items.length}
-                </span>
-              </header>
-              <ul className="divide-y">
-                {pc.items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm"
-                  >
-                    <span className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
-                      ×{item.qty}
-                    </span>
-                    <span className="flex-1">{item.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+              <section className="rounded-md border bg-card">
+                <header className="flex items-center gap-2 border-b px-4 py-3 sm:px-5">
+                  <Package className="size-4 text-muted-foreground" />
+                  <h2 className="text-sm font-semibold">Items</h2>
+                  <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground tabular-nums">
+                    {pc.items.length}
+                  </span>
+                </header>
+                <ul className="divide-y">
+                  {pc.items.map((item) => {
+                    const displayName =
+                      item.name || item.nameDhivehi || "";
+                    return (
+                      <li
+                        key={item.id}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm sm:px-5"
+                      >
+                        <span className="w-12 font-mono text-xs tabular-nums text-muted-foreground">
+                          ×{item.qty}
+                        </span>
+                        <span
+                          className="flex-1"
+                          style={
+                            isDhivehi(displayName) ? dhivehiStyle : undefined
+                          }
+                        >
+                          {displayName || "—"}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            </div>
 
             {/* Signatories — 5 roles, with per-role action bars. System-
                 approved imports have no signatories, so they show a single
@@ -273,41 +283,43 @@ const PettyCashDetailPage = ({
                   </div>
                 </div>
               ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {PC_ROLES.map(({ key, label, showAmount }) => {
-                  const row = pc[key];
-                  const isAssignee =
-                    row != null && row.staffId === session?.user?.id;
-                  const canAct = isAssignee && !row.isApproved;
-                  const amountText =
-                    showAmount && row?.amount != null
-                      ? ` · ${formatMVR(row.amount)}`
-                      : "";
-                  return (
-                    <SignatoryCard
-                      key={key}
-                      label={`${label}${amountText}`}
-                      staff={row?.staff ?? null}
-                      signedAt={row?.isApproved ? row.approvedAt : null}
-                      rejectedAt={
-                        !row?.isApproved && row?.rejectedAt ? row.rejectedAt : null
-                      }
-                      comment={
-                        !row?.isApproved && row?.rejectionComment
-                          ? row.rejectionComment
-                          : null
-                      }
-                      actions={
-                        <PCActionBar
-                          pettyCashNum={pc.pettyCashNum}
-                          role={key}
-                          visible={!!canAct}
-                        />
-                      }
-                    />
-                  );
-                })}
-              </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {PC_ROLES.map(({ key, label, showAmount }) => {
+                    const row = pc[key];
+                    const isAssignee =
+                      row != null && row.staffId === session?.user?.id;
+                    const canAct = isAssignee && !row.isApproved;
+                    const amountText =
+                      showAmount && row?.amount != null
+                        ? ` · ${formatMVR(row.amount)}`
+                        : "";
+                    return (
+                      <SignatoryCard
+                        key={key}
+                        label={`${label}${amountText}`}
+                        staff={row?.staff ?? null}
+                        signedAt={row?.isApproved ? row.approvedAt : null}
+                        rejectedAt={
+                          !row?.isApproved && row?.rejectedAt
+                            ? row.rejectedAt
+                            : null
+                        }
+                        comment={
+                          !row?.isApproved && row?.rejectionComment
+                            ? row.rejectionComment
+                            : null
+                        }
+                        actions={
+                          <PCActionBar
+                            pettyCashNum={pc.pettyCashNum}
+                            role={key}
+                            visible={!!canAct}
+                          />
+                        }
+                      />
+                    );
+                  })}
+                </div>
               )}
             </section>
 
@@ -318,12 +330,19 @@ const PettyCashDetailPage = ({
                 referenceId={pc.id}
                 canAdd={canUploadAttachments}
                 canDelete={canDeleteAttachments}
+                viewerClassName="h-[55vh] sm:h-[70vh]"
+                embedViewer
               />
             </div>
 
             {/* Timeline */}
             <section className="lg:col-span-3">
-              <h2 className="mb-3 px-1 text-sm font-semibold">Approval timeline</h2>
+              <div className="mb-3 flex items-center gap-2 px-1">
+                <History className="size-4 text-muted-foreground" />
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Approval Timeline
+                </h2>
+              </div>
               <ApprovalTimeline events={pc.approvalEvents} />
             </section>
           </>
@@ -332,26 +351,5 @@ const PettyCashDetailPage = ({
     </div>
   );
 };
-
-function Field({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: React.ReactNode;
-  mono?: boolean;
-}) {
-  return (
-    <div>
-      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        {label}
-      </dt>
-      <dd className={`mt-0.5 text-sm ${mono ? "font-mono tabular-nums" : ""}`}>
-        {value}
-      </dd>
-    </div>
-  );
-}
 
 export default PettyCashDetailPage;
