@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,9 +73,9 @@ export const PvInputField: React.FC<PvInputFieldProps> = ({
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "PPP")
+                      <span className="truncate">{format(field.value, "PPP")}</span>
                     ) : (
-                      <span>Pick a date</span>
+                      <span className="truncate">Pick a date</span>
                     )}
                     <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                   </Button>
@@ -223,24 +224,21 @@ export const StaffDropDownField: React.FC<StaffDropDownProps> = ({
       render={({ field }) => (
         <FormItem className={className}>
           <FormLabel>{label}</FormLabel>
-          <Select
-            onValueChange={hanelStaffSelection}
-            defaultValue={field.value}
-            value={field.value}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={"Select a Staff"} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {selectableStaffs.map((staff, index) => (
-                <SelectItem key={index} value={staff.name}>
-                  {staff.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FormControl>
+            <SearchableSelect
+              // Keyed on name — the form stores signatories as
+              // { name, designation } and resolves the staff id on submit.
+              value={field.value}
+              onValueChange={hanelStaffSelection}
+              options={selectableStaffs.map((staff) => ({
+                value: staff.name,
+                label: staff.name,
+              }))}
+              placeholder="Select a Staff"
+              searchPlaceholder="Search staff…"
+              emptyMessage="No staff available"
+            />
+          </FormControl>
 
           {description && (
             <FormDescription className="text-xs">{description}</FormDescription>

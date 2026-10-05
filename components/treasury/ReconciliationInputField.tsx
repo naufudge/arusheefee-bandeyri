@@ -13,13 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,9 +79,9 @@ export const ReconInputField: React.FC<ReconInputFieldProps> = ({
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "PPP")
+                      <span className="truncate">{format(field.value, "PPP")}</span>
                     ) : (
-                      <span>Pick a date</span>
+                      <span className="truncate">Pick a date</span>
                     )}
                     <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                   </Button>
@@ -179,24 +173,19 @@ export const ReconStaffDropDownField: React.FC<ReconStaffDropDownProps> = ({
       render={({ field }) => (
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
-          <Select
-            onValueChange={handleStaffSelection}
-            defaultValue={field.value}
-            value={field.value}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={"Select a staff member"} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {selectableStaffs.map((staff, index) => (
-                <SelectItem key={index} value={staff.name}>
-                  {staff.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FormControl>
+            <SearchableSelect
+              value={field.value}
+              onValueChange={handleStaffSelection}
+              options={selectableStaffs.map((staff) => ({
+                value: staff.name,
+                label: staff.name,
+              }))}
+              placeholder="Select a staff member"
+              searchPlaceholder="Search staff…"
+              emptyMessage="No staff available"
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )}

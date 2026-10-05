@@ -133,6 +133,9 @@ const styles = StyleSheet.create({
     maxHeight: 28,
     maxWidth: "100%",
     objectFit: "contain",
+    // The image box stretches to the cell width and `contain` centers the
+    // drawing inside it by default, so pin the drawing to the right edge.
+    objectPosition: "right",
     alignSelf: "flex-end",
   },
 });

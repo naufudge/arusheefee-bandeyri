@@ -15,17 +15,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import type { PvSignatoryRole } from "@/server/schemas/pv.schema";
 
-// Sentinel for the "leave unassigned" row — Radix Select treats "" as
-// "no value" and refuses to render an item with an empty value.
+// Sentinel for the "leave unassigned" row — the picker treats "" as
+// "nothing selected", so an explicit unassign needs a real value.
 const UNASSIGNED = "__unassigned__";
 
 // What a reassignment costs once the role has already signed, phrased for
@@ -89,9 +83,12 @@ export function EditSignatoryDialog({
   });
 
   // Staff synced from Azure without a designation are half-populated rows;
-  // the PV form's picker hides them too.
+  // the PV form's picker hides them too. The current assignee is always
+  // kept, so the picker can name them rather than show a bare id.
   const selectableStaff = (staffList ?? []).filter(
-    (s) => s.designation && s.designation.trim() !== "",
+    (s) =>
+      (s.designation && s.designation.trim() !== "") ||
+      s.id === currentStaffId,
   );
 
   const mutation = useMutation(
@@ -126,6 +123,10 @@ export function EditSignatoryDialog({
   );
 
   const canUnassign = role === "authorisedByTwo";
+  // Show the placeholder while loading, and for an empty role that can't
+  // offer the "unassigned" row (the sentinel itself must never display).
+  const pickerValue =
+    isLoading || (selected === UNASSIGNED && !canUnassign) ? "" : selected;
   const nextStaffId = selected === UNASSIGNED ? null : selected;
   const unchanged = nextStaffId === (currentStaffId ?? null);
   const rollbackNote = hasSigned ? ROLLBACK_NOTE[role] : null;
@@ -171,29 +172,27 @@ export function EditSignatoryDialog({
               Could not load the staff list: {staffError.message}
             </p>
           ) : (
-            <Select
-              value={selected}
+            <SearchableSelect
+              // Rendered inside a Dialog, which needs a modal popover.
+              modal
+              value={pickerValue}
               onValueChange={setSelected}
+              options={[
+                ...(canUnassign
+                  ? [{ value: UNASSIGNED, label: "— Leave unassigned —" }]
+                  : []),
+                ...selectableStaff.map((s) => ({
+                  value: s.id,
+                  label: s.designation?.trim()
+                    ? `${s.name} · ${s.designation}`
+                    : s.name,
+                })),
+              ]}
               disabled={isLoading || mutation.isPending}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={isLoading ? "Loading staff…" : "Select a staff"}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {canUnassign && (
-                  <SelectItem value={UNASSIGNED}>
-                    — Leave unassigned —
-                  </SelectItem>
-                )}
-                {selectableStaff.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name} · {s.designation}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder={isLoading ? "Loading staff…" : "Select a staff"}
+              searchPlaceholder="Search staff…"
+              emptyMessage="No staff available"
+            />
           )}
         </div>
 

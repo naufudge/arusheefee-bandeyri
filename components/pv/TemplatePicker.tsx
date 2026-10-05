@@ -2,14 +2,8 @@
 
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, X } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { X } from "lucide-react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { useToast } from "@/hooks/use-toast";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import type { TemplateValues } from "@/server/schemas/template.schema";
@@ -27,7 +21,6 @@ interface AppliedTemplateMeta {
 type TemplateListRow = {
   id: string;
   name: string;
-  createdBy: { id: string; name: string } | null;
 };
 
 type TemplateDetailRow = {
@@ -58,7 +51,7 @@ interface TemplatePickerProps {
 }
 
 /**
- * Dropdown for choosing a saved PV template. Lists templates from
+ * Searchable dropdown for choosing a saved PV template. Lists templates from
  * `templates.list`; on select, fetches the freshest copy with
  * `templates.getById` and hands the values payload to `onApply` so the
  * parent (`PvForm`) can merge them into react-hook-form state.
@@ -105,47 +98,32 @@ export function TemplatePicker({
 
   return (
     <div className="flex min-w-[240px] items-center gap-2">
-      <Select
-        // Bound to the applied template's id so the trigger displays
-        // the loaded template's name. Radix Select skips a re-fire
-        // when the same value is picked again — that's fine here,
-        // re-applying an already-loaded template is a no-op anyway.
+      <SearchableSelect
+        // Bound to the applied template's id so the trigger shows the
+        // loaded template's name.
         value={appliedId ?? ""}
         onValueChange={(id) => {
-          if (id) void handleSelect(id);
+          // Re-picking the template that's already loaded would re-fetch
+          // it and overwrite any edits made since applying it.
+          if (id && id !== appliedId) void handleSelect(id);
         }}
+        options={(templates ?? []).map((tpl) => ({
+          value: tpl.id,
+          label: tpl.name,
+        }))}
         disabled={isLoading || empty || loadingId !== null}
-      >
-        <SelectTrigger
-          className="h-auto min-h-11 w-full justify-start py-1.5 text-left text-sm [&>span]:line-clamp-none [&>span]:flex-1 [&>span]:text-left"
-          aria-label="Apply template"
-        >
-          {loadingId ? (
-            <Loader2 className="mr-2 size-3.5 shrink-0 animate-spin text-muted-foreground" />
-          ) : null}
-          <SelectValue
-            placeholder={
-              isLoading
-                ? "Loading templates…"
-                : empty
-                  ? "No templates saved"
-                  : "Apply template…"
-            }
-          />
-        </SelectTrigger>
-        <SelectContent>
-          {templates?.map((tpl) => (
-            <SelectItem key={tpl.id} value={tpl.id}>
-              <span className="flex flex-col gap-0.5 py-0.5 leading-tight">
-                <span className="text-sm">{tpl.name}</span>
-                <span className="text-[11px] text-muted-foreground">
-                  by {tpl.createdBy?.name ?? "—"}
-                </span>
-              </span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        loading={loadingId !== null}
+        placeholder={
+          isLoading
+            ? "Loading templates…"
+            : empty
+              ? "No templates saved"
+              : "Apply template…"
+        }
+        searchPlaceholder="Search templates…"
+        className="h-11"
+        aria-label="Apply template"
+      />
       {appliedId && onClear && (
         <button
           type="button"
