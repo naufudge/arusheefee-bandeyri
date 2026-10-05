@@ -98,7 +98,9 @@ const styles = StyleSheet.create({
   enSub: { fontFamily: "Helvetica-Bold", fontSize: 6.5, marginTop: 0.5 },
 
   // ----- Info box (left column of the letterhead, inline with the logo) -----
-  infoWrap: { width: "100%" },
+  // Kept narrow: the Number / Date values are short, so the full half-page
+  // column left a lot of empty cell space.
+  infoWrap: { width: "60%" },
 
   // ----- Title band -----
   titleBand: {
