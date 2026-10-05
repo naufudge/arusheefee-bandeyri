@@ -309,8 +309,11 @@ const GsrRegisterPage = () => {
                   </div>
 
                   <div className="flex min-w-0 flex-1 flex-col">
+                    {/* `self-start` sizes the span to its text so it sits on
+                        the left of the column. Stretched to full width, RTL
+                        alignment would push the section to the far right. */}
                     <span
-                      className="truncate text-sm"
+                      className="max-w-full self-start truncate text-sm"
                       style={dhivehiStyle}
                       title={form.section}
                     >

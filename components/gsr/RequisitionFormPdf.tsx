@@ -89,8 +89,9 @@ const styles = StyleSheet.create({
   dhivehi: { fontFamily: "Faruma", fontSize: 9, textAlign: "right" },
   dhivehiC: { fontFamily: "Faruma", fontSize: 9, textAlign: "center" },
 
-  // ----- Info box (Section / Number / Date) -----
-  infoWrap: { flexDirection: "row", marginTop: 10 },
+  // ----- Info box (Section / Number / Date) — sits in the letterhead's left
+  // column, inline with the logo and above the rule (as on petty cash) -----
+  infoWrap: { width: "100%" },
 
   // ----- Title band -----
   titleBand: {
@@ -144,12 +145,9 @@ const RequisitionFormPdf: React.FC<{ data: RequisitionData }> = ({ data }) => {
       author="National Archives of Maldives"
     >
       <Page size="A4" style={styles.page}>
-        {/* ---------- Letterhead ---------- */}
-        <PdfLetterhead />
-
-        {/* ---------- Info box: Section / Number / Date ---------- */}
-        <View style={styles.infoWrap}>
-          <View style={{ width: "58%" }}>
+        {/* ---------- Letterhead + Section / Number / Date above the rule ---------- */}
+        <PdfLetterhead>
+          <View style={styles.infoWrap}>
             {(
               [
                 {
@@ -178,8 +176,7 @@ const RequisitionFormPdf: React.FC<{ data: RequisitionData }> = ({ data }) => {
               </View>
             ))}
           </View>
-          <View style={{ width: "42%" }} />
-        </View>
+        </PdfLetterhead>
 
         {/* ---------- Title band ---------- */}
         <View style={styles.titleBand}>
