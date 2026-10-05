@@ -52,11 +52,6 @@ const STATUS_OPTIONS = [
   { value: "COMPLETED", label: "Completed" },
 ] as const;
 
-const dhivehiStyle: React.CSSProperties = {
-  fontFamily: "var(--font-faruma), sans-serif",
-  direction: "rtl",
-};
-
 const GsrRegisterPage = () => {
   const router = useRouter();
   const { toast } = useToast();
@@ -309,16 +304,20 @@ const GsrRegisterPage = () => {
                   </div>
 
                   <div className="flex min-w-0 flex-1 flex-col">
-                    {/* `self-start` sizes the span to its text so it sits on
-                        the left of the column. Stretched to full width, RTL
-                        alignment would push the section to the far right. */}
-                    <span
-                      className="max-w-full self-start truncate text-sm"
-                      style={dhivehiStyle}
-                      title={form.section}
-                    >
-                      {form.section}
-                    </span>
+                    {/* Item particulars, comma-separated on a single line —
+                        `truncate` cuts off overflow with an ellipsis; the
+                        full list shows on hover. */}
+                    {(() => {
+                      const itemList = form.items
+                        .map((it) => it.particulars.trim())
+                        .filter((p) => p.length > 0)
+                        .join(", ");
+                      return (
+                        <span className="truncate text-sm" title={itemList}>
+                          {itemList || "—"}
+                        </span>
+                      );
+                    })()}
                     <span className="mt-1 flex items-center gap-2">
                       <GSRStatusPill status={form.status} />
                       <span className="truncate text-[11px] text-muted-foreground">
