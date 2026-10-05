@@ -43,7 +43,7 @@ export interface PettyCashPrintData {
 }
 
 const BORDER = "#000000";
-/** Lighter grid lines for the Details / Quantity item rows. */
+/** Lighter horizontal rules between the Details / Quantity item rows. */
 const ITEM_BORDER = "#c4c4c4";
 const NBSP = " ";
 const BAND_BG = "#f3f4f6";
@@ -84,8 +84,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     justifyContent: "center",
   },
+  // Only the horizontal rules between item rows are lightened; the vertical
+  // column lines keep the normal border colour inherited from `cell`.
   itemCell: {
-    borderColor: ITEM_BORDER,
+    borderTopColor: ITEM_BORDER,
+    borderBottomColor: ITEM_BORDER,
   },
   bold: { fontFamily: "Helvetica-Bold" },
   center: { textAlign: "center" },
