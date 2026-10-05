@@ -12,7 +12,6 @@ import {
   Eye,
   FileSpreadsheet,
   Plus,
-  Printer,
   ReceiptText,
   Search as SearchIcon,
   SquarePen,
@@ -197,11 +196,6 @@ const PvRegisterPage = () => {
     setFilters((prev) => ({ ...prev, vendor: "", status: "" }));
     setSearchInput("");
     setQuery("");
-  };
-
-  const handlePrintClick = (pvNum: string) => {
-    localStorage.setItem("pvNum", pvNum);
-    router.push("/print");
   };
 
   const handleDeleteClick = (pvNum: string) => {
@@ -499,15 +493,6 @@ const PvRegisterPage = () => {
                       <SquarePen className="size-4" />
                     </button>
                   )}
-                  <button
-                    type="button"
-                    aria-label="Print"
-                    onClick={() => handlePrintClick(pv.pvNum)}
-                    className="transition hover:text-purple-600"
-                  >
-                    <Printer className="size-4" />
-                  </button>
-
                   <DownloadPdf pvNum={pv.pvNum} />
 
                   <AlertDialog>
