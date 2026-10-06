@@ -29,6 +29,7 @@ import { SaveTemplateDialog } from "@/components/pv/SaveTemplateDialog";
 import type { TemplateValues } from "@/server/schemas/template.schema";
 import { Save } from "lucide-react";
 import { useHasPermission } from "@/hooks/use-permissions";
+import { useCurrentStaff } from "@/hooks/use-current-staff";
 import { PERMISSIONS } from "@/lib/permissions";
 
 interface PvFormProps {
@@ -147,10 +148,9 @@ function usePvForm(pv?: any) {
           },
         ],
 
-        preparedBy: {
-          name: "Sharumeela Abdul Fatah",
-          designation: "Accounts Officer",
-        },
+        // Filled with the logged-in staff member once the session and
+        // staff list load (see the effect in PvForm).
+        preparedBy: { name: "", designation: "" },
         verifiedBy: { name: "", designation: "" },
         authorisedByOne: { name: "", designation: "" },
         authorisedByTwo: { name: "", designation: "" },
@@ -210,6 +210,17 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
   const register = form.register;
   const setValue = form.setValue;
   const getValue = form.getValues;
+
+  // New PVs start with the logged-in staff member as "Prepared by". Only an
+  // empty field is filled, so a template or a manual pick is never
+  // overwritten, and it stays an ordinary selection the user can change.
+  const currentStaff = useCurrentStaff(staffData);
+  useEffect(() => {
+    if (pv || !currentStaff) return;
+    if (getValue("preparedBy.name")) return;
+    setValue("preparedBy.name", currentStaff.name);
+    setValue("preparedBy.designation", currentStaff.designation ?? "");
+  }, [pv, currentStaff, getValue, setValue]);
 
   const watchedDate = form.watch("date");
   const watchedCurrency = form.watch("currency");

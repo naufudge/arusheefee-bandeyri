@@ -33,6 +33,7 @@ import {
 import { formatNumberWithCommas } from "@/utils/helpers";
 import { Staff } from "@/types";
 import { useTRPC } from "@/lib/trpc";
+import { useCurrentStaff } from "@/hooks/use-current-staff";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ReconciliationFormProps {
@@ -133,6 +134,18 @@ const ReconciliationForm: React.FC<ReconciliationFormProps> = ({ recon }) => {
   });
   const control = form.control;
   const setValue = form.setValue;
+  const getValues = form.getValues;
+
+  // New reports start with the logged-in staff member as "Prepared by".
+  // Only an empty field is filled, so a manual pick is never overwritten,
+  // and it stays an ordinary selection the user can change.
+  const currentStaff = useCurrentStaff(staffData);
+  useEffect(() => {
+    if (isEdit || !currentStaff) return;
+    if (getValues("preparedBy.name")) return;
+    setValue("preparedBy.name", currentStaff.name);
+    setValue("preparedBy.designation", currentStaff.designation ?? "");
+  }, [isEdit, currentStaff, getValues, setValue]);
 
   const weekStart = form.watch("weekStart");
   const weekEnd = form.watch("weekEnd");

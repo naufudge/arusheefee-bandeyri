@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,7 @@ import { RtlDhivehiInput } from "@/components/gsr/RtlDhivehiInput";
 import GsrItemsForm from "@/components/gsr/GsrItemsForm";
 import { Staff } from "@/types";
 import { useTRPC } from "@/lib/trpc";
+import { useCurrentStaff } from "@/hooks/use-current-staff";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface GsrFormProps {
@@ -112,6 +113,18 @@ const GsrForm: React.FC<GsrFormProps> = ({ gsr }) => {
   const form = useGsrForm(gsr);
   const control = form.control;
   const setValue = form.setValue;
+  const getValues = form.getValues;
+
+  // New forms start with the logged-in staff member as "Requested by". Only
+  // an empty field is filled, so a manual pick is never overwritten, and it
+  // stays an ordinary selection the user can change.
+  const currentStaff = useCurrentStaff(staffData);
+  useEffect(() => {
+    if (gsr || !currentStaff) return;
+    if (getValues("requestedBy.name")) return;
+    setValue("requestedBy.name", currentStaff.name);
+    setValue("requestedBy.designation", currentStaff.designation ?? "");
+  }, [gsr, currentStaff, getValues, setValue]);
 
   // Map a selected staff name back to its id for the API.
   const findStaffId = (staffName: string | undefined): string | null => {
