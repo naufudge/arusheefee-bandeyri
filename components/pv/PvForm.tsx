@@ -56,7 +56,7 @@ function usePvForm(pv?: any) {
         glDetails: inv.glDetails.map(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (gl: any) => ({
-            code: gl.code,
+            code: gl.glAccount.code,
             fund: gl.fund,
             amount: gl.amount,
           })

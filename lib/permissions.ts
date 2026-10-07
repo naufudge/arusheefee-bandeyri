@@ -90,6 +90,15 @@ export const PERMISSIONS = {
 
   ROLES_MANAGE: "roles:manage",
 
+  // ----- GL accounts (chart of accounts) -----
+  // Gate Settings → GL Accounts and its writes. The account list itself is
+  // reference data that any signed-in user can read, so the PV / petty cash
+  // GL pickers don't depend on these.
+  GLACCOUNT_READ: "glaccount:read",
+  GLACCOUNT_CREATE: "glaccount:create",
+  GLACCOUNT_UPDATE: "glaccount:update",
+  GLACCOUNT_DELETE: "glaccount:delete",
+
   // ----- Attachments -----
   // Generic CRUD permissions for reference documents (PV docs, petty
   // cash docs, anything else stored via the polymorphic Attachment
@@ -374,6 +383,34 @@ export const PERMISSION_GROUPS: {
         label: "Manage roles",
         description:
           "Create, edit, and delete roles, and assign them to staff.",
+      },
+    ],
+  },
+  {
+    label: "GL Accounts",
+    permissions: [
+      {
+        key: PERMISSIONS.GLACCOUNT_READ,
+        label: "View GL accounts",
+        description:
+          "Open Settings → GL Accounts and see each account's usage. (Picking a GL code on a form needs no permission.)",
+      },
+      {
+        key: PERMISSIONS.GLACCOUNT_CREATE,
+        label: "Add GL accounts",
+        description: "Add a new account to the chart of accounts.",
+      },
+      {
+        key: PERMISSIONS.GLACCOUNT_UPDATE,
+        label: "Edit GL accounts",
+        description:
+          "Change an account's English / Dhivehi names and whether petty cash may use it.",
+      },
+      {
+        key: PERMISSIONS.GLACCOUNT_DELETE,
+        label: "Delete GL accounts",
+        description:
+          "Remove an account that no PV or petty cash record uses.",
       },
     ],
   },

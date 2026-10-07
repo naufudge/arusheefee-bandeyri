@@ -85,7 +85,7 @@ const PrintPage = () => {
       invoiceDate: invoice.invoiceDate ? new Date(invoice.invoiceDate) : null,
       invoiceTotal: invoice.invoiceTotal,
       glDetails: invoice.glDetails.map((gl) => ({
-        code: gl.code,
+        code: gl.glAccount.code,
         fund: gl.fund,
         amount: gl.amount,
       })),

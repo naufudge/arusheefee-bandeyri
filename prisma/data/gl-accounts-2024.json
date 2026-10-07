@@ -1,0 +1,5572 @@
+{
+  "source": {
+    "chart": "Copy of Chart of Accounts-Masterlist -2024 1.csv (Government of Maldives Chart of Accounts) — rows with Status = \"Active\" only",
+    "pettyCash": "Petty Cash Expenditure Codes.pdf"
+  },
+  "rules": [
+    "Whitespace collapsed and trimmed in every field.",
+    "An empty English long text falls back to the English short text.",
+    "Dhivehi texts that are empty or the placeholder \"X\" are stored as null."
+  ],
+  "pettyCashCodes": [
+    221001,
+    221002,
+    221003,
+    221999,
+    222001,
+    222002,
+    222003,
+    222004,
+    222005,
+    222006,
+    222007,
+    222008,
+    222009,
+    222010,
+    222999,
+    223006,
+    223009,
+    223011,
+    223012,
+    223013,
+    223015,
+    223017,
+    223022,
+    223999,
+    224022,
+    225003,
+    226001,
+    226002,
+    226006,
+    226007,
+    226009,
+    226010,
+    226016,
+    226017
+  ],
+  "accounts": [
+    {
+      "code": 111001,
+      "shortTextEn": "Import Duty - Pvt.",
+      "longTextEn": "Import Duty - Private Parties",
+      "shortTextDv": "އިމްޕޯޓް ޑ.-އަމިއްލަ",
+      "longTextDv": "އަމިއްލަ ފަރާތްތަކުން ދައްކާ އިމްޕޯރޓް ޑިއުޓީ"
+    },
+    {
+      "code": 111002,
+      "shortTextEn": "Import Duty - Govt.",
+      "longTextEn": "Import Duty - Government Agencies",
+      "shortTextDv": "އިމްޕޯޓް ޑ.-ސަރުކާރު",
+      "longTextDv": "ސަރުކާރުގެ އިދާރާތަކުން ދައްކާ އިމްޕޯރޓް ޑިއުޓީ"
+    },
+    {
+      "code": 111995,
+      "shortTextEn": "Refnd - Imp. Duties",
+      "longTextEn": "Refund of Import Duties",
+      "shortTextDv": "ރިފަންޑް-އިމް.ޑިއުޓީ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ އިމްޕޯރޓް ޑިއުޓީ"
+    },
+    {
+      "code": 112001,
+      "shortTextEn": "Export Duty - Pvt.",
+      "longTextEn": "Export Duty - Private Parties",
+      "shortTextDv": "އެކްސް.ޑ.-އަމިއްލަ",
+      "longTextDv": "އަމިއްލަ ފަރާތްތަކުން ދައްކާ އެކްސްޕޯރޓް ޑިއުޓީ"
+    },
+    {
+      "code": 112002,
+      "shortTextEn": "Export Duty - Govt.",
+      "longTextEn": "Export Duty - Government Agencies",
+      "shortTextDv": "އެކްސް.ޑ.-ސަރުކާރު",
+      "longTextDv": "ސަރުކާރުގެ އިދާރާތަކުން ދައްކާ އެކްސްޕޯރޓް ޑިއުޓީ"
+    },
+    {
+      "code": 112995,
+      "shortTextEn": "Refnd - Exp. Duties",
+      "longTextEn": "Refund of Export Duties",
+      "shortTextDv": "ރިފަންޑް-އެކް.ޑިއުޓީ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ އެކްސްޕޯރޓް ޑިއުޓީ"
+    },
+    {
+      "code": 113001,
+      "shortTextEn": "Tourism Tax",
+      "longTextEn": "Tourism Tax",
+      "shortTextDv": "ޓ-ޓޫރިޒަމް",
+      "longTextDv": "ޓޫރިޒަމް ޓެކްސް"
+    },
+    {
+      "code": 113002,
+      "shortTextEn": "Land Sales Tax",
+      "longTextEn": "Land Sales Tax",
+      "shortTextDv": "ޓ-ބިން ވިއްކުން",
+      "longTextDv": "ބިން ވިއްކުމުން ނަގާ ޓެކްސް"
+    },
+    {
+      "code": 113003,
+      "shortTextEn": "Business Profit Tax",
+      "longTextEn": "Business Profit Tax",
+      "shortTextDv": "ޓ-ވިޔަފާރީގެ ފައިދާ",
+      "longTextDv": "ވިޔަފާރީގެ ފައިދާއިން ނަގާ ޓެކްސް"
+    },
+    {
+      "code": 113004,
+      "shortTextEn": "Ownrshp Trnsfr Tax",
+      "longTextEn": "Ownership Transfer Tax",
+      "shortTextDv": "ޓ-އޯނަޝިޕް ޓްރާންސް",
+      "longTextDv": "އޯނަރޝިޕް ޓްރާންސްފަރ ޓެކްސް"
+    },
+    {
+      "code": 113005,
+      "shortTextEn": "Bank Profit Tax",
+      "longTextEn": "Bank Profit Tax",
+      "shortTextDv": "ޓ-ބޭންކް ޕްރޮފިޓް",
+      "longTextDv": "ބޭންކް ޕްރޮފިޓް ޓެކްސް"
+    },
+    {
+      "code": 113995,
+      "shortTextEn": "Refnd - Business Tax",
+      "longTextEn": "Refund of Business and Property Tax",
+      "shortTextDv": "ރިފަންޑް-ބިޒް.ޓެކްސް",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ ބިޒްނަސް އަދި ޕްރޮޕަރޓީ ޓެކްސް"
+    },
+    {
+      "code": 118001,
+      "shortTextEn": "Duty-free shop Rylty",
+      "longTextEn": "Duty-Free Shop Royalty",
+      "shortTextDv": "ރ-ޑިއުޓީ ފްރީ ޝޮޕް",
+      "longTextDv": "ޑިއުޓީ ފްރީ ޝޮޕްގެ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118002,
+      "shortTextEn": "Foreign Trade Rylty",
+      "longTextEn": "Foreign Trade Royalty",
+      "shortTextDv": "ރ-ބިދޭސީ ވިޔަފާރި",
+      "longTextDv": "ބިދޭސީން ކުރާ ވިޔަފާރީގެ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118003,
+      "shortTextEn": "Foreign Fishing Rylt",
+      "longTextEn": "Foreign Fishing Royalty",
+      "shortTextDv": "ރ-ބިދޭސީމަސްވެރިކަން",
+      "longTextDv": "ބިދޭސީން ކުރާ މަސްވެރިކަމުގެ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118004,
+      "shortTextEn": "Foreign Inves. Rylty",
+      "longTextEn": "Foreign Investment Royalty",
+      "shortTextDv": "ރ-ބިދޭސީ އިންވެސްޓް.",
+      "longTextDv": "ބިދޭސީން ކުރާ އިންވެސްމަންޓުގެ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118005,
+      "shortTextEn": "Garment Indus. Rylty",
+      "longTextEn": "Garment Industries Royalty",
+      "shortTextDv": "ރ-ގާމެންޓް އިންޑަސް.",
+      "longTextDv": "ގާމެންޓް އިންޑަސްޓްރީގެ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118006,
+      "shortTextEn": "Bullion Royalty",
+      "longTextEn": "Bullion Royalty",
+      "shortTextDv": "ރ-ބުލިއަން",
+      "longTextDv": "ބުލިއަން ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118007,
+      "shortTextEn": "Fuel Re-export Rylt",
+      "longTextEn": "Fuel Re-Export Royalty",
+      "shortTextDv": "ރ-ފިޔުލްރީއެކްސްޕޯޓް",
+      "longTextDv": "ފިޔުލް ރީއެކްސްޕޯރޓް ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118008,
+      "shortTextEn": "Re-Export Royalty",
+      "longTextEn": "Re-Export Royalty",
+      "shortTextDv": "ރ-ރީއެކްސްޕޯޓް",
+      "longTextDv": "ރީ އެކްސްޕޯރޓް ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118009,
+      "shortTextEn": "Yellowfin Tuna Rylty",
+      "longTextEn": "Yellowfin Tuna Export Royalty",
+      "shortTextDv": "ރ-ބޮޑުކަންނެލި އެކްސ",
+      "longTextDv": "ބޮޑު ކަންނެލީގެ އެކްސްޕޯރޓް ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118010,
+      "shortTextEn": "Fish Export Royalty",
+      "longTextEn": "Fish Export Royalty",
+      "shortTextDv": "ރ-މަސް އެކްސްޕޯޓް",
+      "longTextDv": "މަސް އެކްސްޕޯޓް ކުރުމުގެ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 118995,
+      "shortTextEn": "Refnd - Royalties",
+      "longTextEn": "Refund of Royalties",
+      "shortTextDv": "ރިފަންޑް-ރޯޔަލްޓީ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ ރޯޔަލްޓީ"
+    },
+    {
+      "code": 119001,
+      "shortTextEn": "Sale of Rev. Stamps",
+      "longTextEn": "Sale of Revenue Stamps",
+      "shortTextDv": "ރެވެނިއު ސްޓޭމްޕް",
+      "longTextDv": "ރެވެނިއު ސްޓޭމްޕް ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 119002,
+      "shortTextEn": "Green Tax",
+      "longTextEn": "Green Tax",
+      "shortTextDv": "ގްރީން ޓެކްސް",
+      "longTextDv": "ގްރީން ޓެކްސް"
+    },
+    {
+      "code": 119003,
+      "shortTextEn": "Airport Tax",
+      "longTextEn": "Airport Tax",
+      "shortTextDv": "އެއަރޕޯޓް ޓެކްސް",
+      "longTextDv": "އެއަރޕޯޓް ޓެކްސް"
+    },
+    {
+      "code": 119005,
+      "shortTextEn": "Remittance Tax",
+      "longTextEn": "Remittance Tax",
+      "shortTextDv": "ރެމިޓެންސް ޓެކްސް",
+      "longTextDv": "ރެމިޓެންސް ޓެކްސް"
+    },
+    {
+      "code": 119995,
+      "shortTextEn": "Refnd - Other Taxes",
+      "longTextEn": "Refund of Other Taxes and Duties",
+      "shortTextDv": "ރިފަންޑް-ޓެކްސް",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ އެހެނިހެން ޓެކްސް އަދި ޑިއުޓީ"
+    },
+    {
+      "code": 119999,
+      "shortTextEn": "Misc. taxes & duties",
+      "longTextEn": "Miscellaneous Taxes and Duties",
+      "shortTextDv": "ޓ/ޑ- އެހެނިހެން",
+      "longTextDv": "އެހެނިހެން ޓެކްސްތަކާއި ޑިއުޓީ"
+    },
+    {
+      "code": 121001,
+      "shortTextEn": "Company Annual Fee",
+      "longTextEn": "Company Annual Fee",
+      "shortTextDv": "ކުންފުނި އަހަރީ ފީ",
+      "longTextDv": "ކުންފުނިތަކުގެ އަހަރީ ފީ"
+    },
+    {
+      "code": 121002,
+      "shortTextEn": "Restt Café Cantn Fee",
+      "longTextEn": "Restaurant, Café, Canteen Fee",
+      "shortTextDv": "ވިޔަފާރިފީ-ހޮޓާ،ރެސް",
+      "longTextDv": "ހޮޓާ، ރެސްޓޯރަންޓް، ކެންޓީނުތަކުގެ ވިޔަފާރި ފީ"
+    },
+    {
+      "code": 121003,
+      "shortTextEn": "Non-Fish. Vessel Fee",
+      "longTextEn": "Non-Fisheries Vessel Fee",
+      "shortTextDv": "މަސްވެރިނޫން އުޅަނދު",
+      "longTextDv": "މަސްވެރިކަން ނުކުރާ އިންޖީނުލީ ތަކެތީގެ ފީ"
+    },
+    {
+      "code": 121004,
+      "shortTextEn": "Certificate Fee",
+      "longTextEn": "Certificate Fee",
+      "shortTextDv": "ސެޓްފިކެޓް ފީ",
+      "longTextDv": "ސެޓްފިކެޓް ފީ"
+    },
+    {
+      "code": 121005,
+      "shortTextEn": "Providing Seal",
+      "longTextEn": "Charges for Providing Seal",
+      "shortTextDv": "ސީލް ޖެހުމުގެ ފީ",
+      "longTextDv": "ސީލް ޖެހުމުގެ ފީ"
+    },
+    {
+      "code": 121006,
+      "shortTextEn": "Survey Fee",
+      "longTextEn": "Survey Fee",
+      "shortTextDv": "ސަރވޭކުރުމުގެ ފީ",
+      "longTextDv": "ސަރވޭކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121007,
+      "shortTextEn": "Customs Surcharge",
+      "longTextEn": "Customs Surcharge",
+      "shortTextDv": "ކަސްޓަމްސް ސަރޗާރޖް",
+      "longTextDv": "ކަސްޓަމްސްގެ ސަރޗާރޖް"
+    },
+    {
+      "code": 121008,
+      "shortTextEn": "Transfer of Goods",
+      "longTextEn": "Transfer of Goods",
+      "shortTextDv": "މުދާ ބަދަލުކުރުމަށް",
+      "longTextDv": "މުދާ ބަދަލުކުރުމަށް ލިބޭ"
+    },
+    {
+      "code": 121009,
+      "shortTextEn": "Intransit Fee",
+      "longTextEn": "Intransit Fee",
+      "shortTextDv": "އިންޓްރާންސިޓް ފީ",
+      "longTextDv": "އިންޓްރާންސިޓް ފީ"
+    },
+    {
+      "code": 121010,
+      "shortTextEn": "Bonded Warehouse Fee",
+      "longTextEn": "Bonded Warehouse Fee",
+      "shortTextDv": "ބޮންޑެޑް ވެއަރހައުސް",
+      "longTextDv": "ބޮންޑެޑް ވެއަރ ހައުސް ފީ"
+    },
+    {
+      "code": 121011,
+      "shortTextEn": "Release of Staff",
+      "longTextEn": "Release of Staff",
+      "shortTextDv": "މުވައްޒަފުންދޫކުރުން",
+      "longTextDv": "މުވައްޒަފުން ދޫކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121012,
+      "shortTextEn": "Form Printing Fee",
+      "longTextEn": "Form Printing Fee",
+      "shortTextDv": "ފޯމް ޕްރިންޓް ކުރުން",
+      "longTextDv": "ފޯމް ޕްރިންޓް ކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121013,
+      "shortTextEn": "Advertisement - Govt",
+      "longTextEn": "Advertisement By Government",
+      "shortTextDv": "އިޝްތިހާރު-ސަރުކާރު",
+      "longTextDv": "ސަރުކާރުގެ އިޝްތިހާރު ފޮނުވުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121014,
+      "shortTextEn": "Advertisement - Pvt.",
+      "longTextEn": "Advertisement By Private Parties",
+      "shortTextDv": "އިޝްތިހާރު-އަމިއްލަ",
+      "longTextDv": "އަމިއްލަފަރާތްތަކުގެ އިޝްތިހާރު ފޮނުވުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121015,
+      "shortTextEn": "Govt. Announcement",
+      "longTextEn": "Announcements By Government",
+      "shortTextDv": "އިޢުލާން-ސަރުކާރު",
+      "longTextDv": "ސަރުކާރުގެ އިޢުލާން ފޮނުވުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121016,
+      "shortTextEn": "Recording Fee",
+      "longTextEn": "Recording Fee",
+      "shortTextDv": "ރެކޯޑް ކުރުމުގެ ފީ",
+      "longTextDv": "ރެކޯޑް ކޮށްދިނުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121017,
+      "shortTextEn": "Sponsorship of Prog.",
+      "longTextEn": "Sponsorship of Programmes",
+      "shortTextDv": "ޕްރޮގްރާމް ސްޕޮންސަރ",
+      "longTextDv": "ޕްރޮގްރާމް ސްޕޮންސަރ ކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121018,
+      "shortTextEn": "Hire of Sound System",
+      "longTextEn": "Hire of Sound System",
+      "shortTextDv": "ސައުންޑް ސިސްޓަމް ފީ",
+      "longTextDv": "ސައުންޑް ސިސްޓަމް ކުއްޔަށް ދޫކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121019,
+      "shortTextEn": "Approval of Movies",
+      "longTextEn": "Approval of Movies and TV Serials",
+      "shortTextDv": "ފިލްމު ގެ ހުއްދަ",
+      "longTextDv": "ޓީވީ ނުވަތަ ބައިސްކޯފު ފިލްމު ނެގުމުގެ ހުއްދަ"
+    },
+    {
+      "code": 121020,
+      "shortTextEn": "Approval of Songs",
+      "longTextEn": "Approval of Songs In Local Films",
+      "shortTextDv": "ލަވަ ފާސްކުރުމުގެ ފީ",
+      "longTextDv": "ދިވެހި ފިލްމުގެ ލަވަ ފާސްކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121021,
+      "shortTextEn": "Driving Test Fee",
+      "longTextEn": "Driving Test Fee",
+      "shortTextDv": "ޑްރައިވިން ޓެސްޓު ފީ",
+      "longTextDv": "ޑްރައިވިންގ ޓެސްޓުގައި ބައިވެރިވުމަށް ދައްކާ ފީ"
+    },
+    {
+      "code": 121022,
+      "shortTextEn": "Seaman Watchkeeping",
+      "longTextEn": "Seaman Watchkeeping Stamp",
+      "shortTextDv": "ސީމަން ވޮޗް ކީޕިންގ",
+      "longTextDv": "ސީމަން ވޮޗް ކީޕިންގ ތައްގަނޑު ޖެހުމުގެ ފީ"
+    },
+    {
+      "code": 121023,
+      "shortTextEn": "Seaman Agency Change",
+      "longTextEn": "Seaman Agency Change Fee",
+      "shortTextDv": "ސީމަން އެޖެންސީބަދަލ",
+      "longTextDv": "ސީމަން އެޖެންސީ ބަދަލު ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121024,
+      "shortTextEn": "Ship, Boat Numbers",
+      "longTextEn": "Ship, Boat Numbers",
+      "shortTextDv": "އޮޑީ ނަންބަރު",
+      "longTextDv": "އޮޑީ ނަންބަރު ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 121025,
+      "shortTextEn": "Landing Charges",
+      "longTextEn": "Landing Charges",
+      "shortTextDv": "ލޭންޑިންގ ޗާޖަސް",
+      "longTextDv": "ލޭންޑިންގ ޗާޖަސް"
+    },
+    {
+      "code": 121026,
+      "shortTextEn": "Handling Charges",
+      "longTextEn": "Handling Charges",
+      "shortTextDv": "ހެންޑްލިންގ ޗާޖަސް",
+      "longTextDv": "ހެންޑްލިންގ ޗާޖަސް"
+    },
+    {
+      "code": 121027,
+      "shortTextEn": "Birth Registration",
+      "longTextEn": "Birth Registration Fee",
+      "shortTextDv": "އުފަން ދ. ރަޖިސްޓްރީ",
+      "longTextDv": "އުފަން ދުވަހުގެ ރެޖިސްޓްރީ ހެއްދުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121028,
+      "shortTextEn": "Birth Certificate",
+      "longTextEn": "Birth Certificate Issuance",
+      "shortTextDv": "އުފަންދުވަހުގެ ސެޓް.",
+      "longTextDv": "އުފަން ދުވަހުގެ ސެޓްފިކޭޓް ހެއްދުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121029,
+      "shortTextEn": "Parking Charges",
+      "longTextEn": "Parking Charges",
+      "shortTextDv": "ޕާކިންގ ޗާޖު",
+      "longTextDv": "ޕާކިންގ ޗާޖު"
+    },
+    {
+      "code": 121030,
+      "shortTextEn": "Disposal of Waste",
+      "longTextEn": "Disposal of Waste",
+      "shortTextDv": "ކުނީ ފީ",
+      "longTextDv": "ކުނީ ފީ"
+    },
+    {
+      "code": 121031,
+      "shortTextEn": "Market Fee",
+      "longTextEn": "Market Fee",
+      "shortTextDv": "މާރުކޭޓް ފީ",
+      "longTextDv": "މާރުކޭޓް ފީ"
+    },
+    {
+      "code": 121032,
+      "shortTextEn": "Div. Housing Plots",
+      "longTextEn": "Dividing Housing Plots",
+      "shortTextDv": "ގޯތި ބައިކުރުމަށް",
+      "longTextDv": "ގޯތި ބައިކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121033,
+      "shortTextEn": "Drawing Chart",
+      "longTextEn": "Drawing Chart",
+      "shortTextDv": "ގޯތީގެ ޗާޓު ކުރެހުން",
+      "longTextDv": "ގޯތީގެ ޗާޓު ކުރަހައި ދިނުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121034,
+      "shortTextEn": "Pay Toilet Charges",
+      "longTextEn": "Pay Toilet Charges",
+      "shortTextDv": "ޕޭޓޮއިލެޓް ޗާޖް",
+      "longTextDv": "ފާޚާނާ ބޭނުން ކުރުމުގެ ފީއަށް ލިބޭ"
+    },
+    {
+      "code": 121035,
+      "shortTextEn": "Seal on M.Instrmt.",
+      "longTextEn": "Providing Seal on Measuring Instruments",
+      "shortTextDv": "މިނެކިރުމާއި..",
+      "longTextDv": "މިނެކިރުމާއި، މިންއަޅާ ތަކެތީގައި ސީލް ޖެހުމުގެ ފީ"
+    },
+    {
+      "code": 121036,
+      "shortTextEn": "Exib. Music Cable TV",
+      "longTextEn": "Music and Cable TV at Exhibitions",
+      "shortTextDv": "ލަވަޖެހުން،ކޭބަލް TV",
+      "longTextDv": "މަޢުރަޒުފަދަ ތަންތަނުގައި ލަވަޖެހުމާއި ކޭބަލް ޓީވީ"
+    },
+    {
+      "code": 121037,
+      "shortTextEn": "PP Cancellation Fee",
+      "longTextEn": "Passport Cancellation Fee",
+      "shortTextDv": "ޕާސްޕޯޓު ކެންސަލް ފީ",
+      "longTextDv": "ޕާސްޕޯޓު ކެންސަލް ކޮށްދިނުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121038,
+      "shortTextEn": "Training Centr Prod.",
+      "longTextEn": "Sale of Training Centre Products",
+      "shortTextDv": "ޓްރެ.ސެންޓަރ ތަކެތި",
+      "longTextDv": "ޓްރޭނިންގ ސެންޓަރުތަކުގައި އުފައްދާ ތަކެތިވިއްކުން"
+    },
+    {
+      "code": 121039,
+      "shortTextEn": "Marriage outside Crt",
+      "longTextEn": "Conducting Marriage Outside The Court",
+      "shortTextDv": "ކޯޓުން ބޭރު ކައިވެނި",
+      "longTextDv": "ކޯޓުން ބޭރުގައި ކައިވެނި ކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121040,
+      "shortTextEn": "Court Fee",
+      "longTextEn": "Court Fee",
+      "shortTextDv": "ކޯޓު ފީ",
+      "longTextDv": "ކޯޓު ފީ"
+    },
+    {
+      "code": 121041,
+      "shortTextEn": "Photocopy Charges",
+      "longTextEn": "Photocopy Charges",
+      "shortTextDv": "ފޮޓޯކޮޕީ ފީ",
+      "longTextDv": "ފޮޓޯކޮޕީ ހައްދައިދީގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 121042,
+      "shortTextEn": "Tel., Telex, T.fax",
+      "longTextEn": "Telephone Call, Telex, Telefax Charges",
+      "shortTextDv": "ޓެލެކްސް،ޓ.ފެކްސް ފީ",
+      "longTextDv": "ޓެލެފޯން ކޯލާއި ޓެލެކްސް، ޓެލެފެކްސް ފީ"
+    },
+    {
+      "code": 121043,
+      "shortTextEn": "Tender Documents",
+      "longTextEn": "Sale of Tender Documents",
+      "shortTextDv": "ޓެންޑަރ ޑޮކިޔުމަންޓް",
+      "longTextDv": "ޓެންޑަރ ޑޮކިޔުމަންޓް ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 121044,
+      "shortTextEn": "Billboard & advert.",
+      "longTextEn": "Billboard and Advertisement Charges",
+      "shortTextDv": "އިޝްތިހާރު ބޯޑު",
+      "longTextDv": "އިޝްތިހާރު ބޯޑު ބަހައްޓައިދީގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 121045,
+      "shortTextEn": "Express Service",
+      "longTextEn": "Express Service Charges",
+      "shortTextDv": "އަވަސް ޚިދުމަތުގެ ފީ",
+      "longTextDv": "އަވަސް ޚިދުމަތުގެ އަގު"
+    },
+    {
+      "code": 121046,
+      "shortTextEn": "School Fee",
+      "longTextEn": "School Fee",
+      "shortTextDv": "ސްކޫލް ފީ",
+      "longTextDv": "ސްކޫލް ފީ"
+    },
+    {
+      "code": 121047,
+      "shortTextEn": "Boarding Fee",
+      "longTextEn": "Boarding Fee",
+      "shortTextDv": "ދަނާލުތަކުން ލިބޭ ފީ",
+      "longTextDv": "ސަރުކާރުން ހިންގާ ދަނާލުތަކުން ލިބޭ ފީ"
+    },
+    {
+      "code": 121048,
+      "shortTextEn": "Course & Exam Fee",
+      "longTextEn": "Course Fee and Examination Fee",
+      "shortTextDv": "އިމްތިޙާނު، ކޯސް ފީ",
+      "longTextDv": "އިމްތިޙާނުތަކާއި ކޯސްތަކުގައި ބައިވެރިވުމުގެ ފީ"
+    },
+    {
+      "code": 121049,
+      "shortTextEn": "Re-evaluation Fee",
+      "longTextEn": "Examination Paper Re-evaluation Fee",
+      "shortTextDv": "ޕޭޕަރު އަލުން ބެލުން",
+      "longTextDv": "އިމްތިޙާނު ޕޭޕަރު އަލުން ބެލުމަށް ނެގޭ ފީ"
+    },
+    {
+      "code": 121050,
+      "shortTextEn": "Testing brick qlty.",
+      "longTextEn": "Charges for Testing Quality of Bricks",
+      "shortTextDv": "ގަލުގެ ކޮލިޓީ ޓެސްޓް",
+      "longTextDv": "ގަލުގެ ކޮލިޓީ ޓެސްޓް ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121051,
+      "shortTextEn": "Approval of Advert.",
+      "longTextEn": "Approval of Advertisment",
+      "shortTextDv": "އިސްތިހާރުފާސްކުރުން",
+      "longTextDv": "އިސްތިހާރު ފާސްކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121052,
+      "shortTextEn": "Approval of Books",
+      "longTextEn": "Approval of Books",
+      "shortTextDv": "ފޮތް ފާސްކުރުމުގެ ފީ",
+      "longTextDv": "ފޮތް ފާސްކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121053,
+      "shortTextEn": "Polit. Cand. Deposit",
+      "longTextEn": "Political Candidates' Deposit",
+      "shortTextDv": "ކެންޑިޑޭޓް ޑިޕޮޒިޓް",
+      "longTextDv": "ސިޔާސީ ކެންޑިޑޭޓުންގެ ޑިޕޮޒިޓް"
+    },
+    {
+      "code": 121054,
+      "shortTextEn": "Use of Male' T-Jetty",
+      "longTextEn": "Use of Male' T-Jetty",
+      "shortTextDv": "މާލޭ-ޓީޖެޓީ ޚިދުމަތް",
+      "longTextDv": "މާލޭ މެދު ޖެޓީ ޚިދުމަތުގެ އަގު"
+    },
+    {
+      "code": 121055,
+      "shortTextEn": "Property Maintenance",
+      "longTextEn": "Property Maintenance fee",
+      "shortTextDv": "މުދާ ބެލެހެއްޓުން",
+      "longTextDv": "މުދާ ބެލެހެއްޓުމުގެ ގޮތުން ނަގާ ފީ"
+    },
+    {
+      "code": 121056,
+      "shortTextEn": "Consultation Fee",
+      "longTextEn": "Consultation Fee",
+      "shortTextDv": "ޑޮކްޓަރަށް ދެއްކުން",
+      "longTextDv": "ޑޮކްޓަރަށް ދެއްކުމުގެ ފީ"
+    },
+    {
+      "code": 121057,
+      "shortTextEn": "Medical Check-Up Fee",
+      "longTextEn": "Medical Check-Up Fee",
+      "shortTextDv": "މެޑިކަލް ޗެކަޕް ފީ",
+      "longTextDv": "މެޑިކަލް ޗެކަޕް ހެދުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121058,
+      "shortTextEn": "Ambulance Fee",
+      "longTextEn": "Ambulance Fee",
+      "shortTextDv": "އެމްބިއުލާންސް ފީ",
+      "longTextDv": "އެމްބިއުލާންސް ފީ"
+    },
+    {
+      "code": 121059,
+      "shortTextEn": "Hospital Ward Fee",
+      "longTextEn": "Hospital Ward Fee",
+      "shortTextDv": "ހޮސްޕިޓަލް ވޯރޑް ފީ",
+      "longTextDv": "ހޮސްޕިޓަލް ވޯރޑް ފީ"
+    },
+    {
+      "code": 121060,
+      "shortTextEn": "X-Ray Fee",
+      "longTextEn": "X-Ray Fee",
+      "shortTextDv": "އެކްސް-ރޭ ފީ",
+      "longTextDv": "އެކްސް-ރޭ ފީ"
+    },
+    {
+      "code": 121061,
+      "shortTextEn": "Dental Services",
+      "longTextEn": "Charges for Dental Services",
+      "shortTextDv": "ދަތުގެ ފަރުވާ",
+      "longTextDv": "ދަތުގެ ފަރުވާތަކަށް ނަގާ އަގު"
+    },
+    {
+      "code": 121062,
+      "shortTextEn": "E.C.G. Fee",
+      "longTextEn": "E.C.G. Fee",
+      "shortTextDv": "އީ.ސީ.ޖީ ފީ",
+      "longTextDv": "އީ.ސީ.ޖީ ފީ"
+    },
+    {
+      "code": 121063,
+      "shortTextEn": "Operation & Surgery",
+      "longTextEn": "Operation and Surgery Fee",
+      "shortTextDv": "އޮޕަރޭޓް ކުރުމުގެ ފީ",
+      "longTextDv": "އޮޕަރޭޓް ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121064,
+      "shortTextEn": "Laboratory test",
+      "longTextEn": "Charges for Laboratory Tests",
+      "shortTextDv": "ލެބޯޓްރީ ޓެސްޓުތައް",
+      "longTextDv": "ލެބޯޓްރީ ޓެސްޓުތަކުގެ އަގު"
+    },
+    {
+      "code": 121065,
+      "shortTextEn": "Health Record",
+      "longTextEn": "Health Record Issuance",
+      "shortTextDv": "ހެލްތު ރެކޯޑު",
+      "longTextDv": "ހެލްތު ރެކޯޑު ދޫކުރުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121066,
+      "shortTextEn": "Dressing & Injection",
+      "longTextEn": "Dressing and Injection Charges",
+      "shortTextDv": "ބޭސް އެޅުން",
+      "longTextDv": "އިންޖެކްޝަންއާއި ބޭސް އެޅުމުގެ އަގު"
+    },
+    {
+      "code": 121067,
+      "shortTextEn": "Scan Fee",
+      "longTextEn": "Scan Fee",
+      "shortTextDv": "ސްކޭން ފީ",
+      "longTextDv": "ސްކޭން ފީ"
+    },
+    {
+      "code": 121068,
+      "shortTextEn": "Physiotherapy Fee",
+      "longTextEn": "Physiotherapy Fee",
+      "shortTextDv": "ފިޒިއޮތެރަޕީ ފީ",
+      "longTextDv": "ފިޒިއޮތެރަޕީ ދިނުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121069,
+      "shortTextEn": "Labour Fee",
+      "longTextEn": "Labour Fee",
+      "shortTextDv": "ވިއްސުމަށް ނަގާ ފީ",
+      "longTextDv": "ވިއްސުމަށް ނަގާ ފީ"
+    },
+    {
+      "code": 121070,
+      "shortTextEn": "Endoscopy Charges",
+      "longTextEn": "Endoscopy Charges",
+      "shortTextDv": "އެންޑޮސްކޮޕީ ފީ",
+      "longTextDv": "އެންޑޮސްކޮޕީ ހެދުމުގެ އަގު"
+    },
+    {
+      "code": 121071,
+      "shortTextEn": "Refraction",
+      "longTextEn": "Refraction",
+      "shortTextDv": "ރިފްރެކްޝަން ފީ",
+      "longTextDv": "ރިފްރެކްޝަން ފީ"
+    },
+    {
+      "code": 121072,
+      "shortTextEn": "C.T. Scan Fee",
+      "longTextEn": "C.T. Scan Fee",
+      "shortTextDv": "ސީ.ޓީ. ސްކޭން ފީ",
+      "longTextDv": "ސީ.ޓީ. ސްކޭން ފީ"
+    },
+    {
+      "code": 121073,
+      "shortTextEn": "ID Card Issuance",
+      "longTextEn": "ID Card Issuance",
+      "shortTextDv": "އައިޑީ ކާޑު ހެއްދުން",
+      "longTextDv": "އައިޑީ ކާޑު ހެއްދުން"
+    },
+    {
+      "code": 121074,
+      "shortTextEn": "Sale of Ticket",
+      "longTextEn": "Sale of Ticket",
+      "shortTextDv": "ޓިކެޓް ވިއްކުން",
+      "longTextDv": "ޓިކެޓް ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 121075,
+      "shortTextEn": "Sale of Pass",
+      "longTextEn": "Sale of Pass",
+      "shortTextDv": "ފާސް ވިއްކުން",
+      "longTextDv": "ފާސް ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 121076,
+      "shortTextEn": "Residential Permit",
+      "longTextEn": "Residential Permit",
+      "shortTextDv": "ރެޒިޑެންޝަލް ޕަރމިޓް",
+      "longTextDv": "ބިދޭސީން ރާއްޖޭގައި ތިބުމުގެ ހުއްދަ"
+    },
+    {
+      "code": 121077,
+      "shortTextEn": "Air Travel Permit",
+      "longTextEn": "Permission for air travel within Maldives",
+      "shortTextDv": "ހުއްދަ-ވައިގެދަތުރު",
+      "longTextDv": "ރާއްޖޭގެ އެތެރޭގައި ވައިގެދަތުރު ކުރުމުގެ ހުއްދަ"
+    },
+    {
+      "code": 121078,
+      "shortTextEn": "P'ship Annual Fee",
+      "longTextEn": "Partnership Annual Fee",
+      "shortTextDv": "ޕާޓްނަޝިޕް އަހަރީ ފީ",
+      "longTextDv": "ޕާރޓްނަރޝިޕް އަހަރީ ފީ"
+    },
+    {
+      "code": 121079,
+      "shortTextEn": "Import Trade Fee",
+      "longTextEn": "Import Trade Fee",
+      "shortTextDv": "އިމްޕޯޓް ވިޔަފާރި ފީ",
+      "longTextDv": "އިމްޕޯޓް ވިޔަފާރި ފީ"
+    },
+    {
+      "code": 121080,
+      "shortTextEn": "Fees for Name Change",
+      "longTextEn": "Fees for Changing Name",
+      "shortTextDv": "ނަން ބަދަލުކުރުމަށް",
+      "longTextDv": "ނަން ބަދަލުކުރުމަށް ކުރުމުގެ ފީ އަށް ލިބޭ"
+    },
+    {
+      "code": 121081,
+      "shortTextEn": "Electricity Charges",
+      "longTextEn": "Electricity Charges Received",
+      "shortTextDv": "ކަރަންޓުފީއަށް ލިބޭ",
+      "longTextDv": "ކަރަންޓު ފީއަށް ލިބުނު"
+    },
+    {
+      "code": 121082,
+      "shortTextEn": "Local Trnspt Surchge",
+      "longTextEn": "Local Transport Surcharge",
+      "shortTextDv": "ލ.ޓ. ސަރޗާޖް",
+      "longTextDv": "ލޯކަލް ޓްރާންސްޕޯޓް ސަރޗާޖް"
+    },
+    {
+      "code": 121083,
+      "shortTextEn": "Providing Statistics",
+      "longTextEn": "Charges for Pvoviding Statistics",
+      "shortTextDv": "ތަފާސް ހިސާބު ނެގުން",
+      "longTextDv": "ތަފާސް ހިސާބު ނަގައިދިނުމުގެ އަގު"
+    },
+    {
+      "code": 121084,
+      "shortTextEn": "Dry Dock Charges",
+      "longTextEn": "Dry Dock Charges",
+      "shortTextDv": "ދޯނި އެހެލާ ފީ",
+      "longTextDv": "ދޯނި އެހެލާ ތަންތަނުގެ ފީ"
+    },
+    {
+      "code": 121085,
+      "shortTextEn": "Co-op. Soc. Annl Fee",
+      "longTextEn": "Co-operative Society Annual Fee",
+      "shortTextDv": "ކޯޕަރޭޓިވް އަހަރީ ފީ",
+      "longTextDv": "ކޯޕަރޭޓިވް ސޮސައިޓީ އަހަރީ ފީ"
+    },
+    {
+      "code": 121086,
+      "shortTextEn": "Co-op. Soc. Reg. Fee",
+      "longTextEn": "Co-operative Society Registration Fee",
+      "shortTextDv": "ކޯޕަރޭޓިވް ރެޖް. ފީ",
+      "longTextDv": "ކޯޕަރޭޓިވް ސޮސައިޓީ ރެޖިސްޓްރޭޝަން ފީ"
+    },
+    {
+      "code": 121087,
+      "shortTextEn": "Soc.Health Ins.Claim",
+      "longTextEn": "Social Health Insurance Claims",
+      "shortTextDv": "ސ.ހ. އިންޝުއަރެންސް",
+      "longTextDv": "ސޯޝަލް ހެލްތު އިންޝުއަރެންސް ކްލެއިމްސް"
+    },
+    {
+      "code": 121088,
+      "shortTextEn": "Trade Registry",
+      "longTextEn": "Trade Registry Fee",
+      "shortTextDv": "ޓްރޭޑް ރެޖިސްޓްރީ ފީ",
+      "longTextDv": "ޓްރޭޑް ރެޖިސްޓްރީ ފީ"
+    },
+    {
+      "code": 121089,
+      "shortTextEn": "FIAF",
+      "longTextEn": "Foreign Investment Administration Annual Fee",
+      "shortTextDv": "އެފް.އައި.އޭ.އެފް",
+      "longTextDv": "ފޮރިން އިންވެސްމަންޓް އެޑްމިނިސްޓްރޭޝަން އަހަރީ ފީ"
+    },
+    {
+      "code": 121090,
+      "shortTextEn": "Processing charges",
+      "longTextEn": "Processing charges",
+      "shortTextDv": "ޕްރޮސެސިންގ ޗާޖް",
+      "longTextDv": "ޕްރޮސެސިންގ ޗާޖް"
+    },
+    {
+      "code": 121091,
+      "shortTextEn": "Vehicle Import Fee",
+      "longTextEn": "Vehicle Import Fee",
+      "shortTextDv": "އިމްޕޯޓު ވެހިކަލްފީ",
+      "longTextDv": "އިމްޕޯޓުކުރާ ވެހިކަލް ފީ"
+    },
+    {
+      "code": 121092,
+      "shortTextEn": "Lease prd Extension",
+      "longTextEn": "lease period extension fee",
+      "shortTextDv": "ކުލީ މުއްދަތު އިތުރު",
+      "longTextDv": "ކުލީގެ މުއްދަތު އިތުރުކުރުން"
+    },
+    {
+      "code": 121093,
+      "shortTextEn": "Const. prd extension",
+      "longTextEn": "Construction period extension fee",
+      "shortTextDv": "ބިނާ-އިތުރުމުއދަތުފީ",
+      "longTextDv": "ކޮންސްޓްރަކްޝަން މުއްދަތު އިތުރު ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 121094,
+      "shortTextEn": "Airport dev. fee",
+      "longTextEn": "Airport development fee",
+      "shortTextDv": "އެއަޕޯޓް ތަރައްޤީ ފީ",
+      "longTextDv": "އެއަރޕޯޓް ތަރައްޤީ ކުރުމަށް ނެގޭފީ"
+    },
+    {
+      "code": 121095,
+      "shortTextEn": "CSR fee",
+      "longTextEn": "Corporate social responsibility fee",
+      "shortTextDv": "ސީ.އެސް.އާރް ފީ",
+      "longTextDv": "ކޯޕަރޭޓް ސޯޝަލް ރެސްޕޮންސިބިލިޓީ ފީ"
+    },
+    {
+      "code": 121096,
+      "shortTextEn": "Tourism Admin. Fee",
+      "longTextEn": "Tourism Administration fee",
+      "shortTextDv": "ޓޫރިޒަމ އެޑްމިން. ފީ",
+      "longTextDv": "ޓޫރިޒަމް އެޑްމިނިސްޓްރޭޝަން ފީ"
+    },
+    {
+      "code": 121097,
+      "shortTextEn": "Trauma service",
+      "longTextEn": "Trauma service",
+      "shortTextDv": "ޓްރޯމާ ސަރވިސް",
+      "longTextDv": "ޓްރޯމާ ސަރވިސް"
+    },
+    {
+      "code": 121098,
+      "shortTextEn": "Dermatology service",
+      "longTextEn": "Dermatology service",
+      "shortTextDv": "ޑާމޮޓަލޮގީ ޙިދުމަތް",
+      "longTextDv": "ޑާމޮޓަލޮގީ ޙިދުމަތް"
+    },
+    {
+      "code": 121099,
+      "shortTextEn": "Cardiac service",
+      "longTextEn": "Cardiac service",
+      "shortTextDv": "ކާޑިއެކް ސަރވިސް",
+      "longTextDv": "ކާޑިއެކް ސަރވިސް"
+    },
+    {
+      "code": 121100,
+      "shortTextEn": "Admission fee",
+      "longTextEn": "Admission fee",
+      "shortTextDv": "އެޑްމިޝަން ފީ",
+      "longTextDv": "އެޑްމިޝަން ފީ"
+    },
+    {
+      "code": 121101,
+      "shortTextEn": "Light dues",
+      "longTextEn": "Light dues",
+      "shortTextDv": "ލައިޓް ޑިއުސް",
+      "longTextDv": "ލައިޓް ޑިއުސް"
+    },
+    {
+      "code": 121102,
+      "shortTextEn": "Mined sand fee",
+      "longTextEn": "Fee for Sand mined from beaches",
+      "shortTextDv": "ގޮނޑުދޮށު ވެލީގެ ފީ",
+      "longTextDv": "ގޮނޑުދޮށުން ނަގާ ވެއްޔަށް ދައްކާ ފީ"
+    },
+    {
+      "code": 121103,
+      "shortTextEn": "Sovereign Guarantee",
+      "longTextEn": "Sovereign Guarantee Fee",
+      "shortTextDv": "ސޮވެރިން ގެރެންޓީ ފީ",
+      "longTextDv": "ސޮވެރިންގ ގެރެންޓީ ފީ"
+    },
+    {
+      "code": 121104,
+      "shortTextEn": "Other Cont. to SDF",
+      "longTextEn": "Other Contribution to SDF",
+      "shortTextDv": "އެސްޑީއެފް-އެހެނިހެނ",
+      "longTextDv": "އެސް.ޑީ.އެފް އަށް ދައްކާ ފައިސާ-އެހެނިހެން"
+    },
+    {
+      "code": 121995,
+      "shortTextEn": "Refnd - Fees & Chrgs",
+      "longTextEn": "Refund of Fees and Charges",
+      "shortTextDv": "ރިފަންޑް-ޚިދުމަތު ފީ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ އެކިއެކި ޚިދުމަތަށް ނެގޭ ފީ"
+    },
+    {
+      "code": 121999,
+      "shortTextEn": "Other Fees & Charges",
+      "longTextEn": "Other Fees and Charges",
+      "shortTextDv": "އެހެނިހެން ފީ",
+      "longTextDv": "އެހެނިހެން ގޮތްގޮތުން ނެގޭ ފީ"
+    },
+    {
+      "code": 123001,
+      "shortTextEn": "Company Reg. Fee",
+      "longTextEn": "Company Registration Fee",
+      "shortTextDv": "ކުންފުނި ރަޖިސް.",
+      "longTextDv": "ކުންފުނި ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123002,
+      "shortTextEn": "Partnership Reg. Fee",
+      "longTextEn": "Partnership Registration Fee",
+      "shortTextDv": "ޕާޓްނަޝިޕް ރަޖިސް.",
+      "longTextDv": "ޕާރޓްނަރޝިޕް ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123003,
+      "shortTextEn": "Auditors Reg. Fee",
+      "longTextEn": "Auditors Registration Fee",
+      "shortTextDv": "އޮޑިޓަރުން ރަޖިސް.",
+      "longTextDv": "އޮޑިޓަރުން ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123004,
+      "shortTextEn": "Guest House Reg. Fee",
+      "longTextEn": "Guest House Registration Fee",
+      "shortTextDv": "ގެސްޓްހައުސް ރަޖިސް.",
+      "longTextDv": "ގެސްޓްހައުސް ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123005,
+      "shortTextEn": "Training Centre Reg.",
+      "longTextEn": "Training Centre Registration Fee",
+      "shortTextDv": "ކިޔަވާދޭތަން ރަޖިސް.",
+      "longTextDv": "ކިޔަވައިދޭތަންތަން ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123006,
+      "shortTextEn": "Forgn. Trading Appr.",
+      "longTextEn": "Foreign Trading Approval Fee",
+      "shortTextDv": "ބިދޭސީ.ވިޔަފާރި ފީ",
+      "longTextDv": "ބިދޭސީން ވިޔަފާރިކުރުމުގެ ހުއްދަ"
+    },
+    {
+      "code": 123007,
+      "shortTextEn": "Dive School Reg. Fee",
+      "longTextEn": "Dive School Registration Fee",
+      "shortTextDv": "ޑައިވްސްކޫލް ރަޖިސް.",
+      "longTextDv": "ޑައިވް ސްކޫލް ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123008,
+      "shortTextEn": "Club, Assoc. Reg.",
+      "longTextEn": "Club, Association Registration Fee",
+      "shortTextDv": "ޖަމިއްޔާ ރަޖިސް.",
+      "longTextDv": "ކްލަބް ޖަމްޢިއްޔާ ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123009,
+      "shortTextEn": "Clinic Reg. Fee",
+      "longTextEn": "Clinic Registration Fee",
+      "shortTextDv": "ކްލިނިކް ރަޖިސް.",
+      "longTextDv": "ކްލިނިކް ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123010,
+      "shortTextEn": "Duty Free Concession",
+      "longTextEn": "Duty Free Concession Fee",
+      "shortTextDv": "ޑ.ފްރީ ކޮންސެޝަން ފީ",
+      "longTextDv": "ޑިއުޓީ ފްރީ ކޮންސެޝަން ފީ"
+    },
+    {
+      "code": 123011,
+      "shortTextEn": "Expat. Fishing Fee",
+      "longTextEn": "Expatriate Fishing Fee",
+      "shortTextDv": "ބިދޭސީން.މަސްވެރި ފީ",
+      "longTextDv": "ބިދޭސީން މަސްވެރިކަން ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123012,
+      "shortTextEn": "Work Permit Fee",
+      "longTextEn": "Work Permit Fee",
+      "shortTextDv": "ވާރކްޕާމިޓް ފީ",
+      "longTextDv": "ވާރކްޕާމިޓް ފީ"
+    },
+    {
+      "code": 123013,
+      "shortTextEn": "Driving Licence",
+      "longTextEn": "Driving Licence Issuance",
+      "shortTextDv": "ޑްރައިވިންލައިސަންސް",
+      "longTextDv": "ޑްރައިވިންގ ލައިސަންސް ދޫކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123014,
+      "shortTextEn": "M.Veh. Licence Fee",
+      "longTextEn": "Motor Vehicle Licence Fee",
+      "shortTextDv": "ވެހިކަލް ލައިސަންސް",
+      "longTextDv": "މޮޓޯރ ވެހިކަލް ލައިސަންސް ފީ"
+    },
+    {
+      "code": 123015,
+      "shortTextEn": "Desali. Plnt Licence",
+      "longTextEn": "Desalination Plant Licence Fee",
+      "shortTextDv": "ފެން ޕްލާންޓް ހުއްދަ",
+      "longTextDv": "ފެން ޕްލާންޓް ހުއްދައިގެ ފީ"
+    },
+    {
+      "code": 123016,
+      "shortTextEn": "Telecom License Fees",
+      "longTextEn": "Telecom License Fees",
+      "shortTextDv": "ޓެލެކޮމް ލައިސަންސް",
+      "longTextDv": "ޓެލެކޮމިއުނިކޭޝަން ލައިސަންސް ފީ"
+    },
+    {
+      "code": 123017,
+      "shortTextEn": "Registration Fee",
+      "longTextEn": "Registration Fee",
+      "shortTextDv": "އުޅަނދު ރަޖިސް.",
+      "longTextDv": "އެއްގަމާއި ކަނޑުގެ އުޅަނދު ރަޖިސްޓްރީކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123018,
+      "shortTextEn": "Cancellation of Reg.",
+      "longTextEn": "Cancellation of Registration",
+      "shortTextDv": "ރަޖިސްޓްރީ ބާތިލް",
+      "longTextDv": "ރަޖިސްޓްރީ ބާތިލު ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123019,
+      "shortTextEn": "Bank Mortgage Reg.",
+      "longTextEn": "Bank Mortgage Registration Fee",
+      "shortTextDv": "ބޭންކްމޯގޭޖް ރަޖިސް.",
+      "longTextDv": "ބޭންކް މޯގޭޖް ރަޖިސްޓްރީ ފީ"
+    },
+    {
+      "code": 123020,
+      "shortTextEn": "Marriage Reg.",
+      "longTextEn": "Marriage Registration",
+      "shortTextDv": "ކައިވެނި ރަޖިސްޓްރީ",
+      "longTextDv": "ކައިވެނި ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123021,
+      "shortTextEn": "Renewal of Land Reg.",
+      "longTextEn": "Renewal of Land Registry",
+      "shortTextDv": "ގޯތި.ރަޖިސް.އާކުރުން",
+      "longTextDv": "ގޯތީގެ ރަޖިސްޓްރީ އާކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123022,
+      "shortTextEn": "Reg.as Male' Citizen",
+      "longTextEn": "Certificate to Register As A Male' Citizen",
+      "shortTextDv": "މާލޭ ރަށްވެހިވުން",
+      "longTextDv": "މާލޭގެ ރަށްވެއްސަކަށް ވުމުގެ ސެޓްފިކެޓް"
+    },
+    {
+      "code": 123023,
+      "shortTextEn": "Issue cert. in Male'",
+      "longTextEn": "Misc. Certificates Issued In Male for Islands",
+      "shortTextDv": "ސެޓް.މާލޭގަ ހެއްދުން",
+      "longTextDv": "ރ.ތެރޭގައި ހަދަންޖެހޭ ސެޓްފިކެޓް މާލޭގައި ހެއްދުން"
+    },
+    {
+      "code": 123024,
+      "shortTextEn": "Prmt frgn wrkrs Isl.",
+      "longTextEn": "Permission to Send Foreign Workers to Islands",
+      "shortTextDv": "ބިދޭސީން އަތޮޅު..",
+      "longTextDv": "ބިދޭސީން އަތޮޅުތަކަށް ދިޔުމުގެ ހުއްދައަށް ލިބޭ"
+    },
+    {
+      "code": 123025,
+      "shortTextEn": "Vssls anch-Mle lagn",
+      "longTextEn": "Vessels Anchored In Male' Lagoon",
+      "shortTextDv": "ފައްތިޔާ ފީ - މާލެ",
+      "longTextDv": "މާލޭ ފަޅުތެރޭގައި އަޅާފައިހުންނަ އުޅަނދުފަހަރުގެފީ"
+    },
+    {
+      "code": 123026,
+      "shortTextEn": "Port Fee",
+      "longTextEn": "Port Fee",
+      "shortTextDv": "ބަނދަރު ކުލި",
+      "longTextDv": "ބަނދަރު ކުލި"
+    },
+    {
+      "code": 123027,
+      "shortTextEn": "Seaman Agrmt. Reg.",
+      "longTextEn": "Seaman Agreement Registration",
+      "shortTextDv": "ސީމަން.އެގްރީމަންޓް",
+      "longTextDv": "ސީމަނުންގެ އެގްރީމެންޓް ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123028,
+      "shortTextEn": "Seaman Registration",
+      "longTextEn": "Seaman Registration",
+      "shortTextDv": "ސީމަނުން ރަޖިސް.",
+      "longTextDv": "ސީމަނުން ރަޖިސްޓްރީ ކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123029,
+      "shortTextEn": "Postage Ctrl. Perm.",
+      "longTextEn": "Postage Control Permission",
+      "shortTextDv": "ޕޯސްޓޭޖް ކޮންޓްރޯލް",
+      "longTextDv": "ޕޯސްޓޭޖް ކޮންޓްރޯލް ހުއްދަ"
+    },
+    {
+      "code": 123030,
+      "shortTextEn": "Copyright Fees",
+      "longTextEn": "Copyright Registration Fees",
+      "shortTextDv": "ކޮޕީރައިޓް ފީ",
+      "longTextDv": "ކޮޕީރައިޓް ރަގިސްޓްރީކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123031,
+      "shortTextEn": "Clearance fee",
+      "longTextEn": "Inward and outward clearance fee",
+      "shortTextDv": "ކްލިއަރެންސް ފީ",
+      "longTextDv": "އިންވާރޑް އަދި އައުޓްވާރޑް ކްލިއަރެންސް ފީ"
+    },
+    {
+      "code": 123032,
+      "shortTextEn": "Loading & unloading",
+      "longTextEn": "Goods loading and unloading fee",
+      "shortTextDv": "މުދާ އަރުވައި ބޭލުން",
+      "longTextDv": "ރަސްމީ ނޫން ބަނދަރުތަކުން މުދާ އަރުވާ ބޭލުމުގެ ފީ"
+    },
+    {
+      "code": 123033,
+      "shortTextEn": "Dewatering permit",
+      "longTextEn": "Dewatering permit fee",
+      "shortTextDv": "ފެންނަގާ ބޭރުކުރުން",
+      "longTextDv": "ބިމުން ފެންނަގާ ބޭރުކުރުންގެ ހުއްދަ"
+    },
+    {
+      "code": 123034,
+      "shortTextEn": "Sole Traders fee",
+      "longTextEn": "Sole Traders Registration fee",
+      "shortTextDv": "އަމިއްލަ ވިޔަފާރި ފީ",
+      "longTextDv": "އަމިއްލަ ވިޔަފާރި ރަޖިސްޓްރީކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123035,
+      "shortTextEn": "Emp. Agency Reg.fee",
+      "longTextEn": "Employment Agency Registration fee",
+      "shortTextDv": "ވަޒީފާ އޭޖެންސީ ފީ",
+      "longTextDv": "ވަޒީފާ ހަމަޖައްސަދޭ އޭޖެންސީ ރަޖިސްޓްރީކުރުމުގެ ފީ"
+    },
+    {
+      "code": 123995,
+      "shortTextEn": "Refnd - Reg & Lic.",
+      "longTextEn": "Refund of Registration and Licence Fees",
+      "shortTextDv": "ރިފަންޑް-ރެޖިސްޓް.ފީ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ ރަޖިސްޓްރޭޝަން އާއި ލައިސަންސް ފީ"
+    },
+    {
+      "code": 123999,
+      "shortTextEn": "Other Reg. & Licence",
+      "longTextEn": "Other Registration & Licence Fees",
+      "shortTextDv": "އެހެނިހެން ރަޖިސް.ފީ",
+      "longTextDv": "އެހެނިހެން ރެޖިސްޓްރޭޝަން އަދި ލައިސަންސް ފީ"
+    },
+    {
+      "code": 124001,
+      "shortTextEn": "Sale-Books Mags etc",
+      "longTextEn": "Sale of Books, News Papers, Magezines Etc",
+      "shortTextDv": "ފޮތް،ނޫސް..ވިއްކުން",
+      "longTextDv": "ޗާޕުކުރި ފޮތް، ނޫސް، މަޖައްލާފަދަ ތަކެތި ވިއްކުން"
+    },
+    {
+      "code": 124002,
+      "shortTextEn": "Sale-Gazette,Law etc",
+      "longTextEn": "Sale of Gazette, Law, Regulation",
+      "shortTextDv": "ގެޒެޓް،..ވިއްކުން",
+      "longTextDv": "ގެޒެޓް، ޤާނޫނު، ގަވާއިދު ފޮތް ވިއްކުން"
+    },
+    {
+      "code": 124003,
+      "shortTextEn": "Sale-Calen,Souv. etc",
+      "longTextEn": "Sale of Calendar,Souvenir Etc",
+      "shortTextDv": "ކަލަންޑަރ،..ވިއްކުން",
+      "longTextDv": "ކަލަންޑަރު، ސުވެނިޔަރ ފަދަތަކެތި ވިއްކުން"
+    },
+    {
+      "code": 124004,
+      "shortTextEn": "Sale-Official form",
+      "longTextEn": "Sale of Official Forms",
+      "shortTextDv": "ރަސްމީ ފޯމް ވިއްކުން",
+      "longTextDv": "އެކިއެކި ބޭނުމަށް ދޫކުރެވޭ ރަސްމީ ފޯމް ވިއްކުން"
+    },
+    {
+      "code": 124005,
+      "shortTextEn": "Sale-Hist. books etc",
+      "longTextEn": "Sale of Historical Books Etc",
+      "shortTextDv": "ރެކޯޑް ފޮތް ވިއްކުން",
+      "longTextDv": "ރެކޯޑް ފޮތްފަދަ ތަކެތި ވިއްކުން"
+    },
+    {
+      "code": 124006,
+      "shortTextEn": "Sale-C.D.C",
+      "longTextEn": "Sale of C.D.C",
+      "shortTextDv": "ސީ.ޑީ.ސީ ދޫކުރުން",
+      "longTextDv": "ސީ.ޑީ.ސީ ދޫކުރުން"
+    },
+    {
+      "code": 124007,
+      "shortTextEn": "Sale-PP & EC",
+      "longTextEn": "Sale of Passport and E.C.",
+      "shortTextDv": "ޕ.ޕ، އީ.ސީ ދޫކުރުން",
+      "longTextDv": "ޕާސްޕޯޓް އާއި، އީ.ސީ ދޫކުރުން"
+    },
+    {
+      "code": 124008,
+      "shortTextEn": "Sale-Trees & timber",
+      "longTextEn": "Sale of Trees and Timber",
+      "shortTextDv": "ރުއްގަސް،.. ވިއްކުން",
+      "longTextDv": "ރުއްގަހާއި ލަކުޑި ވިއްކުން"
+    },
+    {
+      "code": 124009,
+      "shortTextEn": "Sale-Sand,coral etc",
+      "longTextEn": "Sale of Sand, Coral, Stone Etc",
+      "shortTextDv": "ވެލިގާ،.. ވިއްކުން",
+      "longTextDv": "ވެލިގަލާއި އަކިރިފަދަ ތަކެތި ވިއްކުން"
+    },
+    {
+      "code": 124010,
+      "shortTextEn": "Sale-Water",
+      "longTextEn": "Sale of Water",
+      "shortTextDv": "ފެން ވިއްކުން",
+      "longTextDv": "ފެން ވިއްކުން"
+    },
+    {
+      "code": 124995,
+      "shortTextEn": "Refnd-Sales Proceeds",
+      "longTextEn": "Refund of Sales Proceeds",
+      "shortTextDv": "ރިފަ-ތަކެތި ވިއްކުން",
+      "longTextDv": "ތަކެތި ވިއްކައިގެން ލިބޭ ފައިސާ ރިފަންޑް ކުރުން"
+    },
+    {
+      "code": 124999,
+      "shortTextEn": "Sale-Other",
+      "longTextEn": "Other Sales",
+      "shortTextDv": "އެހެނިހެން-ވިއްކުން",
+      "longTextDv": "އެހެނިހެން ތަކެތި ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 125001,
+      "shortTextEn": "Rent-Goifaalabba etc",
+      "longTextEn": "Rent from Goifaalabba, Hinna",
+      "shortTextDv": "ވަރުވާ",
+      "longTextDv": "ގޮއިފާލައްބަ، ހިންނަ ފަދަ ތަންތަނުގެ ވަރުވާ"
+    },
+    {
+      "code": 125002,
+      "shortTextEn": "Rent-Govt. Buildings",
+      "longTextEn": "Rent from Government Buildings",
+      "shortTextDv": "ޢިމާރާތްތަކުގެ ކުލި",
+      "longTextDv": "ސަރުކާރުގެ ޢިމާރާތްތަކުގެ ކުލި"
+    },
+    {
+      "code": 125003,
+      "shortTextEn": "Rent-Resorts",
+      "longTextEn": "Rent from Resorts",
+      "shortTextDv": "ރިސޯޓުތަކުގެ ކުލި",
+      "longTextDv": "ރިސޯޓުތަކުގެ ކުލި"
+    },
+    {
+      "code": 125004,
+      "shortTextEn": "Rent-Land-Comm. Pur.",
+      "longTextEn": "Rent from Land for Commmercial Purposes",
+      "shortTextDv": "ވިޔަފާރި ބިމުގެ ކުލި",
+      "longTextDv": "ވިޔަފާރި ކުރުމަށް ދޫކުރެވިފައިވާ ބިންބިމުގެ ކުލި"
+    },
+    {
+      "code": 125005,
+      "shortTextEn": "Rent-Land-Industry",
+      "longTextEn": "Rent from Land for Industry",
+      "shortTextDv": "ޞިނާޢީ ބިމުގެ ކުލި",
+      "longTextDv": "ޞިނާޢީ މަސައްކަތްތަކަށް ދޫކުރެވިފައިވާ ބިމުގެ ކުލި"
+    },
+    {
+      "code": 125006,
+      "shortTextEn": "Rent-Govt. Vessels",
+      "longTextEn": "Rent from Government Vessels",
+      "shortTextDv": "ކަނޑު އުޅަނދުގެ ކުލި",
+      "longTextDv": "ކަނޑުގައިދުއްވާ ސަރުކާރުގެ އުޅަނދުތަކުގެ ކުލި"
+    },
+    {
+      "code": 125007,
+      "shortTextEn": "Rent-Helipads",
+      "longTextEn": "Rent from Helipads",
+      "shortTextDv": "ހެލިޕޭޑްތަކުގެ ކުލި",
+      "longTextDv": "ހެލިޕޭޑްތަކުގެ ކުލި"
+    },
+    {
+      "code": 125008,
+      "shortTextEn": "Rent-LT Agri. Isl.",
+      "longTextEn": "Rent from Islands for Long Term Agriculture",
+      "shortTextDv": "ދަނޑުވެރިރަށުގެ ކުލި",
+      "longTextDv": "ދަނޑުވެރިކަމަށް ދޫކުރެވިފައިވާ ރަށްރަށުގެ ކުލި"
+    },
+    {
+      "code": 125009,
+      "shortTextEn": "Rent-Floating Jetty",
+      "longTextEn": "Rent from Floating Jetty",
+      "shortTextDv": "ފްލޯޓިންގ ޖެޓީގެކުލި",
+      "longTextDv": "ފްލޯޓިންގ ޖެޓީގެ ކުލި"
+    },
+    {
+      "code": 125010,
+      "shortTextEn": "U.Island Admin fee",
+      "longTextEn": "Uninhabited Island Administration Fee",
+      "shortTextDv": "ފަޅުރަށް. ފީ",
+      "longTextDv": "ފަޅުރަށްރަށް ބެލެހެއްޓުމުގެ ފީ"
+    },
+    {
+      "code": 125011,
+      "shortTextEn": "Un.Isl. Rent (Citzn)",
+      "longTextEn": "Uninhabited Islands Rent (to ctzn of the Island)",
+      "shortTextDv": "ފަޅުރަށް. ކުލި",
+      "longTextDv": "ރައްޔިތުންނަށް ދޫކުރެވޭ ފަޅުރަށްރަށުން ނެގޭކުލި"
+    },
+    {
+      "code": 125012,
+      "shortTextEn": "land cnvrsion & acqu",
+      "longTextEn": "Land acquisition and conversion fee",
+      "shortTextDv": "ބިން ވިއްކުމުގެ ފީ",
+      "longTextDv": "ބިންވިއްކުމާއި ބިން ބަދަލުކުރުމުގެ ފީ"
+    },
+    {
+      "code": 125013,
+      "shortTextEn": "Rent-Public Places",
+      "longTextEn": "Rent from Public Places",
+      "shortTextDv": "ޢާމު ތަންތަނުގެ ކުލި",
+      "longTextDv": "ޢާމު އިޖްތިމާޢީ ތަންތަނުގެ ކުލި"
+    },
+    {
+      "code": 125995,
+      "shortTextEn": "Refnd - Prop. Income",
+      "longTextEn": "Refund of Property Income",
+      "shortTextDv": "ރިފަންޑް-ޕްރޮޕ.އިނކ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ ހަރުމުދަލުގެ ޢާމްދަނީ"
+    },
+    {
+      "code": 125996,
+      "shortTextEn": "Revenue Share Atolls",
+      "longTextEn": "Revenue Share of Property Income to Atolls",
+      "shortTextDv": "ބައިކުޅަބައި",
+      "longTextDv": "އަތޮޅުތަކަށް ދެވޭ ބައިކުޅަބައި"
+    },
+    {
+      "code": 125999,
+      "shortTextEn": "Other prop. Income",
+      "longTextEn": "Other Rent and Property Income",
+      "shortTextDv": "އެހެނިހެން ކުލި",
+      "longTextDv": "އެހެނިހެން ކުއްޔާއި ހަރުމުދަލުގެ ޢާމްދަނީ"
+    },
+    {
+      "code": 126001,
+      "shortTextEn": "Breach of Law",
+      "longTextEn": "Fine-Breach of Law",
+      "shortTextDv": "ޖ-ޤާނޫނާއި ޚިލާފު",
+      "longTextDv": "ޤާނޫނާއި ޚިލާފުވެގެން ކުރެވޭ ޖޫރިމަނާ"
+    },
+    {
+      "code": 126002,
+      "shortTextEn": "Breach of Regulation",
+      "longTextEn": "Fine-Breach of Regulation",
+      "shortTextDv": "ޖ-ގަވާއިދާއި ޚިލާފު",
+      "longTextDv": "ގަވާއިދާއި ޚިލާފުވެގެން ކުރެވޭ ޖޫރިމަނާ"
+    },
+    {
+      "code": 126003,
+      "shortTextEn": "Breach of Agreement",
+      "longTextEn": "Fine-Breach of Agreement",
+      "shortTextDv": "ޖ-އެގްރީ. ޚިލާފު",
+      "longTextDv": "އެގްރީމެންޓާއި ޚިލާފުވެގެން ކުރެވޭ ޖޫރިމަނާ"
+    },
+    {
+      "code": 126004,
+      "shortTextEn": "Late fine",
+      "longTextEn": "Late fine deducted from Salaries",
+      "shortTextDv": "ޖ-ގަޑީލާރި",
+      "longTextDv": "މުވައްޒަފުންގެ ގަޑީ ލާރި އާއި ޖޫރިމަނާއަށް ލިބޭ"
+    },
+    {
+      "code": 126005,
+      "shortTextEn": "\"Dharani\"",
+      "longTextEn": "\"Dharanyaai Qazziyya joorimanaa\"",
+      "shortTextDv": "ދަރަންޏާއި ޤަޒިއްޔާ",
+      "longTextDv": "ދަރަންޏާއި ޤަޒިއްޔާ ޖޫރިމަނާ"
+    },
+    {
+      "code": 126006,
+      "shortTextEn": "Traffic Violation",
+      "longTextEn": "Traffic Violation Charges",
+      "shortTextDv": "ޓްރެފިކް ވައިލޭޝަން",
+      "longTextDv": "ޓްރެފިކް ވައިލޭޝަން ޗާޖް"
+    },
+    {
+      "code": 126007,
+      "shortTextEn": "Veh. Impounding Fee",
+      "longTextEn": "Vehicle Impounding Fee",
+      "shortTextDv": "އިމްޕައުންޑިންގ ފީ",
+      "longTextDv": "ވެހިކަލް އިމްޕައުންޑިންގ ފީ"
+    },
+    {
+      "code": 126995,
+      "shortTextEn": "Refnd - Fines",
+      "longTextEn": "Refund of Fines and Penalties",
+      "shortTextDv": "ރިފަންޑް-ޖޫރިމަނާ",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ ޖޫރިމަނާ"
+    },
+    {
+      "code": 126999,
+      "shortTextEn": "Other Fine / Penalty",
+      "longTextEn": "Other Fine or Penalty",
+      "shortTextDv": "ޖ-އެހެނިހެން",
+      "longTextDv": "އެހެނިހެން ޖޫރިމަނާ"
+    },
+    {
+      "code": 127001,
+      "shortTextEn": "Subs. loan int. rec.",
+      "longTextEn": "Subsidiary Loan Interest received",
+      "shortTextDv": "ސަބްލޯން އިންޓަރެސްޓ",
+      "longTextDv": "ސަބްސިޑިއަރީ ލޯންތަކުން ލިބޭ އިންޓަރެސްޓް ފައިސާ"
+    },
+    {
+      "code": 127002,
+      "shortTextEn": "Int. received Loan",
+      "longTextEn": "Interest received from Loan",
+      "shortTextDv": "ލޯން އިންޓަރެސްޓަށް ލިބޭ",
+      "longTextDv": "ލޯން އިންޓަރެސްޓަށް ލިބޭ"
+    },
+    {
+      "code": 127003,
+      "shortTextEn": "Transfers by MMA",
+      "longTextEn": "Transfers by MMA",
+      "shortTextDv": "ފައިދާ - MMA",
+      "longTextDv": "އެމް.އެމް.އޭ. ގެ ފައިދާ"
+    },
+    {
+      "code": 127004,
+      "shortTextEn": "Div. - IAS",
+      "longTextEn": "Div. - Island Aviation Services Ltd",
+      "shortTextDv": "ޙ. ފައިދާ- IAS",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އައިލަންޑް އޭވިއޭޝަން ސ.ލ."
+    },
+    {
+      "code": 127005,
+      "shortTextEn": "Div. - MNSL",
+      "longTextEn": "Div. - Maldives National Shipping Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-MNSL",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - މޯލްޑިވްސް ނެޝަނަލް ޝިޕިންގ ލޓޑ"
+    },
+    {
+      "code": 127006,
+      "shortTextEn": "Div. - HDC",
+      "longTextEn": "Div. - Hulhumale Development Corporation",
+      "shortTextDv": "ޙ. ފައިދާ-HDC",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެޗް.ޑީ.ސީ."
+    },
+    {
+      "code": 127007,
+      "shortTextEn": "Div. - MPL",
+      "longTextEn": "Div. - Maldives Ports Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-MPL",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - މޯލްޑިވްސް ޕޯރޓްސް އޮތޯރިޓީ"
+    },
+    {
+      "code": 127008,
+      "shortTextEn": "Div. - Airports Co.",
+      "longTextEn": "Div. - Maldives Airports Company Ltd",
+      "shortTextDv": "ޙ. ފައިދާ-އެއާޕޯޓްސް",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - މޯލްޑިވްސް އެއަރޕޯރޓްސް ކޮމްޕެނީ"
+    },
+    {
+      "code": 127009,
+      "shortTextEn": "Div. - Post Ltd",
+      "longTextEn": "Div. - Maldives Post Ltd",
+      "shortTextDv": "ޙ. ފައިދާ-ޕޯސްޓް ލޓޑ",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - މޯލްޑިވްސް ޕޯސްޓް ލޓޑ"
+    },
+    {
+      "code": 127010,
+      "shortTextEn": "Div. - DHIRAAGU",
+      "longTextEn": "Div. - Dhivehiraajjeyge Gulhun Pvt. Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-ދިރާގު",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ދިވެހިރާއްޖޭގެ ގުޅުން ޕވޓ ލޓޑ"
+    },
+    {
+      "code": 127011,
+      "shortTextEn": "Div. - STO",
+      "longTextEn": "Div. - State Trading Organisation Plc.",
+      "shortTextDv": "ޙ. ފައިދާ-STO",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ސްޓޭޓް ޓްރޭޑިންގ އޯގަނައިޒޭޝަން"
+    },
+    {
+      "code": 127012,
+      "shortTextEn": "Div. - STELCO",
+      "longTextEn": "Div. - State Electric Company Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-STELCO",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ސްޓޭޓް އިލެކްޓްރިކް ކޮމްޕެނީ ލޓޑ"
+    },
+    {
+      "code": 127013,
+      "shortTextEn": "Div. - PWS",
+      "longTextEn": "Div. - Public Works Services",
+      "shortTextDv": "ޙ. ފައިދާ-PWS",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ޕަބްލިކް ވަރކްސް ސަރވިސަސް"
+    },
+    {
+      "code": 127014,
+      "shortTextEn": "Div. - MTCC",
+      "longTextEn": "Div. - Maldives Transport and Contracting Co. Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-MTCC",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެމް.ޓީ.ސީ.ސީ."
+    },
+    {
+      "code": 127015,
+      "shortTextEn": "Div. - Nasandhura",
+      "longTextEn": "Div. - Nasandhura Palace Hotel",
+      "shortTextDv": "ޙ. ފައިދާ-ނަސަންދުރަ",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ނަސަންދުރަ ޕެލަސް ހޮޓެލް"
+    },
+    {
+      "code": 127016,
+      "shortTextEn": "Div. - MIC",
+      "longTextEn": "Div. - Maldives Inflight Catering",
+      "shortTextDv": "ޙ. ފައިދާ-MIC",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެމް.އައި.ސީ."
+    },
+    {
+      "code": 127017,
+      "shortTextEn": "Div. - MIFCO",
+      "longTextEn": "Div. - Maldives Industrial Fisheries Co. Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-MIFCO",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - މިފްކޯ"
+    },
+    {
+      "code": 127018,
+      "shortTextEn": "Div. - BML",
+      "longTextEn": "Div. - Bank of Maldives Plc.",
+      "shortTextDv": "ޙ. ފައިދާ-BML",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ބޭންކް އޮފް މޯލްޑިވްސް"
+    },
+    {
+      "code": 127019,
+      "shortTextEn": "Div. - MTDC",
+      "longTextEn": "Div. - Maldives Tourism Development Corporation",
+      "shortTextDv": "ޙ. ފައިދާ-MTDC",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެމް.ޓީ.ޑީ.ސީ."
+    },
+    {
+      "code": 127020,
+      "shortTextEn": "Div. - HDFC",
+      "longTextEn": "Div. - Housing Development Financing Corporation",
+      "shortTextDv": "ޙ. ފައިދާ-HDFC",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެޗް.ޑީ.އެފް.ސީ."
+    },
+    {
+      "code": 127021,
+      "shortTextEn": "Div. - MWSC",
+      "longTextEn": "Div. - Maldives Water and Sewerage Company Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-MWSC",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެމް.ޑަބްލިއު.އެސް.ސީ."
+    },
+    {
+      "code": 127022,
+      "shortTextEn": "Div. - Addu Invest.",
+      "longTextEn": "Div. - Addu Investments Pvt. Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-އައްޑޫ..",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އައްޑޫ އިންވެސްމަންޓް ޕވޓ ލޓޑ"
+    },
+    {
+      "code": 127023,
+      "shortTextEn": "Div. - Madiv. Hold.",
+      "longTextEn": "Div. - Madivaru Holdings",
+      "shortTextDv": "ޙ. ފައިދާ-މަޑިވަރު..",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - މަޑިވަރު ހޯލްޑިންގސް"
+    },
+    {
+      "code": 127024,
+      "shortTextEn": "Div. - Air Mald.",
+      "longTextEn": "Div. - Air Maldives Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-އެއާމޯލްޑ.",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެއަރ މޯލްޑިވްސް ލޓޑ"
+    },
+    {
+      "code": 127025,
+      "shortTextEn": "Div. - Vilg. Invest.",
+      "longTextEn": "Div. - Vilingili Investments Pvt. Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-ވިލިގިލި..",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ވިލިނގިލި އިންވެސްމަންޓް ޕވޓ ލޓޑ"
+    },
+    {
+      "code": 127026,
+      "shortTextEn": "Div. - HIEZ",
+      "longTextEn": "Div. - Hulhumale Integrated Economic Zone",
+      "shortTextDv": "ޙ. ފައިދާ-HIEZ",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - އެޗް.އައި.އީ.ޒެޑް."
+    },
+    {
+      "code": 127027,
+      "shortTextEn": "Div. - Gulhi Falhu",
+      "longTextEn": "Div. - Gulhi Falhu Industrial Zone Ltd.",
+      "shortTextDv": "ޙ. ފައިދާ-ގުޅީފަޅު..",
+      "longTextDv": "ޙިއްޞާގެ ފައިދާ - ގުލިފަޅު އިންޑަސްޓްރިއަލް ޒޯން"
+    },
+    {
+      "code": 127028,
+      "shortTextEn": "MMA Exch. Profit",
+      "longTextEn": "MMA Exchange Profit",
+      "shortTextDv": "އެމް.އެމް.އޭ. އެކްސް",
+      "longTextDv": "އެމް.އެމް.އޭ. އެކްސްޗޭންޖް ފައިދާ"
+    },
+    {
+      "code": 127029,
+      "shortTextEn": "Dividend",
+      "longTextEn": "Dividend -SOEs & Public Enterprises",
+      "shortTextDv": "ހިއްސާގެ ފައިދާ",
+      "longTextDv": "ހިއްސާގެ ފައިދާ - ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 127030,
+      "shortTextEn": "Int. Frm Investment",
+      "longTextEn": "Interest received from Investments",
+      "shortTextDv": "އިންވެސްޓ އިންޓަރެސޓ",
+      "longTextDv": "އިންވެސްޓްމަންޓްތަކުން ލިބޭ އިންޓަރެސްޓް ފައިސާ"
+    },
+    {
+      "code": 127999,
+      "shortTextEn": "Othr Int., Prft. etc",
+      "longTextEn": "Other Interest, Profit or Dividend Received",
+      "shortTextDv": "ޙ. ފައިދާ-އެހެނިހެން",
+      "longTextDv": "ލިބޭ އެހެނިހެން އިންޓަރެސްޓް، ފައިދާ، ޑިވިޑެންޑް"
+    },
+    {
+      "code": 129001,
+      "shortTextEn": "Unknown extra cash",
+      "longTextEn": "Cash Received for Which Purpose Is Unknown",
+      "shortTextDv": "ނޭނގި އިތުރުވާ..",
+      "longTextDv": "ވަކި ފައިސާއެއްކަން ނޭނގި އިތުރުވާ ފައިސާ"
+    },
+    {
+      "code": 129002,
+      "shortTextEn": "Prev.yr. bgt.reimb.",
+      "longTextEn": "Reimbursement from Previous Year Budget",
+      "shortTextDv": "ކުރީގެ ބަޖެޓުން ލިބޭ",
+      "longTextDv": "ކުރީ އަހަރުގެ ބަޖެޓުން އަނބުރާ ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 129003,
+      "shortTextEn": "Subsc., Membership",
+      "longTextEn": "Subscription, Membership Fee Etc",
+      "shortTextDv": "ޗަންދާ ފަދަ ފައިސާ",
+      "longTextDv": "ލިބޭ މެމްބަރޝިޕް ފީ އާއި ޗަންދާ ފަދަ ފައިސާ"
+    },
+    {
+      "code": 129004,
+      "shortTextEn": "Subs. Loan Repaymt.",
+      "longTextEn": "Subsidiary Loan Repayment",
+      "shortTextDv": "ސަބްލޯން އަނބުރާލިބޭ",
+      "longTextDv": "ސަބްސިޑިއަރީ ލޯންތަކުން އަނބުރާ ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 129005,
+      "shortTextEn": "Comp. loss to assets",
+      "longTextEn": "Compensation of Losses to Government Assets",
+      "shortTextDv": "ގެއްލުމުގެ ބަދަލު",
+      "longTextDv": "ސަރުކާރުގެ މުދަލަކަށްވާ ގެއްލުމަކަށް ލިބޭ ބަދަލު"
+    },
+    {
+      "code": 129006,
+      "shortTextEn": "Items recovered.",
+      "longTextEn": "Recovery from unclaimed items",
+      "shortTextDv": "ހޮވައިގެން ގެނެވި..",
+      "longTextDv": "ހޮވައިގެން ގެނެވި އަހަރު ހަމަވާ ފައިސާ"
+    },
+    {
+      "code": 129007,
+      "shortTextEn": "Zakath",
+      "longTextEn": "Zakath",
+      "shortTextDv": "ޒަކާތުން ލިބޭ ފައިސާ",
+      "longTextDv": "ޒަކާތުން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 129008,
+      "shortTextEn": "Donations",
+      "longTextEn": "Donations Received",
+      "shortTextDv": "ޑޮނޭޝަން",
+      "longTextDv": "ޑޮނޭޝަންގެ ގޮތުގައި ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 129009,
+      "shortTextEn": "Integratd Trspt Fund",
+      "longTextEn": "Receipts to Integrated Transport Network Fund",
+      "shortTextDv": "އިންޓެގްރޭޓެޑް ޓ.ފ.",
+      "longTextDv": "އިންޓެގްރޭޓެޑް ޓްރާންސްޕޯޓް ނެޓްވޯކް ފަންޑަށް ލިބޭ"
+    },
+    {
+      "code": 129010,
+      "shortTextEn": "Transferred Balance",
+      "longTextEn": "Transferred Balance",
+      "shortTextDv": "ޓްރާންސްފަކުރާ ބާކީ",
+      "longTextDv": "ޓްރާންސްފަރ ކުރާ ބާކީ"
+    },
+    {
+      "code": 129011,
+      "shortTextEn": "Insurance-Gov contr.",
+      "longTextEn": "Government Contribution to Fishermen insurance",
+      "shortTextDv": "މ.އިންޝުއަރަންސް",
+      "longTextDv": "މަސްވެރިންގެ އިންޝުއަރަންސް އަށް ސަރުކާރުން ދައްކާ ފައިސާ"
+    },
+    {
+      "code": 129012,
+      "shortTextEn": "Fishermen Insurance",
+      "longTextEn": "Fishermen Insurance Premium",
+      "shortTextDv": "މަސްވެރިން-އިންޝުއަރ",
+      "longTextDv": "މަސްވެރިން އިންޝުއަރަންސްގައި ބައިވެރިވުމަށް ދައްކާ ފައިސާ"
+    },
+    {
+      "code": 129995,
+      "shortTextEn": "Refnd - Misc.Recpt",
+      "longTextEn": "Refund of Miscellaneous Recipts",
+      "shortTextDv": "ރިފަންޑް-އެހެނިހެން",
+      "longTextDv": "ރިފަންޑް ކުރެވޭ އެހެނިހެން ގޮތްގޮތުންލިބޭ ފައިސާ"
+    },
+    {
+      "code": 129998,
+      "shortTextEn": "Revenue Clearing",
+      "longTextEn": "Revenue Clearing Account",
+      "shortTextDv": "ރެވެނިއު ކްލިއަރިންގ",
+      "longTextDv": "ރެވެނިއު ކްލިއަރިންގ އެކައުންޓް"
+    },
+    {
+      "code": 129999,
+      "shortTextEn": "Other non-tax rev.",
+      "longTextEn": "Other miscellaneous non-tax revenue",
+      "shortTextDv": "އެހެނިހެން ނޮނޓެކްސ",
+      "longTextDv": "އެހެނިހެން ނޮން- ޓެކްސް ރެވެނިއު"
+    },
+    {
+      "code": 131001,
+      "shortTextEn": "Sale - Auction",
+      "longTextEn": "Sale of items at auction",
+      "shortTextDv": "ނީލަމުގައި ވިއްކި",
+      "longTextDv": "ނީލަމުގައި ތަކެތި ވިއްކައިގެން ލިބޭ"
+    },
+    {
+      "code": 131002,
+      "shortTextEn": "Sale - Govt. Bldg.",
+      "longTextEn": "Sale of Government Building",
+      "shortTextDv": "ޢިމާރާތް ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ ޢިމާރާތް ވިއްކި"
+    },
+    {
+      "code": 131003,
+      "shortTextEn": "Sale - Govt. land",
+      "longTextEn": "Sale of Government Land",
+      "shortTextDv": "ބިން ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ ބިން ވިއްކި"
+    },
+    {
+      "code": 131004,
+      "shortTextEn": "Sale - Cap. Asst.",
+      "longTextEn": "Sale of Capital Assets",
+      "shortTextDv": "ކެޕި.އެސެޓް ވިއްކި",
+      "longTextDv": "ކެޕިޓަލް އެސެޓް ވިއްކި"
+    },
+    {
+      "code": 131995,
+      "shortTextEn": "Refnd - Sales",
+      "longTextEn": "Refund of Proceeds from Sale of Assets",
+      "shortTextDv": "ރިފަންޑ-ހަރުމުދާވިއް",
+      "longTextDv": "ރިފަންޑް-ހަރުމުދާ ވިއްކައިގެން ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 131998,
+      "shortTextEn": "Fix.Asst Sales Clrg.",
+      "longTextEn": "Fixed Asset Sales Clearing",
+      "shortTextDv": "އެސެޓް ސޭލްސް ކްލި.",
+      "longTextDv": "ފިކްސްޑް އެސްޓް ސޭލްސް ކްލިއަރިންގ"
+    },
+    {
+      "code": 131999,
+      "shortTextEn": "Sale - Other Asset",
+      "longTextEn": "Sale of Other Asset",
+      "shortTextDv": "އެހެނިހެންމުދާވިއްކި",
+      "longTextDv": "އެހެނިހެން މުދާ ވިއްކި"
+    },
+    {
+      "code": 132001,
+      "shortTextEn": "Confiscated Assets - Lands",
+      "longTextEn": "Confiscated Assets - Lands",
+      "shortTextDv": "ދައުލަތަށް ނަގާ ބިންތައް",
+      "longTextDv": "ދައުލަތަށް ނަގާ ބިންތައް"
+    },
+    {
+      "code": 132002,
+      "shortTextEn": "Confiscated Assets- Buildings",
+      "longTextEn": "Confiscated Assets- Buildings",
+      "shortTextDv": "ދައުލަތަށް ނަގާ އިމާރާތްތައް",
+      "longTextDv": "ދައުލަތަށް ނަގާ އިމާރާތްތައް"
+    },
+    {
+      "code": 132003,
+      "shortTextEn": "Confiscated Assets- Furniture and Fittings",
+      "longTextEn": "Confiscated Assets- Furniture and Fittings",
+      "shortTextDv": "ދައުލަތަށް ނަގާ ފަރުނީޗަރ އެންޑް ފިޓިންގ",
+      "longTextDv": "ދައުލަތަށް ނަގާ ފަރުނީޗަރ އެންޑް ފިޓިންގ"
+    },
+    {
+      "code": 132004,
+      "shortTextEn": "Confiscated Assets- Macinery and Equipment",
+      "longTextEn": "Confiscated Assets- Macinery and Equipment",
+      "shortTextDv": "ދައުލަތަށް ނަގާ މެޝިނަރީ އެންޑް އިކްއިޕްމަންޓް",
+      "longTextDv": "ދައުލަތަށް ނަގާ މެޝިނަރީ އެންޑް އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 132005,
+      "shortTextEn": "Confiscated Assets- Vehicular Equipment",
+      "longTextEn": "Confiscated Assets- Vehicular Equipment",
+      "shortTextDv": "ދައުލަތަށް ނަގާ ވެހިކިއުލަރ އިކްއިޕްމަންޓް",
+      "longTextDv": "ދައުލަތަށް ނަގާ ވެހިކިއުލަރ އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 132006,
+      "shortTextEn": "Confiscated Assets- Tools, Instruments, Apparatus",
+      "longTextEn": "Confiscated Assets- Tools, Instruments, Apparatus",
+      "shortTextDv": "ދައުލަތަށް ނަގާ ޓޫލްސް، އިންސްޓް، އެޕަރަޓަސް",
+      "longTextDv": "ދައުލަތަށް ނަގާ ޓޫލްސް، އިންސްޓް، އެޕަރަޓަސް"
+    },
+    {
+      "code": 132007,
+      "shortTextEn": "Confiscated Assets- IT related Hardware",
+      "longTextEn": "Confiscated Assets- IT related Hardware",
+      "shortTextDv": "ދައުލަތަށް ނަގާ އައި.ޓީ އާއި ގުޅޭ ހާޑްވެއަރ",
+      "longTextDv": "ދައުލަތަށް ނަގާ އައި.ޓީ އާއި ގުޅޭ ހާޑްވެއަރ"
+    },
+    {
+      "code": 132008,
+      "shortTextEn": "Confiscated Assets- Other Equipment",
+      "longTextEn": "Confiscated Assets- Other Equipment",
+      "shortTextDv": "ދައުލަތަށް ނަގާ އެހެނިހެން އިކްއިޕްމަންޓް",
+      "longTextDv": "ދައުލަތަށް ނަގާ އެހެނިހެން އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 132009,
+      "shortTextEn": "Confiscated Assets- Motor vehicles",
+      "longTextEn": "Confiscated Assets- Motor vehicles",
+      "shortTextDv": "ދައުލަތަށް ނަގާ މަގުމަތީ ދުއްވާ އުޅަނދުތައް",
+      "longTextDv": "ދައުލަތަށް ނަގާ މަގުމަތީ ދުއްވާ އުޅަނދުތައް"
+    },
+    {
+      "code": 132010,
+      "shortTextEn": "Confiscated Assets- Ships and Boats",
+      "longTextEn": "Confiscated Assets- Ships and Boats",
+      "shortTextDv": "ދައުލަތަށް ނަގާ ކަނޑުގައި ދުއްވާ އުޅަދު",
+      "longTextDv": "ދައުލަތަށް ނަގާ ކަނޑުގައި ދުއްވާ އުޅަނދު"
+    },
+    {
+      "code": 141001,
+      "shortTextEn": "Csh.Grant-Bilateral",
+      "longTextEn": "Cash Grants - Bilateral",
+      "shortTextDv": "ފހއ-ބައިލެޓްރަލް",
+      "longTextDv": "ފައިސާގެ ހިލޭ އެހީ - ބައިލެޓްރަލް"
+    },
+    {
+      "code": 141002,
+      "shortTextEn": "Csh.Grant-Multilat.",
+      "longTextEn": "Cash Grants - Multilateral",
+      "shortTextDv": "ފހއ-މަލްޓިލެޓްރަލް",
+      "longTextDv": "ފައިސާގެ ހިލޭ އެހީ - މަލްޓިލެޓްރަލް"
+    },
+    {
+      "code": 141003,
+      "shortTextEn": "Csh.Grant-Vol. Org.",
+      "longTextEn": "Cash Grants - Voluntary Organisation",
+      "shortTextDv": "ފހއ-ވޮލަންޓަރީ އޯގް.",
+      "longTextDv": "ފައިސާގެ ހިލޭ އެހީ - ވޮލަންޓަރީ އޯރގް."
+    },
+    {
+      "code": 142001,
+      "shortTextEn": "I.K.Grant-Bilateral",
+      "longTextEn": "In-Kind Grants - Bilateral",
+      "shortTextDv": "ތހއ-ބައިލެޓްރަލް",
+      "longTextDv": "ތަކެތީގެ ހިލޭ އެހީ - ބައިލެޓްރަލް"
+    },
+    {
+      "code": 142002,
+      "shortTextEn": "I.K.Grant-Multilat.",
+      "longTextEn": "In-Kind Grants - Multilateral",
+      "shortTextDv": "ތހއ-މަލްޓިލެޓްރަލް",
+      "longTextDv": "ތަކެތީގެ ހިލޭ އެހީ - މަލްޓިލެޓްރަލް"
+    },
+    {
+      "code": 142003,
+      "shortTextEn": "I.K.Grant-Vol. Org.",
+      "longTextEn": "In-Kind Grants - Voluntary Organisation",
+      "shortTextDv": "ތހއ-ވޮލަންޓަރީ އޯގް.",
+      "longTextDv": "ތަކެތީގެ ހިލޭ އެހީ - ވޮލަންޓަރީ އޯރގް."
+    },
+    {
+      "code": 143001,
+      "shortTextEn": "C.P.Grant-Bilateral",
+      "longTextEn": "Capital Project Grant - Bilateral",
+      "shortTextDv": "ޕހއ-ބައިލެޓްރަލް",
+      "longTextDv": "ކެޕިޓަލް ޕްރޮޖެކްޓް ހިލޭއެހީ-ބައިލެޓްރަލް"
+    },
+    {
+      "code": 143002,
+      "shortTextEn": "C.P.Grant-Multilat.",
+      "longTextEn": "Capital Project Grant - Multilateral",
+      "shortTextDv": "ޕހއ-މަލްޓިލެޓްރަލް",
+      "longTextDv": "ކެޕިޓަލް ޕްރޮޖެކްޓް ހިލޭއެހީ-މަލްޓިލެޓްރަލް"
+    },
+    {
+      "code": 143003,
+      "shortTextEn": "C.P.Grant-Vol. Org.",
+      "longTextEn": "Capital Project Grant - Voluntary Organisation",
+      "shortTextDv": "ޕހއ-ވޮލަންޓަރީ އޯގް.",
+      "longTextDv": "ކެޕިޓަލް ޕްރޮޖެކްޓް ހިލޭއެހީ-ވޮލަންޓަރީ އޯރގް."
+    },
+    {
+      "code": 144001,
+      "shortTextEn": "Othr.Grant-Bilateral",
+      "longTextEn": "Other Grant - Bilateral",
+      "shortTextDv": "އހއ-ބައިލެޓްރަލް",
+      "longTextDv": "އެހެނިހެން ހިލޭ އެހީ - ބައިލެޓްރަލް"
+    },
+    {
+      "code": 144002,
+      "shortTextEn": "Othr.Grant-Multilat.",
+      "longTextEn": "Other Grant - Multilateral",
+      "shortTextDv": "އހއ-މަލްޓިލެޓްރަލް",
+      "longTextDv": "އެހެނިހެން ހިލޭ އެހީ - މަލްޓިލެޓްރަލް"
+    },
+    {
+      "code": 144003,
+      "shortTextEn": "Othr.Grant-Vol. Org.",
+      "longTextEn": "Other Grant - Voluntary Organisation",
+      "shortTextDv": "އހއ-ވޮލަންޓަރީ އޯގް.",
+      "longTextDv": "އެހެނިހެން ހިލޭ އެހީ - ވޮލަންޓަރީ އޯރގް."
+    },
+    {
+      "code": 181003,
+      "shortTextEn": "Gain-Exchange Rates",
+      "longTextEn": "Gains on Exchange Rates",
+      "shortTextDv": "ފައިދާ-އެކްސްޗޭންޖް",
+      "longTextDv": "އެކްސްޗޭންޖް ރޭޓް ބަދަލުވުމުން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181004,
+      "shortTextEn": "Gain-Invest. Revalu.",
+      "longTextEn": "Gains on Investment Revaluation",
+      "shortTextDv": "ފައިދާ-ރިވެލުއޭޝަނ",
+      "longTextDv": "އިންވެސްޓްމަންޓް އަގުކުރުމުން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181005,
+      "shortTextEn": "Gain-Sale-Govt.Prop.",
+      "longTextEn": "Gain on Sale of Government Property",
+      "shortTextDv": "ފައިދާ-މުދާ ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ މުދާ ވިއްކައިގެން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181006,
+      "shortTextEn": "Gain-Sale-Govt.Land",
+      "longTextEn": "Gain on Sale of Government Land",
+      "shortTextDv": "ފައިދާ-ބިން ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ ބިން ވިއްކައިގެން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181007,
+      "shortTextEn": "Gain-Sale-Cap. Asst.",
+      "longTextEn": "Gain on Sale of Sale of Capital Assets",
+      "shortTextDv": "ފައިދާ-އެސެޓް.ވިއްކި",
+      "longTextDv": "ކެޕިޓަލް އެސެޓް ވިއްކައިގެން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181008,
+      "shortTextEn": "Gain-Sale-Othr Asset",
+      "longTextEn": "Gain on Sale of Other Asset",
+      "shortTextDv": "ފައިދާ-އެހެން މުދާ",
+      "longTextDv": "އެހެނިހެން މުދާ ވިއްކައިގެން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181009,
+      "shortTextEn": "Gain-Sale of Equity",
+      "longTextEn": "Gain on Sale of Equity in Public Enterprises",
+      "shortTextDv": "ފައިދާ-ޙިއްޞާ ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ ޙިއްޞާ ވިއްކައިގެން ލިބޭ ފައިދާ"
+    },
+    {
+      "code": 181998,
+      "shortTextEn": "WBS Recovery",
+      "longTextEn": "Recovery from WBS Settlement",
+      "shortTextDv": "ރިކަވަރީ-WBS",
+      "longTextDv": "ރިކަވަރީ ފްރޮމް WBS ސެޓްލްމަންޓް"
+    },
+    {
+      "code": 181999,
+      "shortTextEn": "Gains-Other",
+      "longTextEn": "Gains-Other",
+      "shortTextDv": "ފައިދާ-އެހެނިހެން",
+      "longTextDv": "އެހެނިހެން ފައިދާ"
+    },
+    {
+      "code": 195101,
+      "shortTextEn": "Contrib.. from CRF",
+      "longTextEn": "Contribution from CRF",
+      "shortTextDv": "ސީއާރުއެފް ކޮންޓްރިބ",
+      "longTextDv": "ސީ.އާރު.އެފް ކޮންޓްރިބިއުޝަން"
+    },
+    {
+      "code": 195201,
+      "shortTextEn": "Contrib-from Trust F",
+      "longTextEn": "Contribution from Trust Fund",
+      "shortTextDv": "ޓ.ފަންޑް-ކޮންޓްރިބިއ",
+      "longTextDv": "ޓްރަސްޓް ފަންޑް ގެ ކޮންޓްރިބިއުޝަން"
+    },
+    {
+      "code": 211001,
+      "shortTextEn": "Salaries and Wages",
+      "longTextEn": "Salaries and Wages",
+      "shortTextDv": "މުސާރަ އާއި އުޖޫރަ",
+      "longTextDv": "މުވައްޒަފުންގެ މުސާރަ އާއި އުޖޫރަ"
+    },
+    {
+      "code": 211002,
+      "shortTextEn": "Overtime Pay",
+      "longTextEn": "Overtime Pay",
+      "shortTextDv": "އިތުރުގަޑީގެ ފައިސާ",
+      "longTextDv": "އިތުރުގަޑީގެ މަސައްކަތަށްދޭ ފައިސާ"
+    },
+    {
+      "code": 212001,
+      "shortTextEn": "Pocket Money",
+      "longTextEn": "Pocket Money",
+      "shortTextDv": "ޕޮކެޓްމަނީ",
+      "longTextDv": "މުވައްޒަފުންނަށް ދޭ ޕޮކެޓްމަނީ"
+    },
+    {
+      "code": 212002,
+      "shortTextEn": "Higher edu. allw.",
+      "longTextEn": "Higher Education Allowance",
+      "shortTextDv": "މަތީތަޢުލީމު..",
+      "longTextDv": "މަތީތަޢުލީމުގެ އެލަވަންސް"
+    },
+    {
+      "code": 212003,
+      "shortTextEn": "Technical Allowance",
+      "longTextEn": "Technical Allowance",
+      "shortTextDv": "ފަންނީ އެލަވަންސް",
+      "longTextDv": "ފަންނީ އެލަވަންސް"
+    },
+    {
+      "code": 212004,
+      "shortTextEn": "Long-Term Allowance",
+      "longTextEn": "Long-Term Allowance",
+      "shortTextDv": "ދިގުމުއްދަތުގެ..",
+      "longTextDv": "ދިގުމުއްދަތަށް ޚިދުމަތްކުރުމުގެ އެލަވަންސް"
+    },
+    {
+      "code": 212005,
+      "shortTextEn": "Ramazan Allowance",
+      "longTextEn": "Ramazan Allowance",
+      "shortTextDv": "ރަމަޟާން އިނާޔަތް..",
+      "longTextDv": "ރަމަޟާންމަހުގެ މުނާސަބަތުގައި ދޭ ޚާއްޞަ ޢިނާތްޔަތް"
+    },
+    {
+      "code": 212006,
+      "shortTextEn": "Medical Allowance",
+      "longTextEn": "Medical Allowance",
+      "shortTextDv": "މެޑިކަލް އެލަވަންސް",
+      "longTextDv": "މެޑިކަލް އެލަވަންސް"
+    },
+    {
+      "code": 212007,
+      "shortTextEn": "Domestic mkt. allw.",
+      "longTextEn": "Domestic Market Allowance",
+      "shortTextDv": "ޑޮމެސްޓިކް މާކެޓް..",
+      "longTextDv": "ޑޮމެސްޓިކް މާކެޓް އެލަވަންސް"
+    },
+    {
+      "code": 212008,
+      "shortTextEn": "Salary Increment",
+      "longTextEn": "Salary Increment",
+      "shortTextDv": "މުސާރައިގެކުރިއެރުން",
+      "longTextDv": "މުސާރައިގެ ކުރިއެރުމުގެ އެލަވަންސް"
+    },
+    {
+      "code": 212009,
+      "shortTextEn": "Special allw.",
+      "longTextEn": "Special Allowance for The Post",
+      "shortTextDv": "ޚާއްޞަ އެލަވަންސް",
+      "longTextDv": "މުވައްޒަފުންގެ މަޤާމުގެގޮތުން ދޭ ޚާއްޞަ އެލަވަންސް"
+    },
+    {
+      "code": 212010,
+      "shortTextEn": "Food Allowance",
+      "longTextEn": "Food Allowance",
+      "shortTextDv": "ކޮއްތު އެލަވަންސް",
+      "longTextDv": "މުވައްޒަފުންނަށް ފައިސާއިން ދޭ ކޮއްތު އެލަވަންސް"
+    },
+    {
+      "code": 212011,
+      "shortTextEn": "Committee Allowance",
+      "longTextEn": "Committee Allowance",
+      "shortTextDv": "ކޮމިޓީ އެލަވަންސް",
+      "longTextDv": "އެކިއެކި ކޮމިޓީތަކުގެ މެންބަރުންނަށްދޭ އެލަވަންސް"
+    },
+    {
+      "code": 212012,
+      "shortTextEn": "Locl non-resid.allw.",
+      "longTextEn": "Allowance for Local Non-Residents",
+      "shortTextDv": "ހާޑްޝިޕް އެލަވަންސް",
+      "longTextDv": "އަމިއްލަރަށްނޫން ރަށެއްގައި ވަޒީފާއަދާކުރާތީދޭ އ."
+    },
+    {
+      "code": 212013,
+      "shortTextEn": "Commuting allw.",
+      "longTextEn": "Commuting Allowance for Local Non-Residents",
+      "shortTextDv": "ދަތުރު އެލަވަންސް",
+      "longTextDv": "އަމިއްލަރަށްނޫން ރަށެއްގައި ވަޒީފާއަދާކުރާތީދޭ ދ.އ"
+    },
+    {
+      "code": 212014,
+      "shortTextEn": "Dependents allw.",
+      "longTextEn": "Dependants' Allowance",
+      "shortTextDv": "ލިވިންގ އެލަވަންސް",
+      "longTextDv": "ލިވިންގ އެލަވަންސްއާއި ފެމިލީ އެލަވަންސް"
+    },
+    {
+      "code": 212015,
+      "shortTextEn": "Holiday Allowance",
+      "longTextEn": "Holiday Allowance",
+      "shortTextDv": "ބަންދުދުވަހުގެފައިސާ",
+      "longTextDv": "ބަންދު ދުވަސްތަކުގައި މަސަތްކުރާތީ ދޭ އެލަވަންސް"
+    },
+    {
+      "code": 212016,
+      "shortTextEn": "Extra work allw.",
+      "longTextEn": "Allowance for Work Other Than Assigned",
+      "shortTextDv": "އިތުރު މަސައްކަތަށް.",
+      "longTextDv": "އަސާސީ ވަޒީފާގެ އިތުރުންކުރާ މަސައްކަތަށްދޭ ފައިސާ"
+    },
+    {
+      "code": 212017,
+      "shortTextEn": "Cancel. annl. leave",
+      "longTextEn": "Annual Leave Cancellation Allowance",
+      "shortTextDv": "ކެންސަލްވާ ޗުއްޓީ",
+      "longTextDv": "އަހަރީޗުއްޓީން ކެންސަލްވާ ދުވަސްތަކަށް ދޭ ފައިސާ"
+    },
+    {
+      "code": 212018,
+      "shortTextEn": "Uniform Allowance",
+      "longTextEn": "Uniform Allowance",
+      "shortTextDv": "ޔުނިފޯރމް އެލަވަންސް",
+      "longTextDv": "ޔުނިފޯރމް އެލަވަންސް"
+    },
+    {
+      "code": 212019,
+      "shortTextEn": "Acting Allowance",
+      "longTextEn": "Acting Allowance",
+      "shortTextDv": "ވަގުތީ ހިންގުން",
+      "longTextDv": "ވަގުތީ ހިންގުމުގެ އެލަވަންސް"
+    },
+    {
+      "code": 212020,
+      "shortTextEn": "Rel. Serv. Allowance",
+      "longTextEn": "Religious Service Allowance",
+      "shortTextDv": "ދީނީ ޚިދުމަތު އެލަވ",
+      "longTextDv": "ދީނީ ޚިދުމަތުގެ އެލަވަންސް"
+    },
+    {
+      "code": 212021,
+      "shortTextEn": "Shift Duty",
+      "longTextEn": "Shift Duty Allowance",
+      "shortTextDv": "ޝިފްޓް ޑިއުޓީ",
+      "longTextDv": "ޝިފްޓް ޑިއުޓީ އެލަވަންސް"
+    },
+    {
+      "code": 212022,
+      "shortTextEn": "Hardship Allowance",
+      "longTextEn": "Hardship Allowance",
+      "shortTextDv": "ހާރޑްޝިޕް އެލަވަންސް",
+      "longTextDv": "ހާރޑްޝިޕް އެލަވަންސް"
+    },
+    {
+      "code": 212023,
+      "shortTextEn": "Exclusive Job",
+      "longTextEn": "Exclusive Job Allowance",
+      "shortTextDv": "އެހެން ވަޒީފާ މަނާ..",
+      "longTextDv": "އެހެން ވަޒީފާއެއް އަދާކުރުން މަނާކުރާ އެލަވަންސް"
+    },
+    {
+      "code": 212024,
+      "shortTextEn": "Phone Allowance",
+      "longTextEn": "Phone Allowance",
+      "shortTextDv": "ފޯން އެލަވަންސް",
+      "longTextDv": "ފޯން އެލަވަންސް"
+    },
+    {
+      "code": 212025,
+      "shortTextEn": "Risk Allowance",
+      "longTextEn": "Risk Allowance",
+      "shortTextDv": "ރިސްކް އެލަވަންސް",
+      "longTextDv": "ރިސްކް އެލަވަންސް"
+    },
+    {
+      "code": 212026,
+      "shortTextEn": "Clothing Allowance",
+      "longTextEn": "Clothing Allowance",
+      "shortTextDv": "ހެދުން އެލަވަންސް",
+      "longTextDv": "ހެދުން އެލަވަންސް"
+    },
+    {
+      "code": 212027,
+      "shortTextEn": "Service Allowance",
+      "longTextEn": "Service Allowance",
+      "shortTextDv": "ސަރވިސް އެލަވަންސް",
+      "longTextDv": "ސަރވިސް އެލަވަންސް"
+    },
+    {
+      "code": 212028,
+      "shortTextEn": "Accble. Officer Allw",
+      "longTextEn": "Accountable Officers' Allowance",
+      "shortTextDv": "ޒިންމާދާރު އެލަވަންސ",
+      "longTextDv": "ޒިންމާދާރު ވެރިންނަށްދޭ އެލަވަންސް"
+    },
+    {
+      "code": 212999,
+      "shortTextEn": "Other Allowances",
+      "longTextEn": "Other Allowances",
+      "shortTextDv": "އެހެނިހެން ފައިސާ",
+      "longTextDv": "އެހެނިހެން ގޮތްގޮތުން މުވައްޒަފުންނަށް ދޭ ފައިސާ"
+    },
+    {
+      "code": 213001,
+      "shortTextEn": "Basic Pensions",
+      "longTextEn": "Basic Pensions",
+      "shortTextDv": "ބޭސިކް ޕެންޝަން",
+      "longTextDv": "ބޭސިކް ޕެންޝަންގެ ފައިސާ"
+    },
+    {
+      "code": 213002,
+      "shortTextEn": "Retrmt bnft. & grat.",
+      "longTextEn": "Retirement Benefits and Gratuities",
+      "shortTextDv": "ދައުލަތުން..",
+      "longTextDv": "ދައުލަތުން ވަކިޚިދުމަތަކަށް ނޫންގޮތުން ދޭ ފައިސާ"
+    },
+    {
+      "code": 213003,
+      "shortTextEn": "Retrmt bnft.-retmt.",
+      "longTextEn": "Retirement benefits paid upon Retirement",
+      "shortTextDv": "ރިޓަޔަރ-އިނާޔަތް",
+      "longTextDv": "މުސްކުޅިކުރައްވާ ފަރާތްތަކަށްދޭ އިނާޔަތު ފައިސާ"
+    },
+    {
+      "code": 213004,
+      "shortTextEn": "Retrmt bnft.-monthly",
+      "longTextEn": "Monthly Payment to the Retired",
+      "shortTextDv": "ރިޓަޔަރ-މަހުންމަހަށް",
+      "longTextDv": "މުސްކުޅިކުރައްވާ ފަރާތްތަކަށް މަހުންމަހަށްދޭފައިސާ"
+    },
+    {
+      "code": 213005,
+      "shortTextEn": "Govt. Contrib. to PF",
+      "longTextEn": "Government Contribution to Provident Fund",
+      "shortTextDv": "ޕްރޮވިޑެންޓް ފަންޑް",
+      "longTextDv": "ޕްރޮވިޑެންޓް ފަންޑަށް ސަރުކާރުން ދައްކާ ފައިސާ"
+    },
+    {
+      "code": 221001,
+      "shortTextEn": "Travl. exp. - Sea",
+      "longTextEn": "Travelling Expenses - Local Sea Travel",
+      "shortTextDv": "ދަތުރު-ކަނޑު",
+      "longTextDv": "ރާއްޖޭގެ އެތެރޭގައި ކަނޑުމަގުން ކުރާ ދަތުރުޚަރަދު"
+    },
+    {
+      "code": 221002,
+      "shortTextEn": "Travl. exp. - Land",
+      "longTextEn": "Travelling Expenses - Local Land Travel",
+      "shortTextDv": "ދަތުރު-އެއްގަމު",
+      "longTextDv": "ރާއްޖޭގެއެތެރޭގައި އެއްގަމުމަގުންކުރާ ދަތުރުޚަރަދު"
+    },
+    {
+      "code": 221003,
+      "shortTextEn": "Travl. exp. - Air",
+      "longTextEn": "Travelling Expenses - Local Air Travel",
+      "shortTextDv": "ދަތުރު-ވައިގެ",
+      "longTextDv": "ރާއްޖޭގެ އެތެރޭގައި ވައިގެމަގުންކުރާ ދަތުރު ޚަރަދު"
+    },
+    {
+      "code": 221004,
+      "shortTextEn": "Travl. exp. - Ovrsea",
+      "longTextEn": "Travelling Expenses - Overseas",
+      "shortTextDv": "ދަތުރު-ރާއްޖޭން ބޭރު",
+      "longTextDv": "ރާޖޭން ބޭރަށްކުރާ ދަތުރު ޚަރަދު"
+    },
+    {
+      "code": 221005,
+      "shortTextEn": "Travl. exp. - Forgnr",
+      "longTextEn": "Travelling Expenses for Foreigners",
+      "shortTextDv": "ދަތުރު-ބިދޭސީންނަށް",
+      "longTextDv": "ބިދޭސީންނަށްދެވޭ ދަތުރު ޚަރަދު"
+    },
+    {
+      "code": 221999,
+      "shortTextEn": "Travl. exp. - Other",
+      "longTextEn": "Other Travelling Expenses",
+      "shortTextDv": "ދަތުރު-އެހެނިހެން",
+      "longTextDv": "އެހެނިހެން ދަތުރު ޚަރަދު"
+    },
+    {
+      "code": 222001,
+      "shortTextEn": "Stationery & Req.",
+      "longTextEn": "Stationery and Office Requisites",
+      "shortTextDv": "ލިޔެކިއުމަށް ހޯދާ..",
+      "longTextDv": "ލިޔެކިޔުމާއި ބެހޭ ގޮތުން އޮފީހަށް ހޯދާތަކެތި"
+    },
+    {
+      "code": 222002,
+      "shortTextEn": "IT Related Materials",
+      "longTextEn": "IT Related Materials",
+      "shortTextDv": "އައި.ޓީ. ތަކެތި",
+      "longTextDv": "އިންފޮމޭޝަން ޓެކްނޮލޮޖީއާއިބެހޭ ގޮތުން ހޯދާ ތަކެތި"
+    },
+    {
+      "code": 222003,
+      "shortTextEn": "Fuel and Lubricants",
+      "longTextEn": "Fuel and Lubricants",
+      "shortTextDv": "ފިއުލް އަދި ތެޔޮ",
+      "longTextDv": "ފިއުލް އަދި އިންޖީނު ތެޔޮފަދަ ތަކެތި"
+    },
+    {
+      "code": 222004,
+      "shortTextEn": "Meals dur. off. hrs.",
+      "longTextEn": "Meals for Employees During Office Hours",
+      "shortTextDv": "އޮފީހުގައިދެވޭ ސައި",
+      "longTextDv": "އޮފީހުގައި އުޅޭވަގުތު ދޭ ކެއުމާއި ސައިފަދަ ތަކެތި"
+    },
+    {
+      "code": 222005,
+      "shortTextEn": "Electrical Items",
+      "longTextEn": "Electrical Items",
+      "shortTextDv": "އިލެކްޓްރިކް ތަކެތި",
+      "longTextDv": "އިލެކްޓްރިކާ ބެހޭގޮތުން ހޯދާތަކެތި"
+    },
+    {
+      "code": 222006,
+      "shortTextEn": "Spare Parts",
+      "longTextEn": "Spare Parts",
+      "shortTextDv": "ސްޕެއަރ ޕާރޓްސް",
+      "longTextDv": "ސްޕެއަރ ޕާރޓް ހޯދުމަށް ކުރާ ޚަރަދު"
+    },
+    {
+      "code": 222007,
+      "shortTextEn": "Mtrl. for uniforms",
+      "longTextEn": "Materials for Uniforms",
+      "shortTextDv": "ޔުނިފޯމަށްހޯދާތަކެތި",
+      "longTextDv": "ޔުނިފޯމް ދިނުމަށްޓަކައި ހޯދާތަކެތި"
+    },
+    {
+      "code": 222008,
+      "shortTextEn": "Off. Cleaning Mtrl.",
+      "longTextEn": "Supplies for Office Cleaning",
+      "shortTextDv": "ފޮޅާސާފުކުރާ ތަކެތި",
+      "longTextDv": "ކުނިކަހާ ފޮޅާސާފުކުރުމަށް ހޯދާ ތަކެތި"
+    },
+    {
+      "code": 222009,
+      "shortTextEn": "Utens. & accessories",
+      "longTextEn": "Utensils and Accessories",
+      "shortTextDv": "ހިފާގެންގުޅޭތަކެތި",
+      "longTextDv": "ހިފާގެންގުޅޭތަކެތި ހޯދުމަށް ކުރާ ޚަރަދު"
+    },
+    {
+      "code": 222010,
+      "shortTextEn": "Off. Decoration Mtrl",
+      "longTextEn": "Office Decoration Materials",
+      "shortTextDv": "އޮފިސް ޒީނަތްތެރި..",
+      "longTextDv": "އޮފީސް ޒީނަތްތެރި ކުރުމަށް ހޯދާތަކެތި"
+    },
+    {
+      "code": 222011,
+      "shortTextEn": "Curtain, tbl clothes",
+      "longTextEn": "Curtains, Table Cloths Etc",
+      "shortTextDv": "ދޮރުފޮތި ފަދަތަކެތި",
+      "longTextDv": "ދޮރުފޮތި، މޭޒުފޮތި އަދި ދިދަފަދަ ފޮތީގެ ބާވަތްތައް"
+    },
+    {
+      "code": 222999,
+      "shortTextEn": "Other Admin. Supp.",
+      "longTextEn": "Other Administrative Supplies",
+      "shortTextDv": "އެހެނިހެން ތަކެތި",
+      "longTextDv": "ހިންގުމަށް ބޭނުންވާ އެހެނިހެން ތަކެތީގެ އަގު"
+    },
+    {
+      "code": 223001,
+      "shortTextEn": "Tel., Fax & Telex",
+      "longTextEn": "Telephone, Fax and Telex",
+      "shortTextDv": "ޓެލެފޯން ފަދަ ޚިދް.",
+      "longTextDv": "ޓެލެފޯން، ފެކްސް އަދި ޓެލެކްސް ގެ ޚަރަދު"
+    },
+    {
+      "code": 223002,
+      "shortTextEn": "Electricity",
+      "longTextEn": "Electricity",
+      "shortTextDv": "އިލެކްޓްރިކް ފީ",
+      "longTextDv": "އިލެކްޓްރިކް ފީގެ ޚަރަދު"
+    },
+    {
+      "code": 223003,
+      "shortTextEn": "Water & Sani. Serv.",
+      "longTextEn": "Water and Sanitation Services",
+      "shortTextDv": "ބޯފެން، ފާޚާނާ ޚިދް.",
+      "longTextDv": "ބޯފެނާއި ފާޚާނާގެ ޚިދުމަތުގެ އަގު"
+    },
+    {
+      "code": 223004,
+      "shortTextEn": "Leased line & Intrnt",
+      "longTextEn": "Leased Line and Internet",
+      "shortTextDv": "އިންޓަނެޓް ޚަރަދު",
+      "longTextDv": "ލީޒްލައިނާއި އިންޓަނެޓްގެ ޚަރަދު"
+    },
+    {
+      "code": 223005,
+      "shortTextEn": "Bldg. & land rent",
+      "longTextEn": "Building rent and Land rent",
+      "shortTextDv": "ޢިމާރާތާއި ބިމުކުލި",
+      "longTextDv": "ޢިމާރާތުގެ ކުއްޔާއި ބިމުގެ ކުލި"
+    },
+    {
+      "code": 223006,
+      "shortTextEn": "Hire Charges",
+      "longTextEn": "Hire Charges",
+      "shortTextDv": "ތަކެތީގެ ކުލި",
+      "longTextDv": "ތަކެތީގެ ކުލި"
+    },
+    {
+      "code": 223007,
+      "shortTextEn": "Scrty & safeguarding",
+      "longTextEn": "Security and Safeguarding Services",
+      "shortTextDv": "ސެކިއުރިޓީ ޚަރަދު",
+      "longTextDv": "ތަންތަނުގެ ސެކިއުރިޓީ ބެލެހެއްޓުމުގެ ޚަރަދު"
+    },
+    {
+      "code": 223008,
+      "shortTextEn": "Clning & waste disp.",
+      "longTextEn": "Cleaning Services and Waste Disposal",
+      "shortTextDv": "ފޮޅާސާފުކުރުން",
+      "longTextDv": "އޮފީސްޢިމާރާތް ފޮޅާސާފުކުރުމުގެ ޚިދުމަތުގެ ޚަރަދު"
+    },
+    {
+      "code": 223009,
+      "shortTextEn": "Postage and Message",
+      "longTextEn": "Postage and Message",
+      "shortTextDv": "ޕޯސްޓޭޖާއި މެސެޖް",
+      "longTextDv": "ޕޯސްޓޭޖާއި މެސެޖް ޚަރަދު"
+    },
+    {
+      "code": 223010,
+      "shortTextEn": "Annce., Subs. & Ads.",
+      "longTextEn": "Announcements, Subscriptions and Advertisements",
+      "shortTextDv": "އިޢްލާން،އިޝްތިހާރު",
+      "longTextDv": "އިޢްލާން،އިޝްތިހާރު،އެންގުން އަދި އިޝްތިރާކް"
+    },
+    {
+      "code": 223011,
+      "shortTextEn": "Carriage & Convey.",
+      "longTextEn": "Carriage and Conveyance",
+      "shortTextDv": "އުފުލުމުގެ ޚަރަދު",
+      "longTextDv": "އުފުލުމުގެ ޚަރަދު"
+    },
+    {
+      "code": 223012,
+      "shortTextEn": "Meetng, seminar exp.",
+      "longTextEn": "Meeting or Seminar Related Expenses",
+      "shortTextDv": "ޖަލްސާ،ސެމިނަރ",
+      "longTextDv": "ޖަލްސާ/ސެމިނަރ ފަދަ ކަންތައްތަކަށް ކުރާޚަރަދު"
+    },
+    {
+      "code": 223013,
+      "shortTextEn": "Natl. Competitions",
+      "longTextEn": "National Competitions and Ceremonies",
+      "shortTextDv": "ރަސްމީމުބާރާތްތައް",
+      "longTextDv": "ރަސްމީ މުބާރާތްތަކާއި މުނާސަބަތު ފާހަގަކުރުން"
+    },
+    {
+      "code": 223014,
+      "shortTextEn": "Social Dev. Progs.",
+      "longTextEn": "Social Development Programmes",
+      "shortTextDv": "އިޖްތިމާޢީ ތަރައްޤީ.",
+      "longTextDv": "އިޖްތިމާޢީ ތަރައްޤީގެ ޕްރޮގްރާމް ހިންގުމުގެ ޚަރަދު"
+    },
+    {
+      "code": 223015,
+      "shortTextEn": "Exam. related exp.",
+      "longTextEn": "Examination Related Expenses",
+      "shortTextDv": "އިމްތިޙާން ޚަރަދު",
+      "longTextDv": "އެކިއެކި އިމްތިޙާންތަކާ ބެހޭގޮތުން ކުރާޚަރަދު"
+    },
+    {
+      "code": 223016,
+      "shortTextEn": "Consul., Translatn.",
+      "longTextEn": "Consultancy, Translation & Other Related Services",
+      "shortTextDv": "ކޮންސަލްޓެންސީ",
+      "longTextDv": "ކޮންސަލްޓެންސީ/ތަރުޖަމާކުރުންފަދަ ޚިދުމަތުގެ އަގު"
+    },
+    {
+      "code": 223017,
+      "shortTextEn": "Exp Frgn. Dignita.",
+      "longTextEn": "Expenses on Foreign Dignitaries",
+      "shortTextDv": "މެހުމާންދާރީ ޚަރަދު",
+      "longTextDv": "މެހުމާނުންނަށް މެހުމާންދާރީއަދާކުރުމަށް ކުރާޚަރަދު"
+    },
+    {
+      "code": 223018,
+      "shortTextEn": "Visa & WP Fees",
+      "longTextEn": "Visa, Workpermit Fees of Expatriate Staff",
+      "shortTextDv": "ވިސާ، ވޯކްޕާމިޓް ފީ",
+      "longTextDv": "ބިދޭސީ މުވައްޒަފުންގެ ވިސާފީ،ވޯކްޕާމިޓްފީ،އައި.ޑީ."
+    },
+    {
+      "code": 223019,
+      "shortTextEn": "Annual fees to Govt.",
+      "longTextEn": "Annual Fees to Government",
+      "shortTextDv": "އަހަރީފީ",
+      "longTextDv": "އެކިކަންކަމަށް ސަރުކާރަށް ދައްކަންޖެހޭ އަހަރީފީ"
+    },
+    {
+      "code": 223020,
+      "shortTextEn": "Printing Services",
+      "longTextEn": "Printing Services",
+      "shortTextDv": "ޗާޕުކުރުމުގެ ޚަރަދު",
+      "longTextDv": "ޢާންމުފައިދާއަށް ޗާޕުކުރާ ތަކެތީގެ ޚަރަދު"
+    },
+    {
+      "code": 223021,
+      "shortTextEn": "Laundry Services",
+      "longTextEn": "Laundry Services",
+      "shortTextDv": "ދޮވެ އިސްތިރިކުރުން",
+      "longTextDv": "ދޮވެއިސްތިރިކުރުމުގެ ޚަރަދު"
+    },
+    {
+      "code": 223022,
+      "shortTextEn": "Staff Medical Exp.",
+      "longTextEn": "Staff Medical Expenses",
+      "shortTextDv": "ބޭސްފަރުވާ ޚަރަދު",
+      "longTextDv": "ޚިދުމަތުގައި އުޅެނިކޮށް ބަލިވާ މީހުނަށް ބޭސްކުރުން"
+    },
+    {
+      "code": 223023,
+      "shortTextEn": "Exp. on fairs",
+      "longTextEn": "Expenses on International & Local Fairs",
+      "shortTextDv": "ފެއަރތަކުގެ ޚަރަދު",
+      "longTextDv": "އެކިއެކި ފެއަރތަކުގައި ބައިވެރިވުމުގެ ޚަރަދު"
+    },
+    {
+      "code": 223024,
+      "shortTextEn": "Bank Charges & Comm.",
+      "longTextEn": "Bank Charges and Commission",
+      "shortTextDv": "ބޭންކްޗާޖް/ކޮމިޝަން",
+      "longTextDv": "ބޭންކްޗާޖާއި ކޮމިޝަންގެ ގޮތުގައި ދައްކާ ފައިސާ"
+    },
+    {
+      "code": 223025,
+      "shortTextEn": "Insurance",
+      "longTextEn": "Insurance",
+      "shortTextDv": "އިންޝުއަރަންސް",
+      "longTextDv": "އިންޝޫރަންސް ޚިދުމަތުގެ އަގު އަދާކުރުން"
+    },
+    {
+      "code": 223026,
+      "shortTextEn": "Subsc. & Fees - IT",
+      "longTextEn": "IT Related Subscriptions & Fees",
+      "shortTextDv": "މެމްބަރޕް ފީ-އައި.ޓީ",
+      "longTextDv": "ސަބްސްކްރިޕްޝަން އާއި ފީ - އައި.ޓީ."
+    },
+    {
+      "code": 223999,
+      "shortTextEn": "Other Admin. Serv.",
+      "longTextEn": "Other Administrative Services",
+      "shortTextDv": "އެހެނިހެން ޚިދް.",
+      "longTextDv": "އޮފީސް ހިންގުމުގެ އެހެނިހެން ޚިދުމަތުގެ ޚަރަދު"
+    },
+    {
+      "code": 224001,
+      "shortTextEn": "Medical Consumables",
+      "longTextEn": "Medical Consumables",
+      "shortTextDv": "މެޑިކަލް ކޮންޒިއުމް.",
+      "longTextDv": "މެޑިކަލް ސަޕްލައިޒް / ކޮންޒިއުމަބަލްސް"
+    },
+    {
+      "code": 224011,
+      "shortTextEn": "Edu. Consumables",
+      "longTextEn": "Educational Consumables",
+      "shortTextDv": "އެޑިޔު. ކޮންޒިއުމް.",
+      "longTextDv": "އެޑިޔުކޭޝަން ސަޕްލައިޒް / ކޮންޒިއުމަބަލްސް"
+    },
+    {
+      "code": 224021,
+      "shortTextEn": "Food-detainees",
+      "longTextEn": "Prov. of food to people under arrest & detention",
+      "shortTextDv": "ކެއުން-ބަންދު..",
+      "longTextDv": "ބަންދުކުރެވޭ މީހުނަށް ކާންދިނުމަށް ހޯދޭ ތަކެތި"
+    },
+    {
+      "code": 224022,
+      "shortTextEn": "Othr mtrl.-detainees",
+      "longTextEn": "Other Matrl. for people under arrest & detention",
+      "shortTextDv": "އެހެ.ތަކެތި-ބަންދު",
+      "longTextDv": "ބަންދުކުރެވޭ މީހުނަށް ހޯދަންޖެހޭ އެހެނިހެން ތަކެތި"
+    },
+    {
+      "code": 224996,
+      "shortTextEn": "Goods Issue",
+      "longTextEn": "Goods Issue and Other movements",
+      "shortTextDv": "ގުޑްސް އިޝޫ",
+      "longTextDv": "ގުޑްސް އިޝޫ & އަދަރ މޫވްމަންޓްސް"
+    },
+    {
+      "code": 224997,
+      "shortTextEn": "Internal Goods Issue",
+      "longTextEn": "Consumption for Internal Goods Issue",
+      "shortTextDv": "އިންޓަރ. ގުޑްސް އިޝޫ",
+      "longTextDv": "ކޮންޒަމްޝަން ފޮރ އިންޓަރނަލް ގުޑްސް އިޝޫ"
+    },
+    {
+      "code": 224998,
+      "shortTextEn": "Gain/Loss Inv.Var.",
+      "longTextEn": "Gain/Loss Inventory Variance",
+      "shortTextDv": "އިންވެންޓަރީ ގ/ލ",
+      "longTextDv": "އިންވެންޓަރީ ވޭރިއަންސް ގެއިން/ލޮސް"
+    },
+    {
+      "code": 224999,
+      "shortTextEn": "Othr Op. Consumbl.",
+      "longTextEn": "Other Operational Consumables",
+      "shortTextDv": "އެހެނިހެން ކޮންޒިއުމ",
+      "longTextDv": "އެހެނިހެން އޮޕަރޭޝަނަލް ކޮންޒިއުމަބަލްސް"
+    },
+    {
+      "code": 225001,
+      "shortTextEn": "Schol& felwshp asst.",
+      "longTextEn": "Scholarship and Fellowship Assistance",
+      "shortTextDv": "ސްކޮލަރޝިޕް، ފެލޯ.",
+      "longTextDv": "ސްކޮލަރޝިޕް، ފެލޯޝިޕްގައި ދާމީހުންގެ ފައިސާ"
+    },
+    {
+      "code": 225002,
+      "shortTextEn": "Overseas training",
+      "longTextEn": "Short Course Fees & Expenses - Overseas Training",
+      "shortTextDv": "ބޭރުގެ ކުރު ކޯސްފީ",
+      "longTextDv": "ބޭރުގައި ހިންގާ ކުރު ކޯސްތަކާއި ސްޓަޑީ ޓުއަރ"
+    },
+    {
+      "code": 225003,
+      "shortTextEn": "Workshop exp.",
+      "longTextEn": "Workshops Related Expenses",
+      "shortTextDv": "ވާރކްޝޮޕް ޚަރަދު",
+      "longTextDv": "ވާރކްޝޮޕް ފަދަކަންތައްތަކަށް ކުރާޚަރަދު"
+    },
+    {
+      "code": 225004,
+      "shortTextEn": "Local Training",
+      "longTextEn": "Course Fees & Related Expenses - Local Training",
+      "shortTextDv": "ރާއްޖޭގެ ޓްރޭނިން ފީ",
+      "longTextDv": "ރާއްޖޭގައި ހިންގާ އެކިއެކި ޓްރޭނިންގ ކޯސް"
+    },
+    {
+      "code": 225005,
+      "shortTextEn": "Condct Traing Cours.",
+      "longTextEn": "Conducting Training Courses",
+      "shortTextDv": "ރާއްޖޭގާކޯސްހިންގުން",
+      "longTextDv": "ރާއްޖޭގައި އެކިއެކި ކޯސްތައް ހިންގުމަށް ކުރާޚަރަދު"
+    },
+    {
+      "code": 225006,
+      "shortTextEn": "Staff training",
+      "longTextEn": "Staff training",
+      "shortTextDv": "އޮފީހުގާ ހިންގާ ކޯސް",
+      "longTextDv": "އޮފީސް މުވައްޒަފުންނަށް ޚާއްޞަ ޓްރެއިނިންގ"
+    },
+    {
+      "code": 226001,
+      "shortTextEn": "Rep.-Resi. Bldg.",
+      "longTextEn": "Repairs - Residential Buildings",
+      "shortTextDv": "މަރާމާތު-ދިރިއުޅޭ ޢ.",
+      "longTextDv": "މަރާމާތުކުރުން - މީހުން ދިރިއުޅޭ ޢިމާރާތްތައް"
+    },
+    {
+      "code": 226002,
+      "shortTextEn": "Rep.-Non-Resi. Bldg.",
+      "longTextEn": "Repairs - Non-Residential Buildings",
+      "shortTextDv": "މަރާމާތު-ދިރިނޫޅޭ ޢ.",
+      "longTextDv": "މަރާމާތުކުރުން - މީހުން ދިރިނޫޅޭ ޢިމާރާތްތައް"
+    },
+    {
+      "code": 226003,
+      "shortTextEn": "Rep.-Roads & Bridges",
+      "longTextEn": "Repairs - Roads and Bridges",
+      "shortTextDv": "މަރާމާތު-މަގު/ބްރިޖް",
+      "longTextDv": "މަރާމާތުކުރުން - މަގާއި ބްރިޖް ފަދަ ތަންތަން"
+    },
+    {
+      "code": 226004,
+      "shortTextEn": "Repairs - Airports",
+      "longTextEn": "Repairs - Airports",
+      "shortTextDv": "މަރާމާތު-ވައިބަދަރު",
+      "longTextDv": "މަރާމާތުކުރުން - ވައިގެ ބަނދަރު"
+    },
+    {
+      "code": 226005,
+      "shortTextEn": "Rep.-Wharves, Ports",
+      "longTextEn": "Repairs - Wharves, Ports and Harbours",
+      "shortTextDv": "މަރާމާތު-މަގު،ފާލަން",
+      "longTextDv": "މަރާމާތުކުރުން - މަގަތު ފާލަމާއި ބަނދަރު"
+    },
+    {
+      "code": 226006,
+      "shortTextEn": "Rep.-Sanit. System",
+      "longTextEn": "Repairs - Water & Sanitation Systems",
+      "shortTextDv": "މަރާމާތު-ފެން ނިޒާމް",
+      "longTextDv": "މަރާމާތުކުރުން - ފާޚާނާއާއި ފެނާބެހޭ ނިޒާމް"
+    },
+    {
+      "code": 226007,
+      "shortTextEn": "Rep.-Elec. System",
+      "longTextEn": "Repairs - Electricity Systems",
+      "shortTextDv": "މަރާމާތު-ކަރަންޓް",
+      "longTextDv": "މަރާމާތުކުރުން - ކަރަންޓް ވިއުގަ"
+    },
+    {
+      "code": 226008,
+      "shortTextEn": "Rep.-Othr Infras.",
+      "longTextEn": "Repairs - Other Infrastructure",
+      "shortTextDv": "މަރާމާތު-އިންފްރާ.",
+      "longTextDv": "މަރާމާތުކުރުން - އެހެނިހެން އިންފްރާ. އެސެޓް"
+    },
+    {
+      "code": 226009,
+      "shortTextEn": "Rep.-Furnit. & Fitt.",
+      "longTextEn": "Repairs - Furniture & Fittings",
+      "shortTextDv": "މަރާމާތު-ފަރުނީޗަރ",
+      "longTextDv": "މަރާމާތުކުރުން - ފަރުނީޗަރާއި ފިޓިންގސް"
+    },
+    {
+      "code": 226010,
+      "shortTextEn": "Rep.-Mach. & Equip.",
+      "longTextEn": "Repairs - Machinery and Equipment",
+      "shortTextDv": "މަރާމާތު-މެޝިނަރީ",
+      "longTextDv": "މަރާމާތުކުރުން - މެޝިނަރީ އާއި އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 226011,
+      "shortTextEn": "Rep.-Vehic. Equip.",
+      "longTextEn": "Repairs - Vehicular Equipment",
+      "shortTextDv": "މަރާމާތު-ވ.އިކުއިޕް.",
+      "longTextDv": "މަރާމާތުކުރުން - ވެހިކިއުލަރ އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 226012,
+      "shortTextEn": "Rep.-Comm. Infras.",
+      "longTextEn": "Repairs - Communication Infrastructure",
+      "shortTextDv": "މަރާމާތު-ކ.އިންފްރާ.",
+      "longTextDv": "މަރާމާތުކުރުން - ކޮމިއުނިކޭޝަން އިންފްރާ."
+    },
+    {
+      "code": 226013,
+      "shortTextEn": "Rep.-Comp. Software",
+      "longTextEn": "Repairs - Computer Software",
+      "shortTextDv": "މަރާމާތު-ސޮފްޓްވެއަރ",
+      "longTextDv": "މަރާމާތުކުރުން - ކޮމްޕިއުޓަރ ސޮފްޓްވެއަރ"
+    },
+    {
+      "code": 226014,
+      "shortTextEn": "Rep.-IT-Related HW",
+      "longTextEn": "Repairs - IT-Related Hardware",
+      "shortTextDv": "މަރާމާތު-ހާރޑްވެއަރ",
+      "longTextDv": "މަރާމާތުކުރުން - އައި.ޓީ.އާއި ގުޅޭ ހާރޑްވެއަރ"
+    },
+    {
+      "code": 226015,
+      "shortTextEn": "Rep.-Other Equipment",
+      "longTextEn": "Repairs - Other Equipment",
+      "shortTextDv": "މަރާމާތު-އ.އިކުއިޕް.",
+      "longTextDv": "މަރާމާތުކުރުން - އެހެނިހެން އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 226016,
+      "shortTextEn": "Rep.-Motor Vehicles",
+      "longTextEn": "Repairs - Motor Vehicles",
+      "shortTextDv": "މަރާމާތު-މޮޓޯ ވެހި.",
+      "longTextDv": "މަރާމާތުކުރުން - އެއްގަމުގައި ދުއްވާ ތަކެތި"
+    },
+    {
+      "code": 226017,
+      "shortTextEn": "Rep.-Ships and Boats",
+      "longTextEn": "Repairs - Ships and Boats",
+      "shortTextDv": "މަރާމާތު-ކަނޑުއުޅަދު",
+      "longTextDv": "މަރާމާތުކުރުން - ކަނޑުގައި ދުއްވާ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 226018,
+      "shortTextEn": "Rep.-Aero. equip.",
+      "longTextEn": "Repairs - Aerospace equipments",
+      "shortTextDv": "މަރާމާތު-ވައިއުޅަދު",
+      "longTextDv": "މަރާމާތުކުރުން - ވައިގެ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 227001,
+      "shortTextEn": "Int.Pmt.- Govt.",
+      "longTextEn": "Interest Payments to Government Agencies",
+      "shortTextDv": "ޚޚ-ސަރުކާރު",
+      "longTextDv": "ޚިދުމަތުގެ ޚަރަދު-ސަރުކާރުގެ އިދާރާތަކަށް"
+    },
+    {
+      "code": 227002,
+      "shortTextEn": "Int.Pmt.-Domestic",
+      "longTextEn": "Interest Payments to Domestic Sources",
+      "shortTextDv": "ޚޚ-ރާއްޖޭގެފަރާތް.",
+      "longTextDv": "ޚިދުމަތުގެ ޚަރަދު-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތަކަށް"
+    },
+    {
+      "code": 227003,
+      "shortTextEn": "Int.Pmt.-Foreign",
+      "longTextEn": "Interest Payments to Foreign Sources",
+      "shortTextDv": "ޚޚ-ބޭރުގެ ފަރާތް.",
+      "longTextDv": "ޚިދުމަތުގެ ޚަރަދު-ރާއްޖޭން ބޭރުގެ ފަރާތްތަކަށް"
+    },
+    {
+      "code": 227011,
+      "shortTextEn": "Discount-T.Bills",
+      "longTextEn": "Discount on Treasury Bills",
+      "shortTextDv": "ޓީ-ބިލް ޑިސްކައުންޓް",
+      "longTextDv": "ސަރުކާރުން ދޫކުރާ ޓީ-ބިލް ތަކުގެ ޑިސްކައުންޓް"
+    },
+    {
+      "code": 228001,
+      "shortTextEn": "Subsidies",
+      "longTextEn": "Subsidies",
+      "shortTextDv": "ސަބްސިޑީ",
+      "longTextDv": "ތަކެތި/ޚިދުމަތުގެ އަގުހެޔޮކުރުމުގެ ގޮތުންދޭ ފައިސާ"
+    },
+    {
+      "code": 228002,
+      "shortTextEn": "Welfare Payments",
+      "longTextEn": "Welfare Payments",
+      "shortTextDv": "އެހީ-ނިކަމެތިންނަށް",
+      "longTextDv": "ނިކަމެތިންގެ ޢާންމުޙާލަތު ރަނގަޅުކުރުމަށްދޭ ފައިސާ"
+    },
+    {
+      "code": 228003,
+      "shortTextEn": "Grants to Pvt.",
+      "longTextEn": "Grants to Private Parties",
+      "shortTextDv": "އެހީ-އަމިއްލަފަރާތް.",
+      "longTextDv": "އަމިއްލަފަރާތްތަކަށްދޭ އެހީގެ ފައިސާ"
+    },
+    {
+      "code": 228004,
+      "shortTextEn": "Awards",
+      "longTextEn": "Awards",
+      "shortTextDv": "ސަރުކާރުން ދޭ އިނާމު",
+      "longTextDv": "ސަރުކާރުން އެކިފަރާތްތަކަށް ދޭ އިނާމު"
+    },
+    {
+      "code": 228005,
+      "shortTextEn": "Indemnities & relief",
+      "longTextEn": "Indemnities and Relief Against Natural Calamities",
+      "shortTextDv": "އެހީ-ގުދުރަތީގެއްލުނ",
+      "longTextDv": "ގުދުރަތީގޮތުން ލިބޭ ގެއްލުމަށް ފައިސާއިން ދޭ އެހީ"
+    },
+    {
+      "code": 228006,
+      "shortTextEn": "Sub & Fees - Dom.",
+      "longTextEn": "Subscriptions & Fees to Domestic Organisations",
+      "shortTextDv": "މެމްބަރޕް ފީ-ރާއްޖެ",
+      "longTextDv": "ރާއްޖޭގެ ޖަމާޢަތްތަކާއި ތަންތާނގެ މެމްބަރޝިޕް ފީ"
+    },
+    {
+      "code": 228007,
+      "shortTextEn": "Sub & Fees - Int org",
+      "longTextEn": "Subscriptions & Fees to International Org.",
+      "shortTextDv": "މެމްބަރޕް ފީ-ބޭރު",
+      "longTextDv": "ބޭރުގެ ޖަމާޢަތްތަކާއި ތަންތާނގެ މެމްބަރޝިޕް ފީ"
+    },
+    {
+      "code": 228008,
+      "shortTextEn": "Donations to Frgn",
+      "longTextEn": "Donations to Foreign Parties or Goverments",
+      "shortTextDv": "އެހީ-ބޭރުގެ ފަރާތް.",
+      "longTextDv": "ބޭރުގެ ފަރާތްތަކަށް އެހީގެ ގޮތުގައި ދޭފައިސާ"
+    },
+    {
+      "code": 228009,
+      "shortTextEn": "Asstnc - social org",
+      "longTextEn": "Assistance to Associations & Social Organisations",
+      "shortTextDv": "އެހީ-އެސޯސިއޭޝަން",
+      "longTextDv": "އެސޯސިއޭޝަންތަކާއި އިޖްތިމާއި ކޮމިޓީތަކަށްދޭ އެހީ"
+    },
+    {
+      "code": 228010,
+      "shortTextEn": "Asstnc - Cmnt. Prog.",
+      "longTextEn": "Assistance for Community Programs",
+      "shortTextDv": "އެހީ-ޖަމާޢަތްތަކަށް",
+      "longTextDv": "ޖަމާޢަތުގެ ފައިދާއަށް ކުރާމަސައްކަތްތަކަށް ދޭ އެހީ"
+    },
+    {
+      "code": 228024,
+      "shortTextEn": "Therapeutic Services",
+      "longTextEn": "Therapeutic Services",
+      "shortTextDv": "ތެރަޕިއުޓިކް ފަރުވާ",
+      "longTextDv": "ތެރަޕިއުޓިކް ފަރުވާގެ ޚިދުމަތް"
+    },
+    {
+      "code": 228999,
+      "shortTextEn": "Othr Grant, Contrib.",
+      "longTextEn": "Other Grants, Contributions & Subsidies",
+      "shortTextDv": "އެހީ-އެހެނިހެން",
+      "longTextDv": "އެހެނިހެންގޮތްގޮތުން ދޭ ފައިސާގެ އެހީ"
+    },
+    {
+      "code": 271001,
+      "shortTextEn": "Project Cost - Land",
+      "longTextEn": "Project Cost - Land",
+      "shortTextDv": "ޕޚ. ބިން",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު- ބިން"
+    },
+    {
+      "code": 271002,
+      "shortTextEn": "Prj Cost-Resid.Build",
+      "longTextEn": "Project Cost -Residential Buildings",
+      "shortTextDv": "ޕޚ-ދިރިއުޅޭ ޢިމާރާތް",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-މީހުން ދިރިއުޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 271003,
+      "shortTextEn": "Prj Cost-Non-Res.Bld",
+      "longTextEn": "Project Cost-Non-Residential Buildings",
+      "shortTextDv": "ޕޚ-ދިރިނޫޅޭ ޢިމާރާތް",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-މީހުން ދިރިނޫޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 272001,
+      "shortTextEn": "Prj Cost-Roads&Brdg",
+      "longTextEn": "Project Cost - Roads and Bridges",
+      "shortTextDv": "ޕޚ-މަގާއިބްރިޖް ފަދަ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-މަގާއި ބްރިޖް ފަދަ ތަންތަން"
+    },
+    {
+      "code": 272002,
+      "shortTextEn": "Proj. Cost-Airports",
+      "longTextEn": "Project Cost -Airports",
+      "shortTextDv": "ޕޚ-ވައިގެ ބަނދަރު",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-ވައިގެ ބަނދަރު"
+    },
+    {
+      "code": 272003,
+      "shortTextEn": "P.Cost-Whvs,Pts&Hrbr",
+      "longTextEn": "Project Cost -Wharves,Ports and Harbours",
+      "shortTextDv": "ޕޚ-ފާލަމާއި ބަނދަރު",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު- މަގަތު ފާލަމާއި ބަނދަރު"
+    },
+    {
+      "code": 272004,
+      "shortTextEn": "Prj Cst-Wtr&Sant Syt",
+      "longTextEn": "Project Cost -Water & Sanitation Systems",
+      "shortTextDv": "ޕޚ-ފާޚާނާއާފެނާބެހޭ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު- ފާޚާނާއާއި ފެނާބެހޭ ނިޒާމް"
+    },
+    {
+      "code": 272005,
+      "shortTextEn": "Prj Cost-Elect Syst.",
+      "longTextEn": "Project Cost -Electricity Systems",
+      "shortTextDv": "ޕޚ-ކަރަންޓް ވިއުގަ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-ކަރަންޓް ވިއުގަ"
+    },
+    {
+      "code": 272999,
+      "shortTextEn": "Prj Cost-Other Infra",
+      "longTextEn": "Project Cost -Other Infrastructure",
+      "shortTextDv": "ޕޚ- އެހެނިހެން",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު- އެހެނިހެން އިންފްރާސްޓްރަކްޗަރ"
+    },
+    {
+      "code": 273001,
+      "shortTextEn": "Prj Cost Furni&Fittn",
+      "longTextEn": "Project Cost - Furniture & Fittings",
+      "shortTextDv": "ޕޚ-ފަރުނީޗަރާފިޓިންސ",
+      "longTextDv": "ފަޕްރޮޖެކްޓް ޚަރަދު-ފަރުނީޗަރާއި ފިޓިންގސް"
+    },
+    {
+      "code": 273002,
+      "shortTextEn": "Prj Cost Mach&Equip",
+      "longTextEn": "Project CostMachinery and Equipment",
+      "shortTextDv": "ޕޚ-މެޝިނަރީ އިކުއިޕް",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-މެޝިނަރީ އާއި އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 273003,
+      "shortTextEn": "Prj Cost Vhiculr Eqp",
+      "longTextEn": "Project CostVehicular Equipment",
+      "shortTextDv": "ޕޚ-ވެހިކިއުލައިކުއިޕ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-ވެހިކިއުލަރ އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 273004,
+      "shortTextEn": "P.Cst-Tools,Inst,App",
+      "longTextEn": "Project Cost-Tools,Instruments,Apparatus",
+      "shortTextDv": "ޕޚ-ބޭނުންކުރާ ސާމާނު",
+      "longTextDv": "ޕްރޮޖެކްޓްޚަރަދު-އެކިމަސައްކަތަށްބޭނުންކުރާ ސާމާނު"
+    },
+    {
+      "code": 273005,
+      "shortTextEn": "P.Cost-R.Books&Ex Gd",
+      "longTextEn": "Project Cost- Ref.Books&Exhibition Goods",
+      "shortTextDv": "ޕޚ-ރެފަރެންސް ފޮތް",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-ރެފަރެންސް ފޮތް"
+    },
+    {
+      "code": 273006,
+      "shortTextEn": "Prj Cost-Comm Infra",
+      "longTextEn": "Project Cost-Communication Infrastructure",
+      "shortTextDv": "ޕޚ-މުވާޞަލާތު ތަކެތި",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-މުވާޞަލާތުގެ ތަކެތި"
+    },
+    {
+      "code": 273007,
+      "shortTextEn": "Prj Cost-Comp Softwr",
+      "longTextEn": "Project Cost - Computer Software",
+      "shortTextDv": "ޕޚ-ކޮމްޕިއުޓަސޮފްޓްވ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-ކޮމްޕިއުޓަރ ސޮފްޓްވެއަރ"
+    },
+    {
+      "code": 273008,
+      "shortTextEn": "Prj Cost-IT-Rltd Hdw",
+      "longTextEn": "Project Cost - IT-Related Hardware",
+      "shortTextDv": "ޕޚ-އައި.ޓީ.ހާރޑްވެއަ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-އައި.ޓީ.އާއި ގުޅޭ ހާރޑްވެއަރ"
+    },
+    {
+      "code": 273999,
+      "shortTextEn": "Prj Cost-Other Equip",
+      "longTextEn": "Project Cost - Other Equipment",
+      "shortTextDv": "ޕޚ-އެހެނިހެން އިކުޕް",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-އެހެނިހެން އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 274001,
+      "shortTextEn": "Prj Cost - Motor Vhc",
+      "longTextEn": "Project Cost - Motor Vehicles",
+      "shortTextDv": "ޕޚ-އެއްގަމުގަދުއްވާ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު-އެއްގަމުގައި ދުއްވާ ތަކެތި"
+    },
+    {
+      "code": 274002,
+      "shortTextEn": "Prj Cost-Ships&Boats",
+      "longTextEn": "Project Cost - Ships and Boats",
+      "shortTextDv": "ޕޚ-ކަނޑުގައި ދުއްވާ",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު -ކަނޑުގައި ދުއްވާ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 274003,
+      "shortTextEn": "Prj Cost-Aero equip",
+      "longTextEn": "Project Cost - Aerospace equipments",
+      "shortTextDv": "ޕޚ-ވައިގެ އުޅަނދު",
+      "longTextDv": "ޕްރޮޖެކްޓް ޚަރަދު -ވައިގެ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 281001,
+      "shortTextEn": "Loss-Govt. Agencies",
+      "longTextEn": "Losses from Government Agencies",
+      "shortTextDv": "ގެއްލުނ-ސަރުކާރު",
+      "longTextDv": "ސަރުކާރަށްވީ/ލިބިދާނެ ގެއްލުމެއް ހަމަޖެއްސުން"
+    },
+    {
+      "code": 281002,
+      "shortTextEn": "Loss-Pvt. Parties",
+      "longTextEn": "Losses from Private Parties",
+      "shortTextDv": "ގެއްލުނ-އަމިއްލަ",
+      "longTextDv": "އަމިއްލަ ފަރާތްތަކަށް ލިބޭ ގެއްލުން ހަމަޖެއްސުން"
+    },
+    {
+      "code": 281003,
+      "shortTextEn": "Loss-Exchange Rates",
+      "longTextEn": "Losses on Exchange Rates",
+      "shortTextDv": "އެކްސްޗޭންޖް ރޭޓް ބަދަލުވުމުން ލިބޭ ގެއްލުން",
+      "longTextDv": "އެކްސްޗޭންޖް ރޭޓް ބަދަލުވުމުން ލިބޭ ގެއްލުން"
+    },
+    {
+      "code": 281004,
+      "shortTextEn": "Loss-Invest. Reval.",
+      "longTextEn": "Losses on Investment Revaluation",
+      "shortTextDv": "ގެއްލުނ-ރިވެލުއޭޝަނ",
+      "longTextDv": "އިންވެސްޓްމަންޓް އަގުކުރުމުން ލިބޭ ގެއްލުން"
+    },
+    {
+      "code": 281005,
+      "shortTextEn": "Loss-Sale-Govt.Prop.",
+      "longTextEn": "Loss on Sale of Government Property",
+      "shortTextDv": "ގެއްލުނ-މުދާ ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ މުދާ ވިއްކައިގެން ލިބޭ ގެއްލުން"
+    },
+    {
+      "code": 281006,
+      "shortTextEn": "Loss-Sale-Govt.Land",
+      "longTextEn": "Loss on Sale of Government Land",
+      "shortTextDv": "ގެއްލުނ-ބިން ވިއްކި",
+      "longTextDv": "ސަރުކާރުގެ ބިން ވިއްކައިގެން ލިބޭ ގެއްލުން"
+    },
+    {
+      "code": 281007,
+      "shortTextEn": "Loss-Sale-Invest.",
+      "longTextEn": "Loss on Sale of Investments In Public Enterprises",
+      "shortTextDv": "ގެއްލުނ-އިންވ.ވިއްކި",
+      "longTextDv": "އިންވެސްޓްމަންޓް ވިއްކައިގެން ލިބޭ ގެއްލުން"
+    },
+    {
+      "code": 281008,
+      "shortTextEn": "Loss-Sale-Othr Asset",
+      "longTextEn": "Loss on Sale of Other Asset",
+      "shortTextDv": "ގެއްލުނ-އެހެން މުދާ",
+      "longTextDv": "އެހެނިހެން އެސެޓް ވިއްކައިގެން ލިބޭ ގެއްލުން"
+    },
+    {
+      "code": 281009,
+      "shortTextEn": "Loss - Asst Impmt.",
+      "longTextEn": "Loss - Impairment on Assets",
+      "shortTextDv": "އެސެޓް އިމްޕެއަމަންޓ",
+      "longTextDv": "ލޮސް - އެސެޓް އިމްޕެއަރމަންޓް"
+    },
+    {
+      "code": 281010,
+      "shortTextEn": "Loss-Asst Scrapping",
+      "longTextEn": "Loss on Retirementof of Asset by Scrapping",
+      "shortTextDv": "އެސެޓް ސްކްރެޕިންގ",
+      "longTextDv": "ހަލާކު ކޮށްލެވޭ ހަރުމުދާ (ސްކްރެޕިންގ)"
+    },
+    {
+      "code": 281011,
+      "shortTextEn": "Revenue Refund",
+      "longTextEn": "Revenue Refund",
+      "shortTextDv": "ރެވެނިއު ރިފަންޑް",
+      "longTextDv": "ރެވެނިއު ރިފަންޑް"
+    },
+    {
+      "code": 281997,
+      "shortTextEn": "Sampling",
+      "longTextEn": "Sampling",
+      "shortTextDv": "ސާމްޕްލިންގ",
+      "longTextDv": "ސާމްޕްލިންގ"
+    },
+    {
+      "code": 281998,
+      "shortTextEn": "Scrapping Inventroy",
+      "longTextEn": "Scrapping/Destruction of Inventroy",
+      "shortTextDv": "ސްކްރެޕިންގ",
+      "longTextDv": "ހަލާކު ކޮށްލެވޭ އިންވެންޓަރީ (ސްކްރެޕިންގ)"
+    },
+    {
+      "code": 281999,
+      "shortTextEn": "Loss-Other",
+      "longTextEn": "Other Losses",
+      "shortTextDv": "ގެއްލުނ-އެހެނިހެން",
+      "longTextDv": "އެހެނިހެން ގެއްލުން"
+    },
+    {
+      "code": 282001,
+      "shortTextEn": "Write-Off-Govt.",
+      "longTextEn": "Write-Off - Government Agencies",
+      "shortTextDv": "ރައިޓްއޯފް-ސަރުކާރު",
+      "longTextDv": "ރައިޓްއޯފް - ސަރުކާރުގެ އިދާރާތައް"
+    },
+    {
+      "code": 282002,
+      "shortTextEn": "Write-Off-Pvt.",
+      "longTextEn": "Write-Off - Private Parties",
+      "shortTextDv": "ރައިޓްއޯފް-އަމިއްލަ",
+      "longTextDv": "ރައިޓްއޯފް - އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 282999,
+      "shortTextEn": "Write-Off-Other",
+      "longTextEn": "Other Write-Offs",
+      "shortTextDv": "ރައިޓްއޯފް-އެހެނިހެނ",
+      "longTextDv": "އެހެނިހެން ރައިޓްއޯފް"
+    },
+    {
+      "code": 291001,
+      "shortTextEn": "Frgn proj-local com.",
+      "longTextEn": "Local Components for Foreign Assisted Projects",
+      "shortTextDv": "ލޯކަލް ކޮމްޕޯނަންޓް",
+      "longTextDv": "މަޝްރޫޢުތަކުގެ ލޯކަލް ކޮމްޕޯނަންޓް"
+    },
+    {
+      "code": 291002,
+      "shortTextEn": "Frgn proj-impl.",
+      "longTextEn": "Implementation Costs of Foreign Assisted Projects",
+      "shortTextDv": "ބ.އެހީ މަޝްރޫޢު ޚަ.",
+      "longTextDv": "ބޭރުގެއެހީގައި ހިންގާ މަޝްރޫޢު ހިންގުމުގެ ޚަރަދު"
+    },
+    {
+      "code": 291003,
+      "shortTextEn": "Proj: Govt funded",
+      "longTextEn": "Other Economic Dev. Expenditure from Govt. Budget",
+      "shortTextDv": "ތަރައްޤީ ޚަ-ސަރުކާރު",
+      "longTextDv": "ސަރުކާރުން ހިންގާ މަޝްރޫއުތަކުގެ އެހެނިހެން ޚަރަދު"
+    },
+    {
+      "code": 292101,
+      "shortTextEn": "Bdg Contingency Prov",
+      "longTextEn": "Budgeted Contingency Provision",
+      "shortTextDv": "ބ.ކޮންޓިޖ ޕްރޮވިޝަން",
+      "longTextDv": "ބަޖެޓެޑް ކޮންޓިންޖެންސީ ޕްރޮވިޝަން"
+    },
+    {
+      "code": 292201,
+      "shortTextEn": "Bdg.Prov-Rec Arrears",
+      "longTextEn": "Budgettd.Provision for Recurrent Arrears",
+      "shortTextDv": "ބ.ޕްރޮވިޝ-ރ އެރިއަރސ",
+      "longTextDv": "ބަޖެޓެޑް ޕްރޮވިޝަން- ރިކަރަންޓް އެރިއަރސް"
+    },
+    {
+      "code": 292202,
+      "shortTextEn": "Bdg Prov-Prj Arrears",
+      "longTextEn": "Budgetted Prov. for Cap. Project Arrears",
+      "shortTextDv": "ބ.ޕްރޮވިޝ-ޕްރޮޖެކްޓް",
+      "longTextDv": "ބަޖެޓެޑް ޕްރޮވިޝަން- ކެޕިޓަލް ޕްރޮޖެކްޓް"
+    },
+    {
+      "code": 292203,
+      "shortTextEn": "Bdg Prov-Salary Incr",
+      "longTextEn": "Budgettd Provision for Salary Increments",
+      "shortTextDv": "ބ.ޕްރޮވިޝަން.މުސާރަ",
+      "longTextDv": "ބަޖެޓެޑް ޕރޮވިޝަން- މުސާރައިގެ ކުރިއެރުން"
+    },
+    {
+      "code": 293001,
+      "shortTextEn": "Res - Persnl Emolmts",
+      "longTextEn": "Reservation from Personal Emoluments",
+      "shortTextDv": "މުސާރައިން އުނިކުރި",
+      "longTextDv": "މުވައްޒަފުންގެ މުސާރައިން އުނިކުރި"
+    },
+    {
+      "code": 293002,
+      "shortTextEn": "Res - Travel Exp.",
+      "longTextEn": "Reservation from Travel expenditure",
+      "shortTextDv": "ދަތުރު ޚ. އުނިކުރި",
+      "longTextDv": "ދަތުރުފަތުރުގެ ޚަރަދުން އުނިކުރި"
+    },
+    {
+      "code": 293003,
+      "shortTextEn": "Res - Othr. Rec.Exp.",
+      "longTextEn": "Reservation from Other Recurrent Expenditure",
+      "shortTextDv": "ރިކަރެންޓް ޚ. އުނި",
+      "longTextDv": "ރިކަރެންޓް ޚަރަދުން އުނިކުރި"
+    },
+    {
+      "code": 293004,
+      "shortTextEn": "Res - Training Exp.",
+      "longTextEn": "Reservation from Training Expenditure",
+      "shortTextDv": "ޓްރެއިނިންގ ޚ. އުނި",
+      "longTextDv": "ޓްރެއިނިންގ ޚަރަދުން އުނިކުރި"
+    },
+    {
+      "code": 293005,
+      "shortTextEn": "Res - Rep. & Maint.",
+      "longTextEn": "Reservation from Repairs and Maintenance",
+      "shortTextDv": "ރިޕެއަރޒް ޚ. އުނި",
+      "longTextDv": "ރިޕެއާރޒް އެންޑް މެއިންޓަނަންސުން އުނިކުރި"
+    },
+    {
+      "code": 293006,
+      "shortTextEn": "Res - Grant & Contr",
+      "longTextEn": "Reservation from Grants,Contribution and Subsidies",
+      "shortTextDv": "ހިލެއެހީ ޚ. އުނި",
+      "longTextDv": "ހިލޭއެހީ، ކޮންޓްރިބިއުޝަން، ސަބްސިޑީޒުން އުނިކުރި"
+    },
+    {
+      "code": 293007,
+      "shortTextEn": "Res - Capital Exp.",
+      "longTextEn": "Reservation from Capital Expenditure",
+      "shortTextDv": "ކެފިޓަލް ޚ. އުނިކުރި",
+      "longTextDv": "ކެޕިޓަލް ޚަރަދަށް އުނިކުރި"
+    },
+    {
+      "code": 293008,
+      "shortTextEn": "Res - PSIP Projects",
+      "longTextEn": "Reservation from P.S.I.P Projects",
+      "shortTextDv": "ޕީ.އެސް.އައި.ޕީ އުނި",
+      "longTextDv": "ޕީ.އެސް.އައި.ޕީ އިން އުނިކުރި"
+    },
+    {
+      "code": 295101,
+      "shortTextEn": "CRF Cont to PSIP Prj",
+      "longTextEn": "CRF Contribution to PSIP Projects",
+      "shortTextDv": "ސީއާރުއެފް-ޕ.ސ.އ.ޕ",
+      "longTextDv": "ސީ.އާރު.އެފް ކޮންޓްރިބިއުޝަން-ޕީ.އެސް.އައި.ޕީ އަށް"
+    },
+    {
+      "code": 295102,
+      "shortTextEn": "CRF Cont-Loan Proj",
+      "longTextEn": "CRF Contribution to Loan Funded Projects",
+      "shortTextDv": "ސީ.އާރު.އެފް-ލޯން.ޕ",
+      "longTextDv": "ސީ.އާރު.އެފް ކޮންޓްރިބިއުޝަން - ލޯން ޕްރޮޖެކްޓް"
+    },
+    {
+      "code": 295103,
+      "shortTextEn": "CRF Cont-Grant Proj",
+      "longTextEn": "CRF Contribution to Grant Funded Proj.",
+      "shortTextDv": "ސީ.އާރު.އެފް-ގްރާންޓ",
+      "longTextDv": "ސީ.އާރު.އެފް ކޮންޓްރިބިއުޝަން- ގްރާންޓް ޕްރޮޖެކްޓް"
+    },
+    {
+      "code": 295104,
+      "shortTextEn": "Appropirations SDF",
+      "longTextEn": "Appropirations to SDF",
+      "shortTextDv": "އެސް.ޑީ.އެފް- އެޕްރޮޕިރޭޝަންސް",
+      "longTextDv": "އެސް.ޑީ.އެފް- އެޕްރޮޕިރޭޝަންސް"
+    },
+    {
+      "code": 295201,
+      "shortTextEn": "Trust Fund Trsf- CRF",
+      "longTextEn": "Trust Fund Transfer to CRF",
+      "shortTextDv": "ޓ-ފަންޑުންސީއާރުއެފް",
+      "longTextDv": "ޓްރަސްޓްފަންޑުން ސީ.އާރު.އެފް އަށްކުރާ ޓްރާންސްފަރ"
+    },
+    {
+      "code": 295202,
+      "shortTextEn": "Trust.F Trsf-Cap Prj",
+      "longTextEn": "Trust Fund Transfer to Capital Project",
+      "shortTextDv": "ޓ-ފަންޑުންޕްރޮޖެކްޓ.",
+      "longTextDv": "ޓްރަސްޓްފަންޑުން ޕްރޮޖެކްޓްތަކަށް ކުރާ ޓަރާންސްފަރ"
+    },
+    {
+      "code": 381003,
+      "shortTextEn": "UnrlGL-Exch. Rates",
+      "longTextEn": "Unrealised Gains & Losses - Exchange Rates",
+      "shortTextDv": "އ.ރ.-އެކްސްޗޭންޖް",
+      "longTextDv": "އަންރިއަލައިޒްޑް ގެއިން/ލޮސް-އެކްސްޗޭންޖްރޭޓް"
+    },
+    {
+      "code": 381004,
+      "shortTextEn": "UnrlGL-Invest.Reval.",
+      "longTextEn": "Unrealised Gains & Losses - Investment Revaluation",
+      "shortTextDv": "އ.ރ-ރިވެލުއޭޝަނ",
+      "longTextDv": "އަންރިއަލައިޒްޑް ގެއިން/ލޮސް-އިންވެސްމަންޓް އަގު"
+    },
+    {
+      "code": 381999,
+      "shortTextEn": "UnrlGL-Other",
+      "longTextEn": "Unrealised Gains & Losses - Other",
+      "shortTextDv": "އ.ރ-އެހެނިހެން",
+      "longTextDv": "އަންރިއަލައިޒްޑް ގެއިން/ލޮސް-އެހެނިހެން"
+    },
+    {
+      "code": 391001,
+      "shortTextEn": "Dep.-Land",
+      "longTextEn": "Depreciation - Land",
+      "shortTextDv": "ބ.-ބިން",
+      "longTextDv": "ބަލަށްކެނޑުން-ބިން"
+    },
+    {
+      "code": 391002,
+      "shortTextEn": "Dep.-Resid. bldg.",
+      "longTextEn": "Depreciation - Residential Buildings",
+      "shortTextDv": "ބ.-ދިރިއުޅޭ އިމާރާތް",
+      "longTextDv": "ބަލަށްކެނޑުން-މީހުން ދިރިއުޅޭ ޢިމާރާތްތައް"
+    },
+    {
+      "code": 391003,
+      "shortTextEn": "Dep.-Non-Resid.bldg.",
+      "longTextEn": "Depreciation - Non-Residential Buildings",
+      "shortTextDv": "ބ.-ދިރިނޫޅޭ އިމާރާތް",
+      "longTextDv": "ބަލަށްކެނޑުން-މީހުން ދިރިނޫޅޭ ޢިމާރާތްތައް"
+    },
+    {
+      "code": 392001,
+      "shortTextEn": "Dep.-Roads & Bridges",
+      "longTextEn": "Depreciation - Roads and Bridges",
+      "shortTextDv": "ބ.-މަގާއި ބްރިޖް",
+      "longTextDv": "ބަލަށްކެނޑުން-މަގާއި ބްރިޖް ފަދަ ތަންތަން"
+    },
+    {
+      "code": 392002,
+      "shortTextEn": "Dep.-Airports",
+      "longTextEn": "Depreciation - Airports",
+      "shortTextDv": "ބ.-ވައިގެ ބަނދަރު",
+      "longTextDv": "ބަލަށްކެނޑުން-ވައިގެ ބަނދަރު"
+    },
+    {
+      "code": 392003,
+      "shortTextEn": "Dep.-Wharves, Ports",
+      "longTextEn": "Depreciation - Wharves, Ports and Harbours",
+      "shortTextDv": "ބ.-މަގަތުފާލަން..",
+      "longTextDv": "ބަލަށްކެނޑުން-މަގަތު ފާލަމާއި ބަނދަރު"
+    },
+    {
+      "code": 392004,
+      "shortTextEn": "Dep.-Sanitation Sys.",
+      "longTextEn": "Depreciation - Water & Sanitation Systems",
+      "shortTextDv": "ބ-ފާޚާނަފެންނިޒާމް",
+      "longTextDv": "ބަލަށްކެނޑުން-ފާޚާނާއާއި ފެނާބެހޭ ނިޒާމް"
+    },
+    {
+      "code": 392005,
+      "shortTextEn": "Dep.-Elec. Sys.",
+      "longTextEn": "Depreciation - Electricity Systems",
+      "shortTextDv": "ބ.-ކަރަންޓްވިއުގަ",
+      "longTextDv": "ބަލަށްކެނޑުން-ކަރަންޓް ވިއުގަ"
+    },
+    {
+      "code": 392999,
+      "shortTextEn": "Dep.-Other Infras.",
+      "longTextEn": "Depreciation - Other Infrastructure",
+      "shortTextDv": "ބ.-އެހެ.އިންފްރާ.",
+      "longTextDv": "ބަލަށްކެނޑުން-އެހެނިހެން އިންފްރާ. އެސެޓް"
+    },
+    {
+      "code": 393001,
+      "shortTextEn": "Dep.-Furnit.& Fitt.",
+      "longTextEn": "Depreciation - Furniture & Fittings",
+      "shortTextDv": "ބ.-ފަރުނީޗަރު..",
+      "longTextDv": "ބަލަށްކެނޑުން-ފަރުނީޗަރާއި ފިޓިންގސް"
+    },
+    {
+      "code": 393002,
+      "shortTextEn": "Dep.-Mach. & Equi.",
+      "longTextEn": "Depreciation - Machinery and Equipment",
+      "shortTextDv": "ބ.-މެޝިނަރީ",
+      "longTextDv": "ބަލަށްކެނޑުން-މެޝިނަރީ އާއި އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 393003,
+      "shortTextEn": "Dep.-Vehic. Equi.",
+      "longTextEn": "Depreciation - Vehicular Equipment",
+      "shortTextDv": "ބ.-ވެހިކިއުލަރ..",
+      "longTextDv": "ބަލަށްކެނޑުން-ވެހިކިއުލަރ އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 393004,
+      "shortTextEn": "Dep.-Tools, Instrum.",
+      "longTextEn": "Depreciation - Tools, Instruments, Apparatus",
+      "shortTextDv": "ބ.-ޓޫލްސް",
+      "longTextDv": "ބަލަށްކެނޑުން-ޓޫލްސް"
+    },
+    {
+      "code": 393005,
+      "shortTextEn": "Dep.-Ref. Books",
+      "longTextEn": "Depreciation - Reference Books & Exhibition Goods",
+      "shortTextDv": "ބ.-ރެފަރެންސް ފޮތް",
+      "longTextDv": "ބަލަށްކެނޑުން-ރެފަރެންސް ފޮތް"
+    },
+    {
+      "code": 393006,
+      "shortTextEn": "Dep.-Comm. Infras.",
+      "longTextEn": "Depreciation - Communication Infrastructure",
+      "shortTextDv": "ބ.-މުވާޞަލާތުގެތަކެތ",
+      "longTextDv": "ބަލަށްކެނޑުން-މުވާޞަލާތުގެ ތަކެތި"
+    },
+    {
+      "code": 393007,
+      "shortTextEn": "Dep.-Comp. Software",
+      "longTextEn": "Depreciation - Computer Software",
+      "shortTextDv": "ބ.-ސޮފްޓްވެއަރ",
+      "longTextDv": "ބަލަށްކެނޑުން-ކޮމްޕިއުޓަރ ސޮފްޓްވެއަރ"
+    },
+    {
+      "code": 393008,
+      "shortTextEn": "Dep.-IT-Related HW",
+      "longTextEn": "Depreciation - IT-Related Hardware",
+      "shortTextDv": "ބ.-ހާޑްވެއަރ",
+      "longTextDv": "ބަލަށްކެނޑުން-އައި.ޓީ.އާއި ގުޅޭ ހާރޑްވެއަރ"
+    },
+    {
+      "code": 393998,
+      "shortTextEn": "Dep.-low Value Asset",
+      "longTextEn": "Depreciation - Low Value Assets",
+      "shortTextDv": "ބ.-އަގުހެޔޮ ޚަރުމުދާ",
+      "longTextDv": "ބަލަށްކެނޑުން-އަގުހެޔޮ ޚަރުމުދާ"
+    },
+    {
+      "code": 393999,
+      "shortTextEn": "Dep.-Other Equipment",
+      "longTextEn": "Depreciation - Other Equipment",
+      "shortTextDv": "ބ.-އެހެ.އިކުއިޕް.",
+      "longTextDv": "ބަލަށްކެނޑުން-އެހެނިހެން އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 394001,
+      "shortTextEn": "Dep.-Motor Vehicles",
+      "longTextEn": "Depreciation - Motor Vehicles",
+      "shortTextDv": "ބ.-އެއްގަމު އުޅަނދު",
+      "longTextDv": "ބަލަށްކެނޑުން-އެއްގަމުގައި ދުއްވާ ތަކެތި"
+    },
+    {
+      "code": 394002,
+      "shortTextEn": "Dep.-Ships and Boats",
+      "longTextEn": "Depreciation - Ships and Boats",
+      "shortTextDv": "ބ.-ކަނޑުގެ އުޅަނދު",
+      "longTextDv": "ބަލަށްކެނޑުން-ކަނޑުގައި ދުއްވާ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 394003,
+      "shortTextEn": "Dep.-Aero. equi.",
+      "longTextEn": "Depreciation - Aerospace equipments",
+      "shortTextDv": "ބ.-ވައިގެ އުޅަނދު",
+      "longTextDv": "ބަލަށްކެނޑުން-ވައިގެ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 411001,
+      "shortTextEn": "Recvbl-Govt. Dept.",
+      "longTextEn": "Receivables From Government Departments",
+      "shortTextDv": "ނ.ފައިސާ-ސ.އިދާރާ",
+      "longTextDv": "ސަރުކާރުގެ އިދާރާތަކުން ނުލިބިވާ ފައިސާ"
+    },
+    {
+      "code": 411002,
+      "shortTextEn": "Recvbl-SOE",
+      "longTextEn": "Receivables From State Owned Enterprises",
+      "shortTextDv": "ނ.ފައިސާ-ސ.ކުންފުނި",
+      "longTextDv": "ސަރުކާރު ޙިއްސާވާ ކުންފުނިތަކުން ނުލިބިވާ ފައިސާ"
+    },
+    {
+      "code": 411003,
+      "shortTextEn": "Recvbl-Employees",
+      "longTextEn": "Receivables From Employees",
+      "shortTextDv": "ނ.ފައިސާ-މުވައްޒަފުނ",
+      "longTextDv": "މުވައްޒަފުންގެ ފަރާތުން ނުލިބިވާ ފައިސާ"
+    },
+    {
+      "code": 411004,
+      "shortTextEn": "Recvbl-Domestic",
+      "longTextEn": "Receivables From Domestic Parties",
+      "shortTextDv": "ނ.ފައިސާ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ރާއްޖޭގެ ފަރާތްތަކުން ނުލިބިވާ ފައިސާ"
+    },
+    {
+      "code": 411005,
+      "shortTextEn": "Recvbl-Foreign",
+      "longTextEn": "Receivables From Foreign Companies and Individuals",
+      "shortTextDv": "ނ.ފައިސާ-ބރ.އަމިއްލަ",
+      "longTextDv": "ބޭރުގެ އަމިއްލަ ފަރާތްތަކުން ނުލިބިވާ ފައިސާ"
+    },
+    {
+      "code": 411050,
+      "shortTextEn": "Revenue Offset Acc.",
+      "longTextEn": "Revenue Offset Account",
+      "shortTextDv": "ރެވެނިއު އޮފްސެޓް އކ",
+      "longTextDv": "ރެވެނިއު އޮފްސެޓް އެކައުންޓް"
+    },
+    {
+      "code": 411101,
+      "shortTextEn": "Over-paid Salaries",
+      "longTextEn": "Over-paid Salary (Receivable)",
+      "shortTextDv": "އިތުރަށް ދިން މުސާރަ",
+      "longTextDv": "މުވައްޒަފުންނަށް އިތުރަށް ދެވިފައިވާ މުސާރަ"
+    },
+    {
+      "code": 411102,
+      "shortTextEn": "Incorrect Pmts",
+      "longTextEn": "Incorrect Payments",
+      "shortTextDv": null,
+      "longTextDv": null
+    },
+    {
+      "code": 411901,
+      "shortTextEn": "Returned Cheques",
+      "longTextEn": "Returned Cheques (Receivable)",
+      "shortTextDv": "ބައުންސްވާ ޗެކް",
+      "longTextDv": "ބައުންސްވާ ޗެކްތައް (ލިބެންޖެހޭ)"
+    },
+    {
+      "code": 411995,
+      "shortTextEn": "Output Tax",
+      "longTextEn": "Output tax",
+      "shortTextDv": "އައުޓްޕުޓް ޓެކްސް",
+      "longTextDv": "އައުޓްޕުޓް ޓެކްސް"
+    },
+    {
+      "code": 411996,
+      "shortTextEn": "FCV Adj Receivables",
+      "longTextEn": "Foreign currency val adj Receivables",
+      "shortTextDv": "ކަރަންސީ ރިވެލު.ރިސ",
+      "longTextDv": "ފޮރިން ކަރަންސީ ރިވެލު. އެޖަސްމަންޓް ރިސީވަބަލް"
+    },
+    {
+      "code": 411999,
+      "shortTextEn": "Recvbl-Other",
+      "longTextEn": "Other Receivables",
+      "shortTextDv": "ނ.ފައިސާ-އެހެނިހެން",
+      "longTextDv": "ނުލިބިވާ އެހެނިހެން ފައިސާ"
+    },
+    {
+      "code": 413001,
+      "shortTextEn": "Medical Stores",
+      "longTextEn": "Medical Stores",
+      "shortTextDv": "މެޑިކަލް ސްޓޯރސް",
+      "longTextDv": "މެޑިކަލް ސްޓޯރސް"
+    },
+    {
+      "code": 413002,
+      "shortTextEn": "Stationery Stores",
+      "longTextEn": "Stationery Stores",
+      "shortTextDv": "ސްޓޭޝަނަރީ ސްޓޯރސް",
+      "longTextDv": "ސްޓޭޝަނަރީ ސްޓޯރސް"
+    },
+    {
+      "code": 413999,
+      "shortTextEn": "Other Stores",
+      "longTextEn": "Other Stores",
+      "shortTextDv": "އެހެނިހެން ސްޓޯރސް",
+      "longTextDv": "އެހެނިހެން ސްޓޯރސް"
+    },
+    {
+      "code": 414002,
+      "shortTextEn": "Travel Advances",
+      "longTextEn": "Travel Advances",
+      "shortTextDv": "ޓްރެވަލް އެޑްވާންސް",
+      "longTextDv": "ޓްރެވަލް އެޑްވާންސް"
+    },
+    {
+      "code": 414003,
+      "shortTextEn": "Prepayments",
+      "longTextEn": "Prepayments",
+      "shortTextDv": "ޕްރީޕޭމަންޓްސް",
+      "longTextDv": "ޕްރީޕޭމަންޓްސް"
+    },
+    {
+      "code": 414004,
+      "shortTextEn": "Deposit to Landlords",
+      "longTextEn": "Deposits Advanced to Landlords",
+      "shortTextDv": "އެޑްވާންސް ކުލި",
+      "longTextDv": "ޢިމާރާތުގެ ވެރިފަރާތައް ދެވޭ އެޑްވާންސް"
+    },
+    {
+      "code": 414100,
+      "shortTextEn": "Petty Cash Journals",
+      "longTextEn": "Petty Cash Journals",
+      "shortTextDv": "ޕެޓީކޭޝް ޖަރނަލްސް",
+      "longTextDv": "ޕެޓީކޭޝް ޖަރނަލްސް"
+    },
+    {
+      "code": 414101,
+      "shortTextEn": "Petty Cash Advances",
+      "longTextEn": "Petty Cash Advances",
+      "shortTextDv": "ޕެޓީކޭޝް އެޑްވާންސް",
+      "longTextDv": "ޕެޓީކޭޝް އެޑްވާންސް"
+    },
+    {
+      "code": 414102,
+      "shortTextEn": "Cash Collection Jrnl",
+      "longTextEn": "Cash Collection Journals",
+      "shortTextDv": "ކޭޝް ކަލެކްޝަން",
+      "longTextDv": "ކޭޝް ކަލެކްޝަން ޖަރނަލް"
+    },
+    {
+      "code": 414103,
+      "shortTextEn": "Cashier Floats",
+      "longTextEn": "Cashier Floats",
+      "shortTextDv": "ކޭޝިއަރ ފްލޯޓްސް",
+      "longTextDv": "ކޭޝިއަރ ފްލޯޓްސް"
+    },
+    {
+      "code": 414199,
+      "shortTextEn": "C-I-T - Petty Cash",
+      "longTextEn": "Cash-in-Transit - Petty Cash Replenishment",
+      "shortTextDv": "ކޭޝް-އިން-ޓްރާންސިޓް",
+      "longTextDv": "ކޭޝް-އިން-ޓްރާންސިޓް - ޕެޓީކޭޝް ރިޕްލެނިޝްމަންޓް"
+    },
+    {
+      "code": 414999,
+      "shortTextEn": "Othr Advcs. & Prpmt.",
+      "longTextEn": "Other Advances and Prepayments",
+      "shortTextDv": "އެހެނިހެން އެޑްވާންސ",
+      "longTextDv": "އެހެނިހެން އެޑްވާންސް/ޕްރީޕޭމަންޓްސް"
+    },
+    {
+      "code": 415001,
+      "shortTextEn": "STL-Int.bearing inv.",
+      "longTextEn": "Short Term Lending - Interest Bearing Investments",
+      "shortTextDv": "އިންޓަރެސްޓް އިންވ.",
+      "longTextDv": "އިންޓެރެސްޓް ލިބޭ އިންވެސްޓްމަންޓް"
+    },
+    {
+      "code": 415002,
+      "shortTextEn": "STL-Inscribed Stock",
+      "longTextEn": "Short Term Lending - Inscribed Stock",
+      "shortTextDv": "އިންސް. ސްޓޮކް",
+      "longTextDv": "އިންސްކްރައިބްޑް ސްޓޮކް"
+    },
+    {
+      "code": 415003,
+      "shortTextEn": "STL-Savings Account",
+      "longTextEn": "Short Term Lending - Savings Account",
+      "shortTextDv": "ސޭވިންގްސް އެކައުންޓ",
+      "longTextDv": "ސޭވިންގްސް އެކައުންޓު"
+    },
+    {
+      "code": 415999,
+      "shortTextEn": "Short Term Invest.",
+      "longTextEn": "Short Term Investments",
+      "shortTextDv": "އެހެނިހެން އިންވެސް.",
+      "longTextDv": "އެހެނިހެން އިންވެސްޓްމަންޓްސް"
+    },
+    {
+      "code": 416001,
+      "shortTextEn": "Credit fclty-local",
+      "longTextEn": "Credit Facility to Local Businesses",
+      "shortTextDv": "ކްރެޑިޓް ޚިދް ވިޔަފާރި",
+      "longTextDv": "ކްރެޑިޓް ޚިދުމަތް - އަމިއްލަ ވިޔަފާރި"
+    },
+    {
+      "code": 421001,
+      "shortTextEn": "Land",
+      "longTextEn": "Land",
+      "shortTextDv": "ބިން",
+      "longTextDv": "ބިން"
+    },
+    {
+      "code": 421002,
+      "shortTextEn": "Resid.bldg.",
+      "longTextEn": "Residential Buildings",
+      "shortTextDv": "ދިރިއުޅޭ ޢިމާރާތް",
+      "longTextDv": "މީހުން ދިރިއުޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 421003,
+      "shortTextEn": "Non-Resid.bldg.",
+      "longTextEn": "Non-Residential Buildings",
+      "shortTextDv": "ދިރިނޫޅޭ ޢިމާރާތް",
+      "longTextDv": "މީހުން ދިރިނޫޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 422001,
+      "shortTextEn": "Roads & Bridges",
+      "longTextEn": "Roads and Bridges",
+      "shortTextDv": "މަގާއި ބްރިޖް",
+      "longTextDv": "މަގާއި ބްރިޖް ފަދަ ތަންތަން"
+    },
+    {
+      "code": 422002,
+      "shortTextEn": "Airports",
+      "longTextEn": "Airports",
+      "shortTextDv": "ވައިގެ ބަނދަރު",
+      "longTextDv": "ވައިގެ ބަނދަރު"
+    },
+    {
+      "code": 422003,
+      "shortTextEn": "Wharves, Ports hrbrs",
+      "longTextEn": "Wharves, Ports and Harbours",
+      "shortTextDv": "މަގަތުފާލަން،ބަނދަރު",
+      "longTextDv": "މަގަތު ފާލަމާއި ބަނދަރު"
+    },
+    {
+      "code": 422004,
+      "shortTextEn": "Water & Sanit. Sys.",
+      "longTextEn": "Water & Sanitation Systems",
+      "shortTextDv": "ފާޚާނަ/ފެނުގެ ނިޒާމް",
+      "longTextDv": "ފާޚާނާއާއި ފެނާބެހޭ ނިޒާމް"
+    },
+    {
+      "code": 422005,
+      "shortTextEn": "Electricity Systems",
+      "longTextEn": "Electricity Systems",
+      "shortTextDv": "ކަރަންޓް ވިއުގަ",
+      "longTextDv": "ކަރަންޓް ވިއުގަ"
+    },
+    {
+      "code": 422999,
+      "shortTextEn": "Other Infrastructure",
+      "longTextEn": "Other Infrastructure",
+      "shortTextDv": "އެހެނިހެން އިންފްރާ.",
+      "longTextDv": "އެހެނިހެން އިންފްރާސްޓްރަކްޗަރ އެސެޓް"
+    },
+    {
+      "code": 423001,
+      "shortTextEn": "Furniture & Fittings",
+      "longTextEn": "Furniture & Fittings",
+      "shortTextDv": "ފަރުނީޗަރު..",
+      "longTextDv": "ފަރުނީޗަރާއި ފިޓިންގސް"
+    },
+    {
+      "code": 423002,
+      "shortTextEn": "Machinery & Equip.",
+      "longTextEn": "Machinery and Equipment",
+      "shortTextDv": "މެޝިނަރީ، އިކުއިޕް.",
+      "longTextDv": "މެޝިނަރީ އާއި އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 423003,
+      "shortTextEn": "Vehicular Equipment",
+      "longTextEn": "Vehicular Equipment",
+      "shortTextDv": "ވެހިކިއުލަ އިކުއިޕް.",
+      "longTextDv": "ވެހިކިއުލަރ އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 423004,
+      "shortTextEn": "Tools Instr. Apprtus",
+      "longTextEn": "Tools, Instruments, Apparatus",
+      "shortTextDv": "ޓޫލްސް",
+      "longTextDv": "އެކިއެކިމަސައްކަތަށްބޭނުންކުރާ ސާމާނު - ޓޫލްސް"
+    },
+    {
+      "code": 423005,
+      "shortTextEn": "Ref. Books & Exhibi.",
+      "longTextEn": "Reference Books & Exhibition Goods",
+      "shortTextDv": "ރެފަރެންސް ފޮތް",
+      "longTextDv": "ރެފަރެންސް ފޮތް"
+    },
+    {
+      "code": 423006,
+      "shortTextEn": "Comm. Infras.",
+      "longTextEn": "Communication Infrastructure",
+      "shortTextDv": "މުވާޞަލާތުގެ ތަކެތި",
+      "longTextDv": "މުވާޞަލާތުގެ ތަކެތި"
+    },
+    {
+      "code": 423007,
+      "shortTextEn": "Computer Software",
+      "longTextEn": "Computer Software",
+      "shortTextDv": "ސޮފްޓްވެއަރ",
+      "longTextDv": "ކޮމްޕިއުޓަރ ސޮފްޓްވެއަރ"
+    },
+    {
+      "code": 423008,
+      "shortTextEn": "IT-Related Hardware",
+      "longTextEn": "IT-Related Hardware",
+      "shortTextDv": "އައި.ޓީ. ހާޑްވެއަރ",
+      "longTextDv": "އައި.ޓީ.އާއި ގުޅޭގޮތުން ހޯދާ ހާރޑްވެއަރ"
+    },
+    {
+      "code": 423998,
+      "shortTextEn": "Low Value Assets",
+      "longTextEn": "Low Value Assets",
+      "shortTextDv": "އަގުހެޔޮ ޚަރުމުދާ",
+      "longTextDv": "އަގުހެޔޮ ޚަރުމުދާ"
+    },
+    {
+      "code": 423999,
+      "shortTextEn": "Other Equipment",
+      "longTextEn": "Other Equipment",
+      "shortTextDv": "އެހެނިހެން އިކުއިޕް.",
+      "longTextDv": "އެހެނިހެން އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 424001,
+      "shortTextEn": "Motor Vehicles",
+      "longTextEn": "Motor Vehicles",
+      "shortTextDv": "އެއްގަމު އުޅަނދު",
+      "longTextDv": "އެއްގަމުގައި ދުއްވާ ތަކެތި"
+    },
+    {
+      "code": 424002,
+      "shortTextEn": "Ships and Boats",
+      "longTextEn": "Ships and Boats",
+      "shortTextDv": "ކަނޑުގެ އުޅަނދު",
+      "longTextDv": "ކަނޑުގައި ދުއްވާ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 424003,
+      "shortTextEn": "Aerospace equipments",
+      "longTextEn": "Aerospace equipments",
+      "shortTextDv": "ވައިގެ އުޅަނދު",
+      "longTextDv": "ވައިގެ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 431001,
+      "shortTextEn": "Dom.Lend-SOE",
+      "longTextEn": "Domestic Lending - State Owned Enterprises",
+      "shortTextDv": "ދ.ލޯން-ސ.ކުންފުނި",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 431002,
+      "shortTextEn": "Dom.Lend-Stt.Fin.Ins",
+      "longTextEn": "Domestic Lending - State Financial Institutions",
+      "shortTextDv": "ލޯން-ސ.މާލީއިދާރާ",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ސަރުކާރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 431003,
+      "shortTextEn": "Dom.Lend-Individuals",
+      "longTextEn": "Domestic Lending - Individuals",
+      "shortTextDv": "ލޯން-ރާއްޖޭގެއަމިއްލ",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 431004,
+      "shortTextEn": "Dom.Lend-Non-Prf Org",
+      "longTextEn": "Domestic Lending - Non Profit Organisations",
+      "shortTextDv": "ލޯން-ރާއްޖެ ޖަމިއްޔާ",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ރާއްޖޭގެ ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 431005,
+      "shortTextEn": "Dom.Lend-Gov Dept",
+      "longTextEn": "Domestic Lending - Gov Dept",
+      "shortTextDv": "ލޯން-ސަރުކާރު އިދާރާ",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ސަރުކާރު އިދާރާތަކަށް"
+    },
+    {
+      "code": 431997,
+      "shortTextEn": "Lend - Principal Clr",
+      "longTextEn": "Lend - Principal Clearing",
+      "shortTextDv": "ޕްރިން. ކްލިއަރިންގ",
+      "longTextDv": "ޕްރިންސިޕަލް ކްލިއަރިންގ އެކައުންޓް"
+    },
+    {
+      "code": 431998,
+      "shortTextEn": "Lend - Serv.Chrg Clr",
+      "longTextEn": "Lend - Service Charge Clearing",
+      "shortTextDv": "ސާވިސްޗާޖް ކްލިއަރ..",
+      "longTextDv": "ސަރވިސް ޗާޖް ކްލިއަރިންގ އެކައުންޓް"
+    },
+    {
+      "code": 431999,
+      "shortTextEn": "Dom.Lend-Other",
+      "longTextEn": "Domestic Lending - Other",
+      "shortTextDv": "ލޯން-ރާއްޖެ އެހެން",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ރާއްޖޭގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 432002,
+      "shortTextEn": "For.Lend-Bilat.",
+      "longTextEn": "Foreign Lending - Bilateral Govt.",
+      "shortTextDv": "ލޯން-ބޭރުގެ ސަރުކާރު",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ބޭރުގެ ސަރުކާރުތަކަށް"
+    },
+    {
+      "code": 432003,
+      "shortTextEn": "For.Lend-For.Com Ins",
+      "longTextEn": "Foreign Lending - Foreign Commercial Institutions",
+      "shortTextDv": "ލޯން-ބޭރު މާލީއިދާރާ",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ބޭރުގެ މާލީ އިދާރާތަކަށް"
+    },
+    {
+      "code": 432004,
+      "shortTextEn": "For.Lend-For. Indv.",
+      "longTextEn": "Foreign Lending - Foreign Individuals",
+      "shortTextDv": "ލޯން-ބޭރުގެ އަމިއްލަ",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ބޭރުގެ އަމިއްލަ ފަރާތްތަކަށް"
+    },
+    {
+      "code": 432999,
+      "shortTextEn": "For.Lend-Other",
+      "longTextEn": "Foreign Lending - Other",
+      "shortTextDv": "ލޯން-ބޭރު އެހެނިހެން",
+      "longTextDv": "ދޫކުރެވިފައިވާ ލޯން-ބޭރުގެ އެހެނިހެން ފަރާތްތަކަށް"
+    },
+    {
+      "code": 441001,
+      "shortTextEn": "Eqty Cap to Plc Ent.",
+      "longTextEn": "Equity Capital to Public Enterprises",
+      "shortTextDv": "ސަރުކާރުގެ ޙިއްޞާ",
+      "longTextDv": "ސަރުކާރުން ހިންގާ އަދި ބައިވެރިވާތަންތަނުގެ ޙިއްޞާ"
+    },
+    {
+      "code": 441002,
+      "shortTextEn": "Cap Cont to plc Agn",
+      "longTextEn": "Cap. Contrib. to Profit-Oriented Public Agencies",
+      "shortTextDv": "ކެޕިޓަލް ދޫކުރުން",
+      "longTextDv": "ސަރުކާރުން ހިންގާ ކުންފުނިތަކަށް ދޫކުރާ ކެޕިޓަލް"
+    },
+    {
+      "code": 442001,
+      "shortTextEn": "Cap in Multila. Ins.",
+      "longTextEn": "Capital held in Multilateral Institutions",
+      "shortTextDv": "ބ.ކުންފުނި ރައުސްމާލ",
+      "longTextDv": "ބޭރުގެ މުއައްސަސާތަކުގައި ބެހެއްޓޭ ކެޕިޓަލް"
+    },
+    {
+      "code": 451001,
+      "shortTextEn": "WIP-Resid.bldg.",
+      "longTextEn": "WIP - Residential Buildings and Structures",
+      "shortTextDv": "WIP-ދިރިއުޅޭޢިމާރާތް",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ މީހުން ދިރިއުޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 451002,
+      "shortTextEn": "WIP-Non-Resid.bldg.",
+      "longTextEn": "WIP - Non-Residential Buildings and Structures",
+      "shortTextDv": "WIP-ދިރިނޫޅޭޢިމާރާތް",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ މީހުން ދިރިނޫޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 451003,
+      "shortTextEn": "WIP-Roads & Bridges",
+      "longTextEn": "WIP - Roads and Bridges",
+      "shortTextDv": "WIP-މަގު/ބްރިޖް",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ މަގާއި ބްރިޖް ފަދަ ތަންތަން"
+    },
+    {
+      "code": 451004,
+      "shortTextEn": "WIP-Airports",
+      "longTextEn": "WIP - Airports",
+      "shortTextDv": "WIP-ވައިގެ ބަނދަރު",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ ވައިގެ ބަނދަރު"
+    },
+    {
+      "code": 451005,
+      "shortTextEn": "WIP-Wharf, Prt hrbr",
+      "longTextEn": "WIP - Wharves, Ports and Harbours",
+      "shortTextDv": "WIP-މ.ފާލަން/ބަނދަރު",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ މަގަތު ފާލަމާއި ބަނދަރު"
+    },
+    {
+      "code": 451006,
+      "shortTextEn": "WIP-Sanitation Sys.",
+      "longTextEn": "WIP - Water & Sanitation Systems",
+      "shortTextDv": "WIP-ފެނާބެހޭ ނިޒާމް",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ ފާޚާނާއާއި ފެނާބެހޭ ނިޒާމް"
+    },
+    {
+      "code": 451007,
+      "shortTextEn": "WIP-Electricity Sys.",
+      "longTextEn": "WIP - Electricity Systems",
+      "shortTextDv": "WIP-ކަރަންޓް ވިއުގަ",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ ކަރަންޓް ވިއުގަ"
+    },
+    {
+      "code": 451008,
+      "shortTextEn": "WIP-Other Infras.",
+      "longTextEn": "WIP - Other Infrastructure",
+      "shortTextDv": "WIP-އެހެން އިންފްރާ",
+      "longTextDv": "މަސައްކަތް ކުރިއަށްދާ އެހެނިހެން އިންފްރާ. އެސެޓް"
+    },
+    {
+      "code": 451011,
+      "shortTextEn": "Ext-Resid.bldg.",
+      "longTextEn": "Minor Extensions to Residential Buildings",
+      "shortTextDv": "ބަދަލުދިރިއުޅޭ ޢިމާ.",
+      "longTextDv": "ގެނެވޭ ބަދަލު-މީހުން ދިރިއުޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 451012,
+      "shortTextEn": "Ext-Non-Resid.bldg.",
+      "longTextEn": "Minor Extensions to Non-Residential Buildings",
+      "shortTextDv": "ބަދަލުދިރިނޫޅޭ ޢިމާ.",
+      "longTextDv": "ގެނެވޭ ބަދަލު-މީހުން ދިރިނޫޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 461001,
+      "shortTextEn": "HiCom-Sri Lanka",
+      "longTextEn": "Maldivian Highcommission in Sri Lanka",
+      "shortTextDv": "ހައިކޮމް.-ސްރީލަންކާ",
+      "longTextDv": "ސްރީލަންކާގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461002,
+      "shortTextEn": "Perm.Mission-UN",
+      "longTextEn": "Maldivian Permanent Mission to UN.",
+      "shortTextDv": "ޕ.މިޝަން-އދ.",
+      "longTextDv": "އދ. ގައި ހުންނަ ދިވެހިރާއްޖޭގެ ޕަރމަނަންޓް މިޝަން"
+    },
+    {
+      "code": 461003,
+      "shortTextEn": "HiCom-Great Britain",
+      "longTextEn": "Maldivian Highcommission in Great Britain",
+      "shortTextDv": "ހައިކޮމް.-ޔޫ.ކޭ.",
+      "longTextDv": "ޔޫ.ކޭ. ގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461006,
+      "shortTextEn": "HiCom-India",
+      "longTextEn": "Maldivian Highcommission in India",
+      "shortTextDv": "ހައިކޮމް.-އިންޑިއާ",
+      "longTextDv": "އިންޑިއާގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461007,
+      "shortTextEn": "Consulate-TRV",
+      "longTextEn": "Maldivian Consulate in Thiruvananthapuram",
+      "shortTextDv": "ކޮންސިއުލޭޓް-ތިރު...",
+      "longTextDv": "ތިރުވަނަންތަޕޫރަމްގައި ހުންނަ ދިވެހި ކޮންސިއުލޭޓް"
+    },
+    {
+      "code": 461008,
+      "shortTextEn": "HiCom-Malaysia",
+      "longTextEn": "Maldivian Highcommission in Malaysia",
+      "shortTextDv": "ހައިކޮމް.-މެލޭޝިއާ",
+      "longTextDv": "މެލޭޝިއާގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461009,
+      "shortTextEn": "Embassy-Japan",
+      "longTextEn": "Maldivian Embassy in Japan",
+      "shortTextDv": "އެމްބަސީ-ޖަޕާން",
+      "longTextDv": "ޖަޕާނުގައި ހުންނަ ދިވެހިރާއްޖޭގެ އެމްބަސީ"
+    },
+    {
+      "code": 461010,
+      "shortTextEn": "HiCom-USA",
+      "longTextEn": "Maldivian Highcommission in U.S.A.",
+      "shortTextDv": "ހައިކޮމް.-އެމެރިކާ",
+      "longTextDv": "އެމެރިކާގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461011,
+      "shortTextEn": "HiCom-China",
+      "longTextEn": "Maldivian Highcommission in China",
+      "shortTextDv": "ހައިކޮމް.-ޗައިނާ",
+      "longTextDv": "ޗައިނާގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461012,
+      "shortTextEn": "HiCom-Saudi Arabia",
+      "longTextEn": "Maldivian Highcommission in Saudi Arabia",
+      "shortTextDv": "ހައިކޮމް.-ސަޢޫދީ..",
+      "longTextDv": "ސަޢޫދީޢަރަބިއްޔާގައި ހުންނަ ދިވެހި ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461013,
+      "shortTextEn": "Perm.Mission-Geneva",
+      "longTextEn": "Maldivian Permanent Mission in Geneva",
+      "shortTextDv": "ޕ.މިޝަން-ޖެނީވާ",
+      "longTextDv": "ޖެނީވާގައި ހުންނަ ދިވެހި ޕަރމަނަންޓް މިޝަން"
+    },
+    {
+      "code": 461014,
+      "shortTextEn": "HiCom-Pakistan",
+      "longTextEn": "Maldivian Highcommission in Pakistan",
+      "shortTextDv": "ހައިކޮމް.-ޕާކިސްތާން",
+      "longTextDv": "ޕާކިސްތާނުގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 461015,
+      "shortTextEn": "Perm.Mission-EC",
+      "longTextEn": "Maldivian Permanent Mission to European Community",
+      "shortTextDv": "ޕ.މިޝަން-ޔޫރަޕިއަން.",
+      "longTextDv": "ޔޫރަޕިއަން ކޮމިއުނިޓީއަށް ހުންނަ ދިވެހި ޕ.މިޝަން"
+    },
+    {
+      "code": 461016,
+      "shortTextEn": "HiCom-Singapore",
+      "longTextEn": "Maldivian Highcommission in Singapore",
+      "shortTextDv": "ހައިކޮމް.-ސިންގަޕޫރު",
+      "longTextDv": "ސިންގަޕޫރުގައި ހުންނަ ދިވެހިރާއްޖޭގެ ހައިކޮމިޝަން"
+    },
+    {
+      "code": 462002,
+      "shortTextEn": "MMA-Interim-Exp.",
+      "longTextEn": "MMA - Interim Expenditure Accounts",
+      "shortTextDv": "އިންޓަރިމް-ޚަރަދު",
+      "longTextDv": "އެމް.އެމް.އޭ - އިންޓަރިމް ޚަރަދު އެކައުންޓު"
+    },
+    {
+      "code": 462003,
+      "shortTextEn": "MMA-Interim-Rev.",
+      "longTextEn": "MMA - Interim Revenue Accounts",
+      "shortTextDv": "އިންޓަރިމް-ޢާމްދަނީ",
+      "longTextDv": "އެމް.އެމް.އޭ - އިންޓަރިމް ޢާމްދަނީ އެކައުންޓު"
+    },
+    {
+      "code": 462010,
+      "shortTextEn": "MMA-PBA",
+      "longTextEn": "MMA - Public Bank Account - Main",
+      "shortTextDv": "އެމްއެމްއޭ-ޕީ.ބީ.އޭ.",
+      "longTextDv": "އެމް.އެމް.އޭ - ޕަބްލިކް ބޭންކް އެކައުންޓް"
+    },
+    {
+      "code": 462011,
+      "shortTextEn": "PBA C/I Deposits",
+      "longTextEn": "Public Bank Account Deposits Clearing In",
+      "shortTextDv": "ޕީބީއޭ އިން-ޑިޕޮސިޓް",
+      "longTextDv": "ޕަބްލިކް ބޭންކް އ/ކ-ޑިޕޮސިޓް ކްލިއަރިން އިން"
+    },
+    {
+      "code": 462012,
+      "shortTextEn": "PBA C/O Cheques",
+      "longTextEn": "Public Bank Account Cheques Clearing Out",
+      "shortTextDv": "ޕީބީއޭ އައުޓް-ޗެކް",
+      "longTextDv": "ޕަބްލިކް ބޭންކް އ/ކ-ޗެކް ކްލިއަރިންގ އައުޓް"
+    },
+    {
+      "code": 462013,
+      "shortTextEn": "PBA C/I Trfr & Misc.",
+      "longTextEn": "Public Bank Account Transfers & Misc. Clearing In",
+      "shortTextDv": "ޕީބީއޭ އިން-ޓްރާންސް",
+      "longTextDv": "ޕަބްލިކް ބޭންކް އ/ކ-ޓްރާންސްފަރ ކްލިއަރިންގ އިން"
+    },
+    {
+      "code": 462014,
+      "shortTextEn": "PBA C/O Trfr & Misc.",
+      "longTextEn": "Public Bank Account Transfers & Misc. Clearing Out",
+      "shortTextDv": "ޕީބީއޭ އައުޓް-ޓްރާން",
+      "longTextDv": "ޕަބްލިކް ބޭންކް އ/ކ-ޓްރާންސްފަރ ކްލިއަރިންގ އައުޓް"
+    },
+    {
+      "code": 463010,
+      "shortTextEn": "T.Acc.-Education",
+      "longTextEn": "Trust Account-Education Fund",
+      "shortTextDv": "ޓއ.-ތަޢުލީމީ ފ.",
+      "longTextDv": "ޓްރަސްޓް އެކައުންޓް-ތަޢުލީމީ ފަންޑު"
+    },
+    {
+      "code": 463011,
+      "shortTextEn": "T.Acc.-Edu. Clr In",
+      "longTextEn": "Trust Acct-Education Fund Clearing In",
+      "shortTextDv": "ތަޢުލީމީ ފ.-އިން",
+      "longTextDv": "ތަޢުލީމީ ފަންޑު-ކްލިއަރިންގ އިން"
+    },
+    {
+      "code": 463012,
+      "shortTextEn": "T.Acc.-Edu. Clr Out",
+      "longTextEn": "Trust Acct-Education Fund Clearing Out",
+      "shortTextDv": "ތަޢުލީމީ ފ.-އައުޓް",
+      "longTextDv": "ތަޢުލީމީ ފަންޑު-ކްލިއަރިންގ އައުޓް"
+    },
+    {
+      "code": 463020,
+      "shortTextEn": "T.Acc.-Bld.Don.",
+      "longTextEn": "Trust Account-Blood Donation Fund",
+      "shortTextDv": "ޓއ.-ލޭހަދިޔާކުރާ ފ.",
+      "longTextDv": "ޓްރަސްޓް އެކައުންޓް-ލޭ ހަދިޔާކުރާ ފަންޑް"
+    },
+    {
+      "code": 463021,
+      "shortTextEn": "T.Acc.-Bld.Don. In",
+      "longTextEn": "Trust Acct-Blood Donation Fund Clearing In",
+      "shortTextDv": "ލޭހަދިޔާކުރާ-އިން",
+      "longTextDv": "ލޭ ހަދިޔާކުރާ ފަންޑް-ކްލިއަރިންގ އިން"
+    },
+    {
+      "code": 463022,
+      "shortTextEn": "T.Acc.-Bld.Don. Out",
+      "longTextEn": "Trust Acct-Blood Donation Fund Clearing Out",
+      "shortTextDv": "ލޭހަދިޔާކުރާ-އައުޓް",
+      "longTextDv": "ލޭ ހަދިޔާކުރާ ފަންޑް-ކްލިއަރިންގ އައުޓް"
+    },
+    {
+      "code": 491001,
+      "shortTextEn": "Accm.Dep.-Land",
+      "longTextEn": "Accum. Dep. - Land",
+      "shortTextDv": "ޖ.ބ.-ބިން",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ބިން"
+    },
+    {
+      "code": 491002,
+      "shortTextEn": "Accm.Dep.-Resid.bldg",
+      "longTextEn": "Accum. Dep. - Residential Buildings",
+      "shortTextDv": "ޖ.ބ-ދިރިއުޅޭ އިމާރާތ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-މީހުން ދިރިއުޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 491003,
+      "shortTextEn": "Accm.Dep.-Non-R.bldg",
+      "longTextEn": "Accum. Dep. - Non-Residential Buildings",
+      "shortTextDv": "ޖ.ބ-ދިރިނޫޅޭ ޢިމާރާތ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-މީހުން ދިރިނޫޅޭ ޢިމާރާތް"
+    },
+    {
+      "code": 492001,
+      "shortTextEn": "Accm.Dep.-Rd&Bridge",
+      "longTextEn": "Accum. Dep. - Roads and Bridges",
+      "shortTextDv": "ޖ.ބ-މަގާއި ބްރިޖް",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-މަގާއި ބްރިޖް ފަދަތަންތަން"
+    },
+    {
+      "code": 492002,
+      "shortTextEn": "Accm.Dep.-Airports",
+      "longTextEn": "Accum. Dep. - Airports",
+      "shortTextDv": "ޖ.ބ-ވައިގެބަނދަރު",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ވައިގެ ބަނދަރު"
+    },
+    {
+      "code": 492003,
+      "shortTextEn": "Accm.Dep.-Wharves..",
+      "longTextEn": "Accum. Dep. - Wharves, Ports and Harbours",
+      "shortTextDv": "ޖ.ބ-މަގަތުފާލަން..",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-މަގަތު ފާލަމާއި ބަނދަރު"
+    },
+    {
+      "code": 492004,
+      "shortTextEn": "Accm.Dep.-Sanit.Sys.",
+      "longTextEn": "Accum. Dep. - Water & Sanitation Systems",
+      "shortTextDv": "ޖ.ބ-ފާޚާނަފެންނިޒާމް",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ފާޚާނާއާއި ފެނާބެހޭ ނިޒާމް"
+    },
+    {
+      "code": 492005,
+      "shortTextEn": "Accm.Dep.-Elec. Sys.",
+      "longTextEn": "Accum. Dep. - Electricity Systems",
+      "shortTextDv": "ޖ.ބ-ކަރަންޓްވިއުގަ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ކަރަންޓް ވިއުގަ"
+    },
+    {
+      "code": 492999,
+      "shortTextEn": "Accm.Dep.-Othr Infra",
+      "longTextEn": "Accum. Dep. - Other Infrastructure",
+      "shortTextDv": "ޖ.ބ-އެހެ.އިންފްރާ.",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-އެހެނިހެން އިންފްރާ. އެސެޓް"
+    },
+    {
+      "code": 493001,
+      "shortTextEn": "Accm.Dep.-Fur.&fitt.",
+      "longTextEn": "Accum. Dep. - Furniture & Fittings",
+      "shortTextDv": "ޖ.ބ.-ފަރުނީޗަރު..",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ފަރުނީޗަރާއި ފިޓިންގސް"
+    },
+    {
+      "code": 493002,
+      "shortTextEn": "Accm.Dep.-Mach&Equi.",
+      "longTextEn": "Accum. Dep. - Machinery and Equipment",
+      "shortTextDv": "ޖ.ބ.-މެޝިނަރީ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-މެޝިނަރީ އާއި އިކުއިޕްމަންޓް"
+    },
+    {
+      "code": 493003,
+      "shortTextEn": "Accm.Dep.-Vehi.Equi.",
+      "longTextEn": "Accum. Dep. - Vehicular Equipment",
+      "shortTextDv": "ޖ.ބ.-ވެހިކިއުލަރ..",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ވެހިކިއުލަރ އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 493004,
+      "shortTextEn": "Accm.Dep.-Tls,instrm",
+      "longTextEn": "Accum. Dep. - Tools, Instruments, Apparatus",
+      "shortTextDv": "ޖ.ބ.-ޓޫލްސް",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ޓޫލްސް"
+    },
+    {
+      "code": 493005,
+      "shortTextEn": "Accm.Dep.-Ref.Books.",
+      "longTextEn": "Accum. Dep. - Reference Books & Exhibition Goods",
+      "shortTextDv": "ޖ.ބ.-ރެފަރެންސް ފޮތް",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ރެފަރެންސް ފޮތް"
+    },
+    {
+      "code": 493006,
+      "shortTextEn": "Accm.Dep.-Comm.infra",
+      "longTextEn": "Accum. Dep. - Communication Infrastructure",
+      "shortTextDv": "ޖ.ބ.-މުވާޞަލާތުތަކެތ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-މުވާޞަލާތުގެ ތަކެތި"
+    },
+    {
+      "code": 493007,
+      "shortTextEn": "Accm.Dep.-Comp.SW",
+      "longTextEn": "Accum. Dep. - Computer Software",
+      "shortTextDv": "ޖ.ބ.-ސޮފްޓްވެއަރ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ކޮމްޕިއުޓަރ ސޮފްޓްވެއަރ"
+    },
+    {
+      "code": 493008,
+      "shortTextEn": "Accm.Dep.-IT-Rel.HW",
+      "longTextEn": "Accum. Dep. - IT-Related Hardware",
+      "shortTextDv": "ޖ.ބ.-ހާޑްވެއަރ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-އައި.ޓީ.އާއި ގުޅޭ ހާރޑްވެއަރ"
+    },
+    {
+      "code": 493998,
+      "shortTextEn": "Accm.Dep.-LVA",
+      "longTextEn": "Accum. Dep. - Low Value Assets",
+      "shortTextDv": "ޖބ-އަގުހެޔޮ ޚަރުމުދާ",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-އަގުހެޔޮ ޚަރުމުދާ"
+    },
+    {
+      "code": 493999,
+      "shortTextEn": "Accm.Dep.-Othr Equi.",
+      "longTextEn": "Accum. Dep. - Other Equipment",
+      "shortTextDv": "ޖ.ބ.-އެހެ.އިކުއިޕް.",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-އެހެނިހެން އިކްއިޕްމަންޓް"
+    },
+    {
+      "code": 494001,
+      "shortTextEn": "Accm.Dep.-Motor Vehi",
+      "longTextEn": "Accum. Dep. - Motor Vehicles",
+      "shortTextDv": "ޖ.ބ-އެއްގަމު އުޅަނދު",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-އެއްގަމުގައި ދުއްވާ ތަކެތި"
+    },
+    {
+      "code": 494002,
+      "shortTextEn": "Accm.Dep.-Ship&Boat",
+      "longTextEn": "Accum. Dep. - Ships and Boats",
+      "shortTextDv": "ޖ.ބ-ކަނޑުގެ އުޅަނދު",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ކަނޑުގައި ދުއްވާ އުޅަނދު"
+    },
+    {
+      "code": 494003,
+      "shortTextEn": "Accm.Dep.-Aero. equ.",
+      "longTextEn": "Accum. Dep. - Aerospace equipments",
+      "shortTextDv": "ޖ.ބ-ވައިގެ އުޅަނދު",
+      "longTextDv": "ޖުމްލަ ބަލަށްކެނޑި-ވައިގެ އުޅަނދުފަހަރު"
+    },
+    {
+      "code": 511001,
+      "shortTextEn": "Payable-Govt. Dept.",
+      "longTextEn": "Payables to Other Government Departments",
+      "shortTextDv": "ދ.ފައިސާ-ސ.އިދާރާ",
+      "longTextDv": "ސަރުކާރުގެ އެކި އިދާރާތަކަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511002,
+      "shortTextEn": "Payable-SOE",
+      "longTextEn": "Payables to State Owned Enterprises",
+      "shortTextDv": "ދ.ފައިސާ-ސ.ކުންފުނި",
+      "longTextDv": "ސަރުކާރު ކުންފުނިތަކަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511003,
+      "shortTextEn": "Payable-Employees",
+      "longTextEn": "Payables to Employees",
+      "shortTextDv": "ދ.ފައިސާ-މުވައްޒަފުނ",
+      "longTextDv": "މުވައްޒަފުންނަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511004,
+      "shortTextEn": "Payable-Domestic",
+      "longTextEn": "Payables to Domestic Parties",
+      "shortTextDv": "ދ.ފައިސާ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ރާއްޖޭގެ ފަރާތްތަކަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511005,
+      "shortTextEn": "Payables-Foreign",
+      "longTextEn": "Payables to Foreign Companies and Individuals",
+      "shortTextDv": "ދ.ފައިސާ-ބރ.އަމިއްލަ",
+      "longTextDv": "ބޭރުގެ އަމިއްލަ ފަރާތްތަކަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511006,
+      "shortTextEn": "Payables-NGOs",
+      "longTextEn": "Payables to Non-Governmental Organizations",
+      "shortTextDv": "ދ.ފައިސާ-އެން.ޖީ.އޯ",
+      "longTextDv": "އަމިއްލަ ޖަމިއްޔާތަކަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511007,
+      "shortTextEn": "Payables-Individuals",
+      "longTextEn": "Payables to Individuals Other than Employees",
+      "shortTextDv": "ދ.ފައިސާ- އަމިއްލަ",
+      "longTextDv": "އަމިއްލަ ފަރާތްތަކަށް ދައްކަންޖެހޭ ފައިސާ"
+    },
+    {
+      "code": 511008,
+      "shortTextEn": "Retention Payable",
+      "longTextEn": "Retention Payable",
+      "shortTextDv": "ރިޓެންޝަން ޕޭޔަބަލް",
+      "longTextDv": "ވެންޑަރ ރިޓެންޝަން ޕޭޔަބަލް"
+    },
+    {
+      "code": 511009,
+      "shortTextEn": "Withdrawal App. clr.",
+      "longTextEn": "Withdrawal Application clearing Account",
+      "shortTextDv": "ވިތުޑްޜޯވަލް އ/ކ",
+      "longTextDv": "ވިތުޑްރޯވަލް އެޕްލިކޭޝަން ކްލިއަރިންގ ޢ/ކ"
+    },
+    {
+      "code": 511101,
+      "shortTextEn": "Unclaimed Salaries",
+      "longTextEn": "Unclaimed Salaries",
+      "shortTextDv": "ޙަވާލުނުކުރެވޭ މުސާރ",
+      "longTextDv": "ޙަވާލުނުކުރެވިހުރި މުސާރަ"
+    },
+    {
+      "code": 511102,
+      "shortTextEn": "Previous Year Pmts",
+      "longTextEn": "Previous Year's Adjustment Payments",
+      "shortTextDv": "ކުރީއަހަރުގެ ޕޭމަންޓ",
+      "longTextDv": "ކުރީއަހަރުގެ އެޖަސްޓްމަންޓް ޕޭމަންޓް"
+    },
+    {
+      "code": 511121,
+      "shortTextEn": "Outdated Cheques",
+      "longTextEn": "Outdated Cheques",
+      "shortTextDv": "މ.ހަމަވެފައިވާ ޗެކް",
+      "longTextDv": "މުއްދަތު ހަމަވެފައިވާ ޗެކް"
+    },
+    {
+      "code": 511995,
+      "shortTextEn": "Input tax",
+      "longTextEn": "Input tax",
+      "shortTextDv": "އިންޕުޓް ޓެކްސް",
+      "longTextDv": "އިންޕުޓް ޓެކްސް"
+    },
+    {
+      "code": 511996,
+      "shortTextEn": "FCV adj Payables",
+      "longTextEn": "Foreign Currency Revaluation Adjustment Payables",
+      "shortTextDv": "ކަރަންސީ ރިވެލު.ޕޭޔ",
+      "longTextDv": "ފޮރިން ކަރަންސީ ރިވެލު. އެޖަސްމަންޓް ޕޭޔަބަލް"
+    },
+    {
+      "code": 511997,
+      "shortTextEn": "GR / IR",
+      "longTextEn": "Goods Received / Invoice Received",
+      "shortTextDv": "ޖީ.އާރު./އައި.އާރު",
+      "longTextDv": "މުދާ ބަލައިގަތް / އިންވޮއިސް ބަލައިގަތް"
+    },
+    {
+      "code": 511998,
+      "shortTextEn": "Payroll Clrng Acct.",
+      "longTextEn": "Payroll Clearing Account",
+      "shortTextDv": "ޕޭރޯލް ކްލިއަރިން އކ",
+      "longTextDv": "ޕޭރޯލް ކްލިއަރިންގ އެކައުންޓް"
+    },
+    {
+      "code": 511999,
+      "shortTextEn": "Other Payables",
+      "longTextEn": "Other Payables",
+      "shortTextDv": "ދ.ފައިސާ-އެހެނިހެން",
+      "longTextDv": "ދައްކަންޖެހޭ އެހެނިހެން ފައިސާ"
+    },
+    {
+      "code": 512001,
+      "shortTextEn": "Sa.Ded.-Court Orders",
+      "longTextEn": "Salary Deductions - Court Orders",
+      "shortTextDv": "މކފ-ކޯޓު އަމުރަކަށް",
+      "longTextDv": "ކޯޓުގެ އަމުރަކަށް މުސާރައިން ކަނޑާ ފައިސާ"
+    },
+    {
+      "code": 512002,
+      "shortTextEn": "Sa.Ded.-Child Maint.",
+      "longTextEn": "Salary Deductions - Child Maintenance",
+      "shortTextDv": "މކފ-ދަރިންގެ ޚަރަދު",
+      "longTextDv": "ދަރިންގެ ޚަރަދަށް މުސާރައިން ކަނޑާ ފައިސާ"
+    },
+    {
+      "code": 512006,
+      "shortTextEn": "Sa.Ded.-Prov. Fund",
+      "longTextEn": "Salary Deductions - Provident Fund Contributions",
+      "shortTextDv": "މކފ-ޕްރޮވިޑެންޓް",
+      "longTextDv": "ޕްރޮވިޑެންޓް ފަންޑަށް މުސާރައިން ކަނޑާ ފައިސާ"
+    },
+    {
+      "code": 512007,
+      "shortTextEn": "Sa.Ded.-STO Cr.Sch.",
+      "longTextEn": "Salary Deductions - STO Credit Scheme",
+      "shortTextDv": "މކފ-ކްރެޑިޓް ސްކީމް",
+      "longTextDv": "ކްރެޑިޓް ސްކީމަށް މުސާރައިން ކަނޑާ ފައިސާ"
+    },
+    {
+      "code": 512008,
+      "shortTextEn": "Sa.Ded.-Schol.Rep.",
+      "longTextEn": "Salary Deductions - Scholarship Repayment",
+      "shortTextDv": "މކފ-ސްކޮލަރޝިޕް",
+      "longTextDv": "ސްކޮލަރ. އަނބުރާދެއްކުމަށް މުސާރައިން ކަނޑާ ފައިސާ"
+    },
+    {
+      "code": 512009,
+      "shortTextEn": "Sa.Ded.-Pension",
+      "longTextEn": "Salary Deductions - Pension Contributions",
+      "shortTextDv": null,
+      "longTextDv": null
+    },
+    {
+      "code": 512010,
+      "shortTextEn": "Sa.Ded.-MFLC Loan.",
+      "longTextEn": "Salary Deductions - MFLC Loan Scheme",
+      "shortTextDv": "މކފ-ލޯން ސްކީމް",
+      "longTextDv": "ލޯން ސްކީމަށް މުސާރައިން ކަނޑާ ފައިސާ"
+    },
+    {
+      "code": 512011,
+      "shortTextEn": "Sa.Ded.-HDFC Loan.",
+      "longTextEn": "Salary Deductions - HDFC Loan Scheme",
+      "shortTextDv": "ލޯން ސްކީމް-ހޑފކ",
+      "longTextDv": "ލޯން ސްކީމަށް މުސާރައިން ކަނޑާ ފައިސާ - ހޑފކ"
+    },
+    {
+      "code": 512012,
+      "shortTextEn": "Sa.Ded.-MIB Loans",
+      "longTextEn": "Salary Deductions - MIB Loan Scheme",
+      "shortTextDv": "ލޯން ސްކީމް-މއބ",
+      "longTextDv": "ލޯން ސްކީމަށް މުސާރައިން ކަނޑާ ފައިސާ - މއބ"
+    },
+    {
+      "code": 512013,
+      "shortTextEn": "Sa.Ded.Staff Sch.Haj",
+      "longTextEn": "Salary Deductions -Staffs Scheme Hajj Corporation",
+      "shortTextDv": "މކސްޓާފްސްކީމްހައްޖު",
+      "longTextDv": "ސްޓާފް ސްކީމަށް މުސާރައިން ކަޑާ-ހައްޖު ކޯޕަރޭޝަން"
+    },
+    {
+      "code": 512014,
+      "shortTextEn": "S.Ded.EWT",
+      "longTextEn": "Salary Deductions – Employee Withholding Tax",
+      "shortTextDv": "މުވައްޒަފުންގެ ވިތުހ",
+      "longTextDv": "މުވައްޒަފުންގެ ވިތުހޯލްޑިންގ ޓެކުހުގެ ގޮތުގައި އުނ"
+    },
+    {
+      "code": 512998,
+      "shortTextEn": "Sa.Ded.-Others",
+      "longTextEn": "Salary Deductions - Others",
+      "shortTextDv": "މކފ-އެހެނިހެން",
+      "longTextDv": "މުސާރައިން ކަނޑާ އެހެނިހެން ބައިތައް"
+    },
+    {
+      "code": 513001,
+      "shortTextEn": "Tender Securities",
+      "longTextEn": "Tender Securities",
+      "shortTextDv": "ޓެންޑަރ ސެކިއުރިޓީ",
+      "longTextDv": "ޓެންޑަރ ސެކިއުރިޓީ ގެ ގޮތުގައި ބަހައްޓާ ފައިސާ"
+    },
+    {
+      "code": 513002,
+      "shortTextEn": "Court Bail Moneys",
+      "longTextEn": "Court Bail Moneys",
+      "shortTextDv": "ކޯޓްބެއިލް ފައިސާ",
+      "longTextDv": "ކޯޓްބެއިލް ފައިސާ"
+    },
+    {
+      "code": 513003,
+      "shortTextEn": "Deposit from Lessees",
+      "longTextEn": "Deposits Received from Lessees",
+      "shortTextDv": "ޑިޕޮސިޓް-ކުއްޔަށް..",
+      "longTextDv": "ކުއްޔަށްހިފާ ފަރާތުން ދައްކާ ޑިޕޮޒިޓް ފައިސާ"
+    },
+    {
+      "code": 513004,
+      "shortTextEn": "Pre-payments Receivd",
+      "longTextEn": "Pre-payments Received",
+      "shortTextDv": "އެޑްވާންސަށް ލިބޭ",
+      "longTextDv": "އެޑްވާންސްކޮށް ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 513005,
+      "shortTextEn": "Work-permit Deposits",
+      "longTextEn": "Work-permit Deposits",
+      "shortTextDv": "ވޯކްޕާމިޓް ޑިޕޮސިޓް",
+      "longTextDv": "ވަރކް ޕަރމިޓް ޑިޕޮސިޓް"
+    },
+    {
+      "code": 513006,
+      "shortTextEn": "Forgn Trade Deposits",
+      "longTextEn": "Foreign Trade Deposits (DIR)",
+      "shortTextDv": "ޓްރޭޑް ޑިޕޮސިޓްސް",
+      "longTextDv": "ފޮރިން ޓްރޭޑް ޑިޕޮސިޓްސް"
+    },
+    {
+      "code": 513007,
+      "shortTextEn": "Madhana Advance",
+      "longTextEn": "Madhana Advance Premium",
+      "shortTextDv": "މަދަނަ އެޑްވާންސް",
+      "longTextDv": "މަދަނައިގައި ބައިވެރިވުމަށްނަގާ އެޑްވާންސް ފައިސާ"
+    },
+    {
+      "code": 513008,
+      "shortTextEn": "Deposits to Courts",
+      "longTextEn": "Deposits to Courts",
+      "shortTextDv": "ކޯޓު ޑިޕޮސިޓް",
+      "longTextDv": "ކޯޓުގައި ޑިޕޮސިޓްކުރާ ފައިސާ"
+    },
+    {
+      "code": 513009,
+      "shortTextEn": "Repatriation Deposit",
+      "longTextEn": "Repatriation Deposits",
+      "shortTextDv": "ރިޕެޓްރި. ޑިޕޮސިޓް",
+      "longTextDv": "ރިޕެޓްރިއޭޝަން ޑިޕޮސިޓްސް"
+    },
+    {
+      "code": 513010,
+      "shortTextEn": "Security Deposits",
+      "longTextEn": "Security Deposits",
+      "shortTextDv": "ސެކިއުރިޓީ ޑިޕޮސިޓް",
+      "longTextDv": "ސެކިއުރިޓީ ޑިޕޮސިޓްގެ ގޮތުގައި ބަހައްޓާ ފައިސާ"
+    },
+    {
+      "code": 513011,
+      "shortTextEn": "Book Sales Deposit",
+      "longTextEn": "Book Sales Deposits",
+      "shortTextDv": "ފޮތްވިއްކި ޑިޕޮސިޓް",
+      "longTextDv": "ފޮތްވިއްކައިގެން ލިބޭ ފައިސާގެ ޑިޕޮސިޓް"
+    },
+    {
+      "code": 513012,
+      "shortTextEn": "Temporary Deposits",
+      "longTextEn": "Temporary Deposits",
+      "shortTextDv": "ވަގުތީ ޑިޕޮސިޓް",
+      "longTextDv": "ވަގުތީގޮތުން ބަހައްޓާ ޑިޕޮސިޓް"
+    },
+    {
+      "code": 513013,
+      "shortTextEn": "Deposits of Inmates",
+      "longTextEn": "Deposits of Inmates",
+      "shortTextDv": "ޤައިދީންގެ ޑިޕޮސިޓް",
+      "longTextDv": "ޤައިދީންގެ ޑިޕޮސިޓް ފައިސާ"
+    },
+    {
+      "code": 513014,
+      "shortTextEn": "Revolving Fund",
+      "longTextEn": "Revolving Fund",
+      "shortTextDv": "ރިވޯލްވިންގ ފަންޑް",
+      "longTextDv": "ރިވޯލްވިންގ ފަންޑް"
+    },
+    {
+      "code": 513015,
+      "shortTextEn": "Expatiriate Deposits",
+      "longTextEn": "Expatiriate Deposits - MIRA",
+      "shortTextDv": "ބިދޭސީންގެ ޑިޕޮސިޓް",
+      "longTextDv": "މީރާއިން ނަގާ ބިދޭސީންގެ ޑިޕޮސިޓް"
+    },
+    {
+      "code": 513016,
+      "shortTextEn": "Dormant Acc- Indivi.",
+      "longTextEn": "Dormant Account - Individuals",
+      "shortTextDv": "ޑޯމަންޓް އކ-އަމިއްލަ",
+      "longTextDv": "ޑޯމަންޓް އެކައުންޓް-އަމިއްލަ"
+    },
+    {
+      "code": 513017,
+      "shortTextEn": "Budget Reimbursement",
+      "longTextEn": "Budget Reimbursement",
+      "shortTextDv": "ބަޖެޓުން އަބުރާ ލިބޭ",
+      "longTextDv": "ބަޖެޓުން އަނބުރާ ލިބޭ ފައިސާ"
+    },
+    {
+      "code": 513997,
+      "shortTextEn": "MIRA Rev. Clr. Acct.",
+      "longTextEn": "MIRA Revenue Clearing Account",
+      "shortTextDv": "މީރާ ރެވެނިއު ކލރ",
+      "longTextDv": "މީރާ ރެވެނިއު ކްލިއަރިންގ އެކައުންޓް"
+    },
+    {
+      "code": 513999,
+      "shortTextEn": "Other Deposits",
+      "longTextEn": "Other Deposits",
+      "shortTextDv": "އެހެނިހެން ޑިޕޮސިޓް",
+      "longTextDv": "ބަހައްޓާ އެހެނިހެން ފައިސާ"
+    },
+    {
+      "code": 514001,
+      "shortTextEn": "Constabulary Service",
+      "longTextEn": "Special Constabulary Services",
+      "shortTextDv": "ކޮންސްޓެބިއުލަރީ",
+      "longTextDv": "ސްޕެޝަލް ކޮންސްޓެބިއުލަރީގެ ޚިދުމަތް"
+    },
+    {
+      "code": 521001,
+      "shortTextEn": "STDL-SOE",
+      "longTextEn": "Short Term Domestic Loans - SOE",
+      "shortTextDv": "ކމލ-ސ.ކުންފުނި",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 521002,
+      "shortTextEn": "STDL-State. Fin.Ins.",
+      "longTextEn": "Short Term Domestic Loans - State Fin.Institutions",
+      "shortTextDv": "ކމލ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ސަރުކާރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 521003,
+      "shortTextEn": "STDL-Individuals",
+      "longTextEn": "Short Term Domestic Loans - Individuals",
+      "shortTextDv": "ކމލ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 521004,
+      "shortTextEn": "STDL-Non-Prft Org.",
+      "longTextEn": "Short Term Domestic Loans - Non-Profit Org.",
+      "shortTextDv": "ކމލ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ރާއްޖޭގެ ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 521005,
+      "shortTextEn": "STDL-Treasury Bills",
+      "longTextEn": "Short Term Domestic Loans - Treasury Bills",
+      "shortTextDv": "ކމލ-ޓްރެޜަރީ ބިލްސް",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ޓްރެޜަރީ ބިލްސް"
+    },
+    {
+      "code": 521999,
+      "shortTextEn": "STDL-Other",
+      "longTextEn": "Short Term Domestic Loans - Other",
+      "shortTextDv": "ކމލ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ރާއްޖޭގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 522001,
+      "shortTextEn": "STFL-Multilateral",
+      "longTextEn": "Short Term Foreign Loans - Multilateral",
+      "shortTextDv": "ކމލ-ބއ. އިދާރާތައް",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ބައިނަލްއަޤްވާމީ އިދާރާތައް"
+    },
+    {
+      "code": 522002,
+      "shortTextEn": "STFL-Bilateral",
+      "longTextEn": "Short Term Foreign Loans - Bilateral Govt.",
+      "shortTextDv": "ކމލ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ބޭރުގެ ސަރުކާރުތައް"
+    },
+    {
+      "code": 522003,
+      "shortTextEn": "STFL-For. Comm. Ins.",
+      "longTextEn": "Short Term Foreign Loans - For. Commercial Instit.",
+      "shortTextDv": "ކމލ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ބޭރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 522004,
+      "shortTextEn": "STFL-Foreign indiv.",
+      "longTextEn": "Short Term Foreign Loans - Foreign Individuals",
+      "shortTextDv": "ކމލ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ބޭރުގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 522999,
+      "shortTextEn": "STFL-Other",
+      "longTextEn": "Short Term Foreign Loans - Other",
+      "shortTextDv": "ކމލ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ނަގާފައިވާ ކމ.ލޯން-ބޭރުގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 523001,
+      "shortTextEn": "LTDL-SOE",
+      "longTextEn": "Long Term Domestic Loans - SOE",
+      "shortTextDv": "ދމލ-ސ.ކުންފުނި",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 523002,
+      "shortTextEn": "LTDL-State. Fin.Ins.",
+      "longTextEn": "Long Term Domestic Loans - State Fin.Institutions",
+      "shortTextDv": "ދމލ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ސަރުކާރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 523003,
+      "shortTextEn": "LTDL-Individuals",
+      "longTextEn": "Long Term Domestic Loans - Individuals",
+      "shortTextDv": "ދމލ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 523004,
+      "shortTextEn": "LTDL-Non-Prft Org.",
+      "longTextEn": "Long Term Domestic Loans - Non-Profit Org.",
+      "shortTextDv": "ދމލ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ރާއްޖޭގެ ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 524001,
+      "shortTextEn": "LTDL-Inscribed Stock",
+      "longTextEn": "Long Term Domestic Loans - Inscribed Stock",
+      "shortTextDv": "ދމލ-އިންސް.ސްޓޮކް",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-އިންސްކްރައިބްޑް ސްޓޮކް"
+    },
+    {
+      "code": 524003,
+      "shortTextEn": "LTDL-Domestic Banks",
+      "longTextEn": "Long Term Domestic Loans - Domestic Banks",
+      "shortTextDv": "ދމލ-ރޖ.ބޭންކްތައް",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ރާއްޖޭގެ ބޭންކްތައް"
+    },
+    {
+      "code": 524004,
+      "shortTextEn": "LTDL-Govt.Bonds",
+      "longTextEn": "Long Term Domestic Loans – Govt Bonds",
+      "shortTextDv": "ދމލ-ބޮންޑު ޑ.",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ސަރުކާރު ބޮންޑު (ޑޮމެސްޓިކް)"
+    },
+    {
+      "code": 524999,
+      "shortTextEn": "LTDL-Other",
+      "longTextEn": "Long Term Domestic Loans - Others",
+      "shortTextDv": "ދމލ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ރާއްޖޭގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 525001,
+      "shortTextEn": "LTFL-Multilateral",
+      "longTextEn": "Long Term Foreign Loans - Multilateral",
+      "shortTextDv": "ދމލ-ބއ. އިދާރާތައް",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ބައިނަލްއަޤްވާމީ އިދާރާތައް"
+    },
+    {
+      "code": 525002,
+      "shortTextEn": "LTFL-Bilateral",
+      "longTextEn": "Long Term Foreign Loans - Bilateral Govt.",
+      "shortTextDv": "ދމލ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ބޭރުގެ ސަރުކާރުތައް"
+    },
+    {
+      "code": 525003,
+      "shortTextEn": "LTFL-For. Comm. Ins.",
+      "longTextEn": "Long Term Foreign Loans - For. Commercial Instit.",
+      "shortTextDv": "ދމލ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ބޭރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 525004,
+      "shortTextEn": "LTFL-Foreign indiv.",
+      "longTextEn": "Long Term Foreign Loans - Foreign Individuals",
+      "shortTextDv": "ދމލ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ބޭރުގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 525005,
+      "shortTextEn": "LTFL-Govt. Bonds",
+      "longTextEn": "Long Term Foreign Loan – Govt Bonds",
+      "shortTextDv": "ދމލ-ބޮންޑު ފޮރިން",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ސަރުކާރު ބޮންޑު (ފޮރިން)"
+    },
+    {
+      "code": 525999,
+      "shortTextEn": "LTFL-Other",
+      "longTextEn": "Long Term Foreign Loans - Other",
+      "shortTextDv": "ދމލ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ނަގާފައިވާ ދމ.ލޯން-ބޭރުގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 531001,
+      "shortTextEn": "Prov.-Disaster Relf",
+      "longTextEn": "Provision for Disaster Relief",
+      "shortTextDv": "ޑިޒާސްޓަރ...",
+      "longTextDv": "ޑިޒާސްޓަރ ރިލީފް ޕްރޮވިޜަން"
+    },
+    {
+      "code": 531002,
+      "shortTextEn": "Prov.-Bad Debts",
+      "longTextEn": "Provision for Bad Debts",
+      "shortTextDv": "ބޭޑް ޑެޓްސް ޕްރޮވި.",
+      "longTextDv": "ބޭޑް ޑެޓްސް ޕްރޮވިޜަން"
+    },
+    {
+      "code": 531999,
+      "shortTextEn": "Prov.-Other",
+      "longTextEn": "Other Long Term Provisions",
+      "shortTextDv": "އެހެނިހެން ޕްރޮވި.",
+      "longTextDv": "އެހެނިހެން ދިގުމުއްދަތުގެ ޕްރޮވިޝަންތައް"
+    },
+    {
+      "code": 532001,
+      "shortTextEn": "Asset Rev Reserve",
+      "longTextEn": "Asset Revaluation Reserve",
+      "shortTextDv": "އެސެޓް ރިވެލު ރިޒާވް",
+      "longTextDv": "އެސެޓް ރިވެލުއޭޝަން ރިޒަރވް"
+    },
+    {
+      "code": 561001,
+      "shortTextEn": "Capital Works Fund",
+      "longTextEn": "Capital Works Fund",
+      "shortTextDv": "ކެޕިޓަލް ވަރކްސް ފ.",
+      "longTextDv": "ކެޕިޓަލް ވަރކްސް ފަންޑް"
+    },
+    {
+      "code": 561002,
+      "shortTextEn": "Advances Fund",
+      "longTextEn": "Advances Fund",
+      "shortTextDv": "އެޑްވާންސަސް ފަންޑް",
+      "longTextDv": "އެޑްވާންސަސް ފަންޑް"
+    },
+    {
+      "code": 563001,
+      "shortTextEn": "Fund-Education",
+      "longTextEn": "Education Fund",
+      "shortTextDv": "ތަޢުލީމީ ފަންޑު",
+      "longTextDv": "ތަޢުލީމީ ފަންޑު"
+    },
+    {
+      "code": 563002,
+      "shortTextEn": "Fund-Bld Donation",
+      "longTextEn": "Blood Donation Fund",
+      "shortTextDv": "ލޭ ހަދިޔާކުރާ ފަންޑް",
+      "longTextDv": "ލޭ ހަދިޔާކުރާ ފަންޑް"
+    },
+    {
+      "code": 621001,
+      "shortTextEn": "STB-SOE",
+      "longTextEn": "Short Term Borr. - SOE",
+      "shortTextDv": "ކމލނ-ސ.ކުންފުނި",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 621002,
+      "shortTextEn": "STB-State. Fin.Ins.",
+      "longTextEn": "Short Term Borr. - State Fin.Institutions",
+      "shortTextDv": "ކމލނ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ސަރުކާރު މާލީ އިދާރާތައ"
+    },
+    {
+      "code": 621003,
+      "shortTextEn": "STB-Individuals",
+      "longTextEn": "Short Term Borr. - Individuals",
+      "shortTextDv": "ކމލނ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 621004,
+      "shortTextEn": "STB-Non-Prft Org.",
+      "longTextEn": "Short Term Borr. - Non-Profit Org.",
+      "shortTextDv": "ކމލނ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ރާއްޖޭގެ ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 621005,
+      "shortTextEn": "STDB-Treasury Bills",
+      "longTextEn": "Short Term Dom. Borr. - Treasury Bills",
+      "shortTextDv": "ކމލނ-ޓްރެޜަރީ ބިލްސް",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ޓްރެޜަރީ ބިލްސް"
+    },
+    {
+      "code": 621999,
+      "shortTextEn": "STB-Other",
+      "longTextEn": "Short Term Borr. - Other",
+      "shortTextDv": "ކމލނ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ރާއްޖޭގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 622001,
+      "shortTextEn": "STFB-Multilateral",
+      "longTextEn": "Short Term For. Borr. - Multilateral",
+      "shortTextDv": "ކމލނ-ބއ. އިދާރާތައް",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ބައިނަލް އަޤްވާމީ އިދާރާތައް"
+    },
+    {
+      "code": 622002,
+      "shortTextEn": "STFB-Bilateral",
+      "longTextEn": "Short Term For. Borr. - Bilateral Govt.",
+      "shortTextDv": "ކމލނ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ބޭރުގެ ސަރުކާރުތައް"
+    },
+    {
+      "code": 622003,
+      "shortTextEn": "STFB-For. Comm. Ins.",
+      "longTextEn": "Short Term For. Borr. - For. Commercial Instit.",
+      "shortTextDv": "ކމލނ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ބައިނަލްއަޤަވާމީ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 622004,
+      "shortTextEn": "STFB-Foreign indiv.",
+      "longTextEn": "Short Term For. Borr. - Foreign Individuals",
+      "shortTextDv": "ކމލނ-ބރއަމިއްލަ..",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ބޭރުގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 622999,
+      "shortTextEn": "STFB-Other",
+      "longTextEn": "Short Term For. Borr. - Other",
+      "shortTextDv": "ކމލނ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ކމ.ލޯން ނެގުން-ބޭރުގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 623001,
+      "shortTextEn": "LTB-SOE",
+      "longTextEn": "Long Term Borr. - SOE",
+      "shortTextDv": "ދމލނ-ސ.ކުންފުނި",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 623002,
+      "shortTextEn": "LTB-State. Fin.Ins.",
+      "longTextEn": "Long Term Borr. - State Fin.Institutions",
+      "shortTextDv": "ދމލނ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ސަރުކާރު މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 623003,
+      "shortTextEn": "LTB-Individuals",
+      "longTextEn": "Long Term Borr. - Individuals",
+      "shortTextDv": "ދމލނ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 623004,
+      "shortTextEn": "LTB-Non-Prft Org.",
+      "longTextEn": "Long Term Borr. - Non-Profit Org.",
+      "shortTextDv": "ދމލނ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ރާއްޖޭގެ ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 624001,
+      "shortTextEn": "LTDB-Inscribed Stock",
+      "longTextEn": "Long Term Dom. Borr. - Inscribed Stock",
+      "shortTextDv": "ދމލނ-އިންސް.ސްޓޮކް",
+      "longTextDv": "އެހެނިހެން ދމ.ލޯން ނެގުން-އިންސްކްރައިބްޑް ސްޓޮކް"
+    },
+    {
+      "code": 624003,
+      "shortTextEn": "LTDB-Domestic Banks",
+      "longTextEn": "Long Term Dom. Borr. - Domestic Banks",
+      "shortTextDv": "ދމލނ-ރޖ.ބޭންކްތައް",
+      "longTextDv": "އެހެނިހެން ދމ.ލޯން ނެގުން-ރާއްޖޭގެ ބޭންކްތައް"
+    },
+    {
+      "code": 624999,
+      "shortTextEn": "LTDB-Others",
+      "longTextEn": "Long Term Dom. Borr. - Others",
+      "shortTextDv": "ދމލނ-ރޖ.އެހެނިހެން",
+      "longTextDv": "އެހެނިހެން ދމ.ލޯން ނެގުން-ރާއްޖޭގެ އެހެނިހެން"
+    },
+    {
+      "code": 625001,
+      "shortTextEn": "LTFB-Multilateral",
+      "longTextEn": "Long Term For. Borr. - Multilateral",
+      "shortTextDv": "ދމލނ-ބއ. އިދާރާތައް",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ބައިނަލް އަޤްވާމީ އިދާރާތައް"
+    },
+    {
+      "code": 625002,
+      "shortTextEn": "LTFB-Bilateral Govt.",
+      "longTextEn": "Long Term For. Borr. - Bilateral Govt.",
+      "shortTextDv": "ދމލނ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ބޭރުގެ ސަރުކާރުތައް"
+    },
+    {
+      "code": 625003,
+      "shortTextEn": "LTFB-For. Comm. Ins.",
+      "longTextEn": "Long Term For. Borr. - For. Commercial Instit.",
+      "shortTextDv": "ދމލނ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ބޭރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 625004,
+      "shortTextEn": "LTFB-Foreign indiv.",
+      "longTextEn": "Long Term For. Borr. - Foreign Individuals",
+      "shortTextDv": "ދމލނ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ބޭރުގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 625999,
+      "shortTextEn": "LTFB-Other",
+      "longTextEn": "Long Term For. Borr. - Other",
+      "shortTextDv": "ދމލނ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ދމ.ލޯން ނެގުން-ބޭރުގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 631001,
+      "shortTextEn": "DLR-SOE",
+      "longTextEn": "Domestic Lending Repmt. - SOE",
+      "shortTextDv": "ލއލ-ސ.ކުންފުނި",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ސަރުކާރު ކުންފުނިތަކުން"
+    },
+    {
+      "code": 631002,
+      "shortTextEn": "DLR-State. Fin.Ins.",
+      "longTextEn": "Domestic Lending Repmt. - State Fin.Institutions",
+      "shortTextDv": "ލއލ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ސަރުކާރުގެ މާލީ އިދާރާތަކުން"
+    },
+    {
+      "code": 631003,
+      "shortTextEn": "DLR-Individuals",
+      "longTextEn": "Domestic Lending Repmt. - Individuals",
+      "shortTextDv": "ލއލ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ރާއްޖޭގެ އަމިއްލަ ފަރާތްތަކުން"
+    },
+    {
+      "code": 631004,
+      "shortTextEn": "DLR-Non-Prft Org.",
+      "longTextEn": "Domestic Lending Repmt. - Non-Profit Org.",
+      "shortTextDv": "ލއލ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ރާއްޖޭގެ ޖަމްޢިއްޔާތަކުން"
+    },
+    {
+      "code": 631999,
+      "shortTextEn": "DLR-Other",
+      "longTextEn": "Domestic Lending Repmt. - Other",
+      "shortTextDv": "ލއލ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ރާއްޖޭގެ އެހެނިހެން"
+    },
+    {
+      "code": 632002,
+      "shortTextEn": "FLR-Bilateral Govt.",
+      "longTextEn": "Foreign Lending Repmt. - Bilateral Govt.",
+      "shortTextDv": "ލއލ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ބޭރުގެ ސަރުކާރުތަކުން"
+    },
+    {
+      "code": 632003,
+      "shortTextEn": "FLR-For. Comm. Ins.",
+      "longTextEn": "Foreign Lending Repmt. - For. Commercial Instit.",
+      "shortTextDv": "ލއލ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ބޭރުގެ މާލީ އިދާރާތަކުން"
+    },
+    {
+      "code": 632004,
+      "shortTextEn": "FLR-Foreign indiv.",
+      "longTextEn": "Foreign Lending Repmt. - Foreign Individuals",
+      "shortTextDv": "ލއލ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ބޭރުގެ އަމިއްލަ ފަރާތްތަކުން"
+    },
+    {
+      "code": 632999,
+      "shortTextEn": "FLR-Other",
+      "longTextEn": "Foreign Lending Repmt. - Other",
+      "shortTextDv": "ލއލ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ލޯނަށް އަނބުރާ ލިބޭ-ބޭރުގެ އެހެނިހެން ފަރާތްތަކުން"
+    },
+    {
+      "code": 721001,
+      "shortTextEn": "STDR-SOE",
+      "longTextEn": "Short Term Dom. Loan Repmt.-SOE",
+      "shortTextDv": "ކލއދ-ސ.ކުންފުނި",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 721002,
+      "shortTextEn": "STDR-State Fin.Ins",
+      "longTextEn": "Short Term Dom. Loan Repmt.-State Fin.Institutions",
+      "shortTextDv": "ކލއދ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ސަރުކާރުގެ މާލީ އިދާރާ"
+    },
+    {
+      "code": 721003,
+      "shortTextEn": "STDR-Individuals",
+      "longTextEn": "Short Term Dom. Loan Repmt.-Individuals",
+      "shortTextDv": "ކލއދ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ރޖ.އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 721004,
+      "shortTextEn": "STDR-Non-Prft Org.",
+      "longTextEn": "Short Term Dom. Loan Repmt.-Non-Profit Org.",
+      "shortTextDv": "ކލއދ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ރޖ.ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 721005,
+      "shortTextEn": "STDR-Treasury Bills",
+      "longTextEn": "Short Term Dom. Loan Repmt.-Treasury Bills",
+      "shortTextDv": "ކލއދ-ޓްރެޜަރީ ބިލްސް",
+      "longTextDv": "ކމ.ލޯން އަނބުރާދެއްކުން-ޓްރެޜަރީ ބިލްސް"
+    },
+    {
+      "code": 721999,
+      "shortTextEn": "STDR-Other",
+      "longTextEn": "Short Term Dom. Loan Repmt.-Other",
+      "shortTextDv": "ކލއދ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ރޖ.އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 722001,
+      "shortTextEn": "STFR-Multilateral",
+      "longTextEn": "Short Term For. Loan Repmt.-Multilateral",
+      "shortTextDv": "ކލއދ-ބއ. އިދާރާތައް",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ބައިނަލްއަޤްވާމީ އިދާރާ"
+    },
+    {
+      "code": 722002,
+      "shortTextEn": "STFR-Bilateral Govt.",
+      "longTextEn": "Short Term For. Loan Repmt.-Bilateral Govt.",
+      "shortTextDv": "ކލއދ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ބޭރުގެ ސަރުކާރުތައް"
+    },
+    {
+      "code": 722003,
+      "shortTextEn": "STFR-For. Comm. Ins.",
+      "longTextEn": "Short Term For. Loan Repmt.-For. Commercial Instit",
+      "shortTextDv": "ކލއދ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ބޭރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 722004,
+      "shortTextEn": "STFR-Foreign indiv.",
+      "longTextEn": "Short Term For. Loan Repmt.-Foreign Individuals",
+      "shortTextDv": "ކލއދ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ބރ.އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 722999,
+      "shortTextEn": "STFR-Other",
+      "longTextEn": "Short Term For. Loan Repmt.-Other",
+      "shortTextDv": "ކލއދ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ކމ.ލޯން އަނބުރާ ދެއްކުން-ބރ.އެހެނިހެން ފަރާތްތައ"
+    },
+    {
+      "code": 723001,
+      "shortTextEn": "LTDR-SOE",
+      "longTextEn": "Long Term Dom. Loan Repmt.-SOE",
+      "shortTextDv": "ދލއދ-ސ.ކުންފުނި",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 723002,
+      "shortTextEn": "LTDR-State Fin.Ins",
+      "longTextEn": "Long Term Dom. Loan Repmt.-State Fin.Institutions",
+      "shortTextDv": "ދލއދ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ސަރުކާރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 723003,
+      "shortTextEn": "LTDR-Individuals",
+      "longTextEn": "Long Term Dom. Loan Repmt.-Individuals",
+      "shortTextDv": "ދލއދ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ރޖ.އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 723004,
+      "shortTextEn": "LTDR-Non-Prft Org.",
+      "longTextEn": "Long Term Dom. Loan Repmt.-Non-Profit Org.",
+      "shortTextDv": "ދލއދ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ރޖ.ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 724001,
+      "shortTextEn": "LTDR-Inscribed Stock",
+      "longTextEn": "Long Term Dom. Loan Repmt.-Inscribed Stock",
+      "shortTextDv": "ދލއދ-އިންސް.ސްޓޮކް",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-އިންސްކްރައިބްޑް ސްޓޮކް"
+    },
+    {
+      "code": 724003,
+      "shortTextEn": "LTDR-Domestic Banks",
+      "longTextEn": "Long Term Dom. Loan Repmt.-Domestic Banks",
+      "shortTextDv": "ދލއދ-ރޖ.ބޭންކްތައް",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ރާއްޖޭގެ ބޭންކްތައް"
+    },
+    {
+      "code": 724999,
+      "shortTextEn": "LTDR-Others",
+      "longTextEn": "Long Term Dom. Loan Repmt.-Others",
+      "shortTextDv": "ދލއދ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ރާއްޖޭގެ އެހެނިހެން"
+    },
+    {
+      "code": 725001,
+      "shortTextEn": "LTFR-Multilateral",
+      "longTextEn": "Long Term For. Loan Repmt.-Multilateral",
+      "shortTextDv": "ދލއދ-ބއ. އިދާރާތައް",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ބައިނަލްއަޤްވާމީ އިދާރާ"
+    },
+    {
+      "code": 725002,
+      "shortTextEn": "LTFR-Bilateral Govt.",
+      "longTextEn": "Long Term For. Loan Repmt.-Bilateral Govt.",
+      "shortTextDv": "ދލއދ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ބޭރުގެ ސަރުކާރުތައް"
+    },
+    {
+      "code": 725003,
+      "shortTextEn": "LTFR-For. Comm. Ins.",
+      "longTextEn": "Long Term For. Loan Repmt.-For. Commercial Instit.",
+      "shortTextDv": "ދލއދ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ބޭރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 725004,
+      "shortTextEn": "LTFR-Foreign indiv.",
+      "longTextEn": "Long Term For. Loan Repmt.-Foreign Individuals",
+      "shortTextDv": "ދލއދ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ބޭރުގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 725999,
+      "shortTextEn": "LTFR-Other",
+      "longTextEn": "Long Term For. Loan Repmt.-Other",
+      "shortTextDv": "ދލއދ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ދމ.ލޯން އަނބުރާދެއްކުން-ބރ.އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 731001,
+      "shortTextEn": "D.Lend-SOE",
+      "longTextEn": "New Domestic Lending - SOE",
+      "shortTextDv": "ލދ-ސ.ކުންފުނި",
+      "longTextDv": "ލޯން ދޫކުރުން - ސަރުކާރު ކުންފުނިތައް"
+    },
+    {
+      "code": 731002,
+      "shortTextEn": "D.Lend-State Fin.Ins",
+      "longTextEn": "New Domestic Lending - State Fin.Institutions",
+      "shortTextDv": "ލދ-ސ.މާލީ އިދާރާ",
+      "longTextDv": "ލޯން ދޫކުރުން - ސަރުކާރުގެ މާލީ އިދާރާތައް"
+    },
+    {
+      "code": 731003,
+      "shortTextEn": "D.Lend-Individuals",
+      "longTextEn": "New Domestic Lending - Individuals",
+      "shortTextDv": "ލދ-ރޖ.އަމިއްލަ",
+      "longTextDv": "ލޯން ދޫކުރުން - ރާއްޖޭގެ އަމިއްލަ ފަރާތްތައް"
+    },
+    {
+      "code": 731004,
+      "shortTextEn": "D.Lend-Non-Prft Org.",
+      "longTextEn": "New Domestic Lending - Non-Profit Org.",
+      "shortTextDv": "ލދ-ރޖ.ޖަމްޢިއްޔާ",
+      "longTextDv": "ލޯން ދޫކުރުން - ރާއްޖޭގެ ޖަމްޢިއްޔާތައް"
+    },
+    {
+      "code": 731005,
+      "shortTextEn": "D.Lend-Comm.Ins",
+      "longTextEn": "Domestic Lending - For. Commercial Instit.",
+      "shortTextDv": "ލދ-ކޮމާޝަލް އިންސްޓި",
+      "longTextDv": "ލޯން ދޫކުރުން - ކޮމާޝަލް އިންސްޓިޓިއުޝަން"
+    },
+    {
+      "code": 731999,
+      "shortTextEn": "D.Lend-Other",
+      "longTextEn": "Other New Domestic Lending",
+      "shortTextDv": "ލދ-ރޖ.އެހެނިހެން",
+      "longTextDv": "ލޯން ދޫކުރުން - ރާއްޖޭގެ އެހެނިހެން ފަރާތްތައް"
+    },
+    {
+      "code": 732002,
+      "shortTextEn": "F.Lend-Bilateral",
+      "longTextEn": "New Foreign Lending - Bilateral Govt.",
+      "shortTextDv": "ލދ-ބރ.ސަރުކާރުތައް",
+      "longTextDv": "ލޯން ދޫކުރުން - ބޭރުގެ ސަރުކާރުތަކަށް"
+    },
+    {
+      "code": 732003,
+      "shortTextEn": "F.Lend-For. Comm.Ins",
+      "longTextEn": "New Foreign Lending - For. Commercial Instit.",
+      "shortTextDv": "ލދ-ބއ.މާލީ އިދާރާ",
+      "longTextDv": "ލޯން ދޫކުރުން - ބޭރުގެ މާލީ އިދާރާތަކަށް"
+    },
+    {
+      "code": 732004,
+      "shortTextEn": "F.Lend-For. indiv.",
+      "longTextEn": "New Foreign Lending - Foreign Individuals",
+      "shortTextDv": "ލދ-ބރ.އަމިއްލަ..",
+      "longTextDv": "ލޯން ދޫކުރުން - ބޭރުގެ އަމިއްލަ ފަރާތްތަކަށް"
+    },
+    {
+      "code": 732999,
+      "shortTextEn": "F.Lend-Other",
+      "longTextEn": "New Foreign Lending - Other",
+      "shortTextDv": "ލދ-ބރ.އެހެނިހެން..",
+      "longTextDv": "ލޯން ދޫކުރުން - ބޭރުގެ އެހެނިހެން ފަރާތްތަކަށް"
+    },
+    {
+      "code": 911001,
+      "shortTextEn": "Inter.BA.Bal.Control",
+      "longTextEn": "Inter Business Area Balancing Control",
+      "shortTextDv": "އިންޓަރ ބިޒް. އޭރިއާ",
+      "longTextDv": "އިންޓަރ ބިޒްނަސް އޭރިއާ ބެލެންސިންގ އެކައުންޓް"
+    },
+    {
+      "code": 911996,
+      "shortTextEn": "Payroll Net Clearing",
+      "longTextEn": "Payroll Net Salary Clearing Account",
+      "shortTextDv": "ޕޭރޯލް ނެޓް ކްލިއަރި",
+      "longTextDv": "ޕޭރޯލް ނެޓް ސެލެރީ ކްލިއަރިންގ އެކައުންޓް"
+    },
+    {
+      "code": 911997,
+      "shortTextEn": "Payroll Doc Split",
+      "longTextEn": "Payroll Document Splitting",
+      "shortTextDv": "ޑޮކިއުމަންޓް ސްޕްލިޓ",
+      "longTextDv": "ޕޭރޯލް ޑޮކިއުމަންޓް ސްފްލިޓް"
+    },
+    {
+      "code": 912001,
+      "shortTextEn": "Consolid. Rev. Fund",
+      "longTextEn": "Consolidated Revenue Fund Retained Earnings",
+      "shortTextDv": "ކޮންސޮލިޑޭޓެޑް ރ.ފ.",
+      "longTextDv": "ކޮންސޮލިޑޭޓެޑް ރެވެނިއު ފަންޑް ރީޓެއިންޑް އަރނިންގ"
+    },
+    {
+      "code": 912900,
+      "shortTextEn": "AUC Settle R/E",
+      "longTextEn": "AUC Settlement Component of Retained Earnings",
+      "shortTextDv": "ކޮންސޮލިޑޭޓެޑް ރ.ފ.",
+      "longTextDv": "ކޮންސޮލިޑޭޓެޑް ރެވެނިއު ފަންޑް ރީޓެއިންޑް އަރނިންގ"
+    },
+    {
+      "code": 913001,
+      "shortTextEn": "Initial Stock",
+      "longTextEn": "Initial Entry of Stock Balances",
+      "shortTextDv": "އިނީޝަލް ސްޓޮކް",
+      "longTextDv": "އިނީޝަލް ސްޓޮކް ބެލެންސަސް އެންޓްރީ"
+    },
+    {
+      "code": 913002,
+      "shortTextEn": "Suspense Account",
+      "longTextEn": "Suspense Account",
+      "shortTextDv": "ސަސްޕެންސް އެކައުންޓ",
+      "longTextDv": "ސަސްޕެންސް އެކައުންޓް"
+    },
+    {
+      "code": 913998,
+      "shortTextEn": "Reclassification",
+      "longTextEn": "Reclassification of Trust, Grant and GL balance",
+      "shortTextDv": "ރީކްލެސިފިކޭޝަން",
+      "longTextDv": "ޖެނެރަލް ލެޖަރ، ގްރާންޓްސް، ޓްރަސްޓް ފަންޑް ބާކީ"
+    },
+    {
+      "code": 913999,
+      "shortTextEn": "Initial Entry of GL",
+      "longTextEn": "Initial Entry of GL Balances",
+      "shortTextDv": "އިނީޝަލް ޖީ.އެލް.",
+      "longTextDv": "އިނީޝަލް ޖީ.އެލް. ބެލެންސަސް އެންޓްރީ"
+    }
+  ]
+}

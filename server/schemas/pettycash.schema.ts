@@ -39,7 +39,7 @@ export const createPettyCashSchema = z.object({
   formNum: z.string().min(1),
   sectionUnit: z.string().min(1),
   totalRequiredAmount: z.coerce.number().nonnegative().multipleOf(0.01),
-  glCode: z.coerce.number().int(),
+  glCode: z.coerce.number().int().gt(100000, "Select a GL code"),
 
   // Permission-gated on update (see router).
   parkedDate: z.coerce.date().optional().nullable(),

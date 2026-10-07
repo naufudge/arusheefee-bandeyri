@@ -331,7 +331,7 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                               >
                                 <span className="flex items-baseline gap-2 truncate">
                                   <span className="font-mono text-foreground/80">
-                                    {gl.code}
+                                    {gl.glAccount.code}
                                   </span>
                                   <span className="truncate text-muted-foreground">
                                     {gl.fund}

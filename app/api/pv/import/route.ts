@@ -5,6 +5,10 @@ import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { createPvSchema, type CreatePvInput } from "@/server/schemas/pv.schema";
 import {
+  glAccountIdsByCode,
+  unknownGlCodesMessage,
+} from "@/server/lib/glAccounts";
+import {
   createPettyCashSchema,
   type CreatePettyCashInput,
 } from "@/server/schemas/pettycash.schema";
@@ -521,6 +525,22 @@ export async function POST(request: NextRequest) {
     existingPcs.map((p) => [p.pettyCashNum, p]),
   );
 
+  // GL account ids for the codes in the sheet. One lookup up front; entries
+  // using a code that isn't in the chart of accounts are reported as invalid
+  // and never committed, so every committed code has an id here. (Existence
+  // only — imports carry historical data, so the petty-cash-allowed flag
+  // isn't enforced here.)
+  const glIds = await glAccountIdsByCode(
+    prisma,
+    allRows
+      .map((r) => r.code)
+      .filter((c): c is number => typeof c === "number" && c > 0),
+  );
+  const unknownGlError = (codes: number[]) => {
+    const unknown = [...new Set(codes)].filter((c) => !glIds.has(c));
+    return unknown.length > 0 ? unknownGlCodesMessage(unknown) : null;
+  };
+
   const summary: PreviewSummary = {
     totalRows: allRows.length,
     pvCount: pvGroups.size,
@@ -548,6 +568,14 @@ export async function POST(request: NextRequest) {
         error: `${path}: ${firstIssue.message}`,
         rowNumbers,
       });
+      continue;
+    }
+
+    const pvGlError = unknownGlError(
+      parsed.data.invoices.flatMap((i) => i.glDetails.map((gl) => gl.code)),
+    );
+    if (pvGlError) {
+      summary.invalid.push({ kind: "pv", num: pvNum, error: pvGlError, rowNumbers });
       continue;
     }
 
@@ -623,6 +651,12 @@ export async function POST(request: NextRequest) {
         error: `${path}: ${firstIssue.message}`,
         rowNumbers,
       });
+      continue;
+    }
+
+    const pcGlError = unknownGlError([parsed.data.glCode]);
+    if (pcGlError) {
+      summary.invalid.push({ kind: "pc", num: pcNum, error: pcGlError, rowNumbers });
       continue;
     }
 
@@ -704,7 +738,7 @@ export async function POST(request: NextRequest) {
                   invoiceTotal: invoice.invoiceTotal,
                   glDetails: {
                     create: invoice.glDetails.map((gl) => ({
-                      code: gl.code,
+                      glAccountId: glIds.get(gl.code)!,
                       fund: gl.fund,
                       amount: gl.amount,
                     })),
@@ -774,7 +808,7 @@ export async function POST(request: NextRequest) {
               formNum: data.formNum,
               sectionUnit: data.sectionUnit,
               totalRequiredAmount: data.totalRequiredAmount,
-              glCode: data.glCode,
+              glAccountId: glIds.get(data.glCode)!,
               parkedDate: data.parkedDate ?? null,
               postingDate: data.postingDate ?? null,
               items: {

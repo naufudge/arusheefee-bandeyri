@@ -48,7 +48,11 @@ export async function GET(
     const [pcs, reimbursements, openingRow] = await Promise.all([
       prisma.pettyCash.findMany({
         where: { date: { gte: start, lt: end } },
-        include: { items: true, handledBy: { include: { staff: true } } },
+        include: {
+          items: true,
+          handledBy: { include: { staff: true } },
+          glAccount: { select: { code: true } },
+        },
       }),
       prisma.pV.findMany({
         where: {
@@ -119,7 +123,7 @@ export async function GET(
           .join(", ");
         worksheet.addRow({
           no: counter,
-          code: pc.glCode,
+          code: pc.glAccount.code,
           date: formatExcelDate(pc.date),
           formNo: pc.pettyCashNum.replace(/-/g, "/"),
           name: pc.handledBy?.staff?.name ?? "",

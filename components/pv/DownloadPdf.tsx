@@ -54,7 +54,7 @@ function transformToPv(pv: any): PvValues {
       invoiceTotal: invoice.invoiceTotal,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       glDetails: invoice.glDetails.map((gl: any) => ({
-        code: gl.code,
+        code: gl.glAccount.code,
         fund: gl.fund,
         amount: gl.amount,
       })),

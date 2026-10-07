@@ -12,6 +12,8 @@ import {
 export interface SearchableSelectOption {
   value: string;
   label: string;
+  /** Secondary text shown muted after the label (e.g. a GL account's name). Searchable. */
+  hint?: string;
 }
 
 interface SearchableSelectProps
@@ -34,6 +36,11 @@ interface SearchableSelectProps
    * a modal popover becomes its own interactive layer above that lock.
    */
   modal?: boolean;
+  /**
+   * Classes for the dropdown panel. It matches the trigger's width by
+   * default; pass e.g. a wider width when option labels are long.
+   */
+  contentClassName?: string;
 }
 
 /**
@@ -58,6 +65,7 @@ export const SearchableSelect = React.forwardRef<
       emptyMessage = "No options",
       loading,
       modal,
+      contentClassName,
       disabled,
       className,
       ...triggerProps
@@ -73,12 +81,15 @@ export const SearchableSelect = React.forwardRef<
     const filtered = React.useMemo(() => {
       const q = query.trim().toLowerCase();
       if (!q) return options;
-      return options.filter((o) => o.label.toLowerCase().includes(q));
+      return options.filter((o) =>
+        `${o.label} ${o.hint ?? ""}`.toLowerCase().includes(q),
+      );
     }, [options, query]);
 
     // Fall back to the raw value so a stored entry that isn't in the list
     // (e.g. a renamed staff member) still shows instead of looking blank.
-    const display = options.find((o) => o.value === value)?.label ?? value;
+    const selected = options.find((o) => o.value === value);
+    const display = selected?.label ?? value;
 
     function handleOpenChange(next: boolean) {
       if (next) {
@@ -148,6 +159,7 @@ export const SearchableSelect = React.forwardRef<
               )}
             >
               {display || placeholder}
+              {selected?.hint && <OptionHint hint={selected.hint} />}
             </span>
             <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
           </button>
@@ -156,7 +168,10 @@ export const SearchableSelect = React.forwardRef<
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="w-[--radix-popover-trigger-width] min-w-[220px] p-0"
+          className={cn(
+            "w-[--radix-popover-trigger-width] min-w-[220px] p-0",
+            contentClassName,
+          )}
         >
           <div className="relative border-b">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -211,7 +226,10 @@ export const SearchableSelect = React.forwardRef<
                         isSelected ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    <span className="truncate">{option.label}</span>
+                    <span className="truncate">
+                      {option.label}
+                      {option.hint && <OptionHint hint={option.hint} />}
+                    </span>
                   </li>
                 );
               })
@@ -223,3 +241,7 @@ export const SearchableSelect = React.forwardRef<
   },
 );
 SearchableSelect.displayName = "SearchableSelect";
+
+function OptionHint({ hint }: { hint: string }) {
+  return <span className="text-muted-foreground"> · {hint}</span>;
+}

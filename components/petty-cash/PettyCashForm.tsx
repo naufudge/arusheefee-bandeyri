@@ -7,7 +7,16 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { glAccountOptions, useGlAccounts } from "@/hooks/use-gl-accounts";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
 import {
   AttachmentQueue,
@@ -100,7 +109,7 @@ function buildDefaults(pettyCash?: any): PettyCashValues {
     formNum: pettyCash.formNum,
     sectionUnit: pettyCash.sectionUnit,
     totalRequiredAmount: pettyCash.totalRequiredAmount,
-    glCode: pettyCash.glCode,
+    glCode: pettyCash.glAccount.code,
     parkedDate: pettyCash.parkedDate ? new Date(pettyCash.parkedDate) : null,
     postingDate: pettyCash.postingDate ? new Date(pettyCash.postingDate) : null,
     handledBy: rolePresetFromServer(pettyCash.handledBy),
@@ -144,6 +153,21 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
     name: s.name,
     designation: s.designation,
   }));
+
+  // GL picker: only accounts enabled for petty cash, plus the record's
+  // current code when editing — so an older record still shows its code
+  // even if that account has since been un-ticked for petty cash.
+  const { data: glAccounts, isLoading: glLoading } = useGlAccounts();
+  const currentGlCode: number | undefined = pettyCash?.glAccount.code;
+  const pettyCashGlOptions = useMemo(
+    () =>
+      glAccountOptions(
+        (glAccounts ?? []).filter(
+          (a) => a.pettyCashAllowed || a.code === currentGlCode,
+        ),
+      ),
+    [glAccounts, currentGlCode],
+  );
 
   // buildDefaults() seeds unfilled role rows with `new Date()` placeholders,
   // so calling it on every render would produce a fresh object whose `date`
@@ -304,12 +328,28 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
               name="sectionUnit"
               label="Section / Unit"
             />
-            <PettyCashInputField
+            <FormField
               control={control}
               name="glCode"
-              label="GL Code"
-              type="number"
-              register={register}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>GL Code</FormLabel>
+                  <FormControl>
+                    <SearchableSelect
+                      // 0 is the "no code yet" default.
+                      value={field.value ? String(field.value) : ""}
+                      onValueChange={(v) => field.onChange(Number(v))}
+                      options={pettyCashGlOptions}
+                      disabled={glLoading}
+                      placeholder={glLoading ? "Loading GL accounts…" : "Select a GL code"}
+                      searchPlaceholder="Search code or name…"
+                      emptyMessage="No GL accounts are enabled for petty cash — enable them in Settings → GL Accounts."
+                      contentClassName="w-[min(32rem,90vw)]"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <PettyCashInputField
               control={control}

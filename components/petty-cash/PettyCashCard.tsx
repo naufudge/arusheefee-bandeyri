@@ -6,7 +6,7 @@ import { Eyebrow, Chip, LifecycleStep } from "@/components/shared/detail-card";
 interface PettyCashLike {
   sectionUnit: string;
   formNum: string | null;
-  glCode: number | string;
+  glAccount: { code: number };
   parkedDate: Date | string | null;
   postingDate: Date | string | null;
 }
@@ -45,7 +45,7 @@ const PettyCashCard: React.FC<Props> = ({ pettyCash }) => {
           <Chip
             icon={<Layers className="size-3" />}
             label="GL code"
-            value={String(pettyCash.glCode)}
+            value={String(pettyCash.glAccount.code)}
             mono
           />
         </div>

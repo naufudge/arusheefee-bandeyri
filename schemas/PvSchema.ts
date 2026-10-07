@@ -29,7 +29,7 @@ export const PvSchema = z.object({
       invoiceDate: z.date().nullable().optional(),
       invoiceTotal: z.coerce.number().gt(0).multipleOf(0.01),
       glDetails: z.array(z.object({
-        code: z.coerce.number().gt(100000),
+        code: z.coerce.number().gt(100000, "Select a GL code"),
         fund: z.string().default("C-GOM"),
         amount: z.coerce.number().gt(0).multipleOf(0.01)
       })),

@@ -10,12 +10,28 @@ import {
   rejectPvSchema,
   setPvSignatorySchema,
   type PvSignatoryRole,
+  type GLDetailInput,
 } from "../schemas/pv.schema";
 import {
   assertActorHasSignature,
   getSignatureDataUrl,
 } from "../lib/approval";
+import { resolveGlAccountIds } from "../lib/glAccounts";
 import { toMvr } from "@/utils/currency";
+
+// GL lines as stored: the form sends each line's GL code; the line keeps the
+// account's id. `glIds` comes from resolveGlAccountIds, so every code is in it.
+const glLineCreates = (glDetails: GLDetailInput[], glIds: Map<number, number>) =>
+  glDetails.map((gl) => ({
+    glAccountId: glIds.get(gl.code)!,
+    fund: gl.fund,
+    amount: gl.amount,
+  }));
+
+// The account's code (and name) travel with each GL line on reads.
+const glDetailsWithAccount = {
+  include: { glAccount: { select: { code: true, longTextEn: true } } },
+} as const;
 
 // Which stage each signatory role owns, for reassignment. `stampField` is
 // the column the workflow writes when that role signs; `rollbackTo` is the
@@ -88,7 +104,7 @@ const pvInclude = {
   postedBy: true,
   invoices: {
     include: {
-      glDetails: true,
+      glDetails: glDetailsWithAccount,
     },
   },
   approvalEvents: {
@@ -176,7 +192,7 @@ export const pvRouter = router({
         include: {
           invoices: {
             include: {
-              glDetails: true,
+              glDetails: { include: { glAccount: { select: { code: true } } } },
             },
           },
         },
@@ -189,10 +205,11 @@ export const pvRouter = router({
       for (const pv of pvs) {
         for (const invoice of pv.invoices) {
           for (const gl of invoice.glDetails) {
-            if (glTotals[gl.code] === undefined) {
-              glTotals[gl.code] = 0;
+            const code = gl.glAccount.code;
+            if (glTotals[code] === undefined) {
+              glTotals[code] = 0;
             }
-            glTotals[gl.code] += toMvr(gl.amount, pv.exchangeRate);
+            glTotals[code] += toMvr(gl.amount, pv.exchangeRate);
           }
         }
       }
@@ -223,6 +240,11 @@ export const pvRouter = router({
         });
       }
 
+      const glIds = await resolveGlAccountIds(
+        ctx.prisma,
+        invoices.flatMap((inv) => inv.glDetails.map((gl) => gl.code)),
+      );
+
       // Use nested create for PV with invoices and GL details
       return ctx.prisma.pV.create({
         data: {
@@ -235,11 +257,7 @@ export const pvRouter = router({
               invoiceDate: invoice.invoiceDate,
               invoiceTotal: invoice.invoiceTotal,
               glDetails: {
-                create: invoice.glDetails.map((gl) => ({
-                  code: gl.code,
-                  fund: gl.fund,
-                  amount: gl.amount,
-                })),
+                create: glLineCreates(invoice.glDetails, glIds),
               },
             })),
           },
@@ -294,15 +312,20 @@ export const pvRouter = router({
         delete pvUpdateData.authorisedByTwoId;
       }
 
+      const glIds = await resolveGlAccountIds(
+        ctx.prisma,
+        invoices.flatMap((inv) => inv.glDetails.map((gl) => gl.code)),
+      );
+
       // Use transaction to handle nested updates atomically
-      return ctx.prisma.$transaction(async (tx) => {
+      await ctx.prisma.$transaction(async (tx) => {
         // Delete existing invoices (cascade deletes GL details)
         await tx.invoice.deleteMany({
           where: { pvId: existing.id },
         });
 
         // Update PV and recreate invoices
-        return tx.pV.update({
+        await tx.pV.update({
           where: { pvNum },
           data: {
             ...pvUpdateData,
@@ -314,17 +337,20 @@ export const pvRouter = router({
                 invoiceDate: invoice.invoiceDate,
                 invoiceTotal: invoice.invoiceTotal,
                 glDetails: {
-                  create: invoice.glDetails.map((gl) => ({
-                    code: gl.code,
-                    fund: gl.fund,
-                    amount: gl.amount,
-                  })),
+                  create: glLineCreates(invoice.glDetails, glIds),
                 },
               })),
             },
           },
-          include: pvInclude,
         });
+      });
+
+      // Read the result back after commit: the full include is many round
+      // trips, and keeping it out of the transaction keeps that well inside
+      // Prisma's interactive-transaction timeout.
+      return ctx.prisma.pV.findUniqueOrThrow({
+        where: { pvNum },
+        include: pvInclude,
       });
     }),
 

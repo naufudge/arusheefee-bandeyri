@@ -3,6 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { cellToString, cellToNumber, parseDate } from "@/lib/excel";
+import {
+  glAccountIdsByCode,
+  unknownGlCodesMessage,
+} from "@/server/lib/glAccounts";
 import ExcelJS from "exceljs";
 
 // Sheet1 column positions (A–I). Everything from J onward is scratch and is
@@ -70,6 +74,12 @@ function readRow(
   }
 
   const glCode = cellToNumber(row.getCell(COL.code).value);
+  if (glCode === null || glCode <= 0) {
+    return {
+      ok: false,
+      invalid: { num: storedNum, error: "Missing GL code (column B)", row: rowNumber },
+    };
+  }
   const details = cellToString(row.getCell(COL.details).value).trim();
 
   return {
@@ -77,7 +87,7 @@ function readRow(
     data: {
       rowNumber,
       pettyCashNum: storedNum,
-      glCode: glCode ?? 0,
+      glCode,
       date,
       totalRequiredAmount: paid,
       details,
@@ -164,7 +174,27 @@ export async function POST(request: NextRequest) {
   // Last-one-wins on duplicate pettyCashNum within the file itself.
   const byNum = new Map<string, ParsedRow>();
   for (const p of parsed) byNum.set(p.pettyCashNum, p);
-  const rows = Array.from(byNum.values());
+
+  // GL account ids for the sheet's codes. Rows whose code isn't in the chart
+  // of accounts are reported as invalid and never committed, so every
+  // committed row has an id here. (Existence only — imported records are
+  // historical, so the petty-cash-allowed flag isn't enforced here.)
+  const glIds = await glAccountIdsByCode(
+    prisma,
+    Array.from(byNum.values()).map((r) => r.glCode),
+  );
+  const rows: ParsedRow[] = [];
+  for (const r of byNum.values()) {
+    if (!glIds.has(r.glCode)) {
+      invalid.push({
+        num: r.pettyCashNum,
+        error: unknownGlCodesMessage([r.glCode]),
+        row: r.rowNumber,
+      });
+    } else {
+      rows.push(r);
+    }
+  }
 
   const existing = await prisma.pettyCash.findMany({
     where: { pettyCashNum: { in: rows.map((r) => r.pettyCashNum) } },
@@ -209,7 +239,7 @@ export async function POST(request: NextRequest) {
       formNum: "",
       sectionUnit: "",
       totalRequiredAmount: r.totalRequiredAmount,
-      glCode: r.glCode,
+      glAccountId: glIds.get(r.glCode)!,
       items: r.details
         ? { create: [{ qty: 1, name: r.details }] }
         : undefined,

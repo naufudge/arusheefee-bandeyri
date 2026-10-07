@@ -29,7 +29,7 @@ function transform(record: any): PettyCashPrintData {
     formNum: record.formNum,
     sectionUnit: record.sectionUnit,
     totalRequiredAmount: record.totalRequiredAmount,
-    glCode: record.glCode,
+    glCode: record.glAccount.code,
     parkedDate: record.parkedDate ? new Date(record.parkedDate) : null,
     postingDate: record.postingDate ? new Date(record.postingDate) : null,
     systemApproved: !!record.systemApproved,

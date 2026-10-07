@@ -54,7 +54,12 @@ async function main() {
     const authTwo = await staffId("Mohamed Amir");
     const poster = await staffId("Sharmeela Mohamed");
 
-    const gl = (code: number, amount: number) => ({ code, fund: "C-GOM", amount });
+    // GL lines point at the account; the migrations seed the chart of accounts.
+    const gl = (code: number, amount: number) => ({
+      glAccount: { connect: { code } },
+      fund: "C-GOM",
+      amount,
+    });
     const d = (iso: string) => new Date(iso);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

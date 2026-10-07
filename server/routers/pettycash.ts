@@ -20,9 +20,11 @@ import {
   getSignatureDataUrl,
   type PCRole,
 } from "../lib/approval";
+import { resolvePettyCashGlAccount } from "../lib/glAccounts";
 import { pvTotal } from "@/utils/currency";
 
 const pettyCashInclude = {
+  glAccount: { select: { code: true, longTextEn: true } },
   handledBy: { include: { staff: true } },
   procurementApprovedBy: { include: { staff: true } },
   budgetCheckedBy: { include: { staff: true } },
@@ -222,6 +224,8 @@ export const pettyCashRouter = router({
         });
       }
 
+      const glAccountId = await resolvePettyCashGlAccount(ctx.prisma, input.glCode);
+
       return ctx.prisma.pettyCash.create({
         data: {
           pettyCashNum: input.pettyCashNum,
@@ -229,7 +233,7 @@ export const pettyCashRouter = router({
           formNum: input.formNum,
           sectionUnit: input.sectionUnit,
           totalRequiredAmount: input.totalRequiredAmount,
-          glCode: input.glCode,
+          glAccount: { connect: { id: glAccountId } },
           parkedDate: input.parkedDate ?? null,
           postingDate: input.postingDate ?? null,
           handledBy: buildRoleCreate(input.handledBy),
@@ -291,6 +295,13 @@ export const pettyCashRouter = router({
           message: "Petty cash is fully approved and locked from edits.",
         });
       }
+
+      // Only re-check the GL code when it changes: a record keeps its
+      // existing account even if that account is later un-ticked for petty cash.
+      const glAccountId =
+        input.glCode === existing.glAccount.code
+          ? existing.glAccountId
+          : await resolvePettyCashGlAccount(ctx.prisma, input.glCode);
 
       // Fine-grained permission gate: only block if the date actually
       // changed. Users without these permissions can still re-save the
@@ -394,7 +405,7 @@ export const pettyCashRouter = router({
             formNum: input.formNum,
             sectionUnit: input.sectionUnit,
             totalRequiredAmount: input.totalRequiredAmount,
-            glCode: input.glCode,
+            glAccountId,
             parkedDate: input.parkedDate ?? null,
             postingDate: input.postingDate ?? null,
             // A human edit via the role-based form supersedes system

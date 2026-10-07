@@ -58,11 +58,17 @@ export async function GET(
     const [pvs, pcs] = await Promise.all([
       prisma.pV.findMany({
         where: { pvNum: { contains: year } },
-        include: { invoices: { include: { glDetails: true } } },
+        include: {
+          invoices: {
+            include: {
+              glDetails: { include: { glAccount: { select: { code: true } } } },
+            },
+          },
+        },
       }),
       prisma.pettyCash.findMany({
         where: { pettyCashNum: { contains: year } },
-        include: { items: true },
+        include: { items: true, glAccount: { select: { code: true } } },
       }),
     ]);
 
@@ -107,7 +113,7 @@ export async function GET(
               invoiceNumber: invoice.invoiceNumber || "",
               vendor: pv.vendor,
               details: invoice.comments,
-              code: gl.code,
+              code: gl.glAccount.code,
               // GL amounts are held in the PV's document currency; the
               // register reports MVR. Rounded per line because the sheet
               // stores the raw float, not a formatted string.
@@ -139,7 +145,7 @@ export async function GET(
           invoiceNumber: "",
           vendor: "",
           details,
-          code: pc.glCode,
+          code: pc.glAccount.code,
           total: pc.totalRequiredAmount,
           parkedDate: formatDate(pc.parkedDate),
           postingDate: formatDate(pc.postingDate),

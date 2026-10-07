@@ -2,6 +2,7 @@
 
 import {
   BookText,
+  ListTree,
   ChevronRight,
   Home,
   Inbox,
@@ -198,6 +199,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
             url: "/settings/templates",
             icon: FileText,
             requires: PERMISSIONS.PV_CREATE,
+          },
+          {
+            title: "GL Accounts",
+            url: "/settings/gl-accounts",
+            icon: ListTree,
+            requires: PERMISSIONS.GLACCOUNT_READ,
           },
         ],
       },
