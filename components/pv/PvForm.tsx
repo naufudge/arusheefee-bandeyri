@@ -16,7 +16,7 @@ import {
   StaffDropDownField,
 } from "@/components/pv/PvInputField";
 import { ExchangeRates, Staff } from "@/types";
-import { Currencies } from "@/lib/constants/currencies";
+import { Currencies, CurrencyFullNames } from "@/lib/constants/currencies";
 import { useTRPC } from "@/lib/trpc";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
@@ -37,6 +37,13 @@ interface PvFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pv?: any;
 }
+
+// "USD · US Dollar" — the code, with the full name muted beside it.
+const currencyOptions = [...Currencies].sort().map((code) => ({
+  value: code,
+  label: code,
+  hint: CurrencyFullNames[code],
+}));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function usePvForm(pv?: any) {
@@ -675,8 +682,9 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
               control={control}
               name={"currency"}
               label="Currency"
-              options={Currencies.sort()}
+              options={currencyOptions}
               placeholder="Select a currency"
+              searchPlaceholder="Search code or name…"
               customHandler={handleCurrencyChange}
               description="All the available currencies in MMA website."
             />

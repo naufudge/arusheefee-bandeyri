@@ -14,13 +14,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { SearchableSelect } from "@/components/ui/searchable-select";
+  SearchableSelect,
+  type SearchableSelectOption,
+} from "@/components/ui/searchable-select";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,8 +131,9 @@ export const PvInputField: React.FC<PvInputFieldProps> = ({
 };
 
 type DropDownFieldProps = Partial<PvInputFieldProps> & {
-  options: string[];
+  options: SearchableSelectOption[];
   placeholder: string;
+  searchPlaceholder?: string;
   customHandler?: (value: string) => void;
 };
 
@@ -148,6 +145,7 @@ export const PVDropDownField: React.FC<DropDownFieldProps> = ({
   description,
   options,
   placeholder,
+  searchPlaceholder,
   customHandler,
 }) => {
   return (
@@ -157,24 +155,15 @@ export const PVDropDownField: React.FC<DropDownFieldProps> = ({
       render={({ field }) => (
         <FormItem className={className}>
           <FormLabel>{label}</FormLabel>
-          <Select
-            onValueChange={customHandler ? customHandler : field.onChange}
-            defaultValue={field.value}
-            value={field.value}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((option, index) => (
-                <SelectItem key={index} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FormControl>
+            <SearchableSelect
+              value={field.value}
+              onValueChange={customHandler ? customHandler : field.onChange}
+              options={options}
+              placeholder={placeholder}
+              searchPlaceholder={searchPlaceholder}
+            />
+          </FormControl>
 
           {description && (
             <FormDescription className="text-xs">{description}</FormDescription>

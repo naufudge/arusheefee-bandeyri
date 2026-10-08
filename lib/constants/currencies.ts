@@ -44,6 +44,30 @@ export const Currencies: string[] = [
     "AED",
 ]
 
+/** Full names shown beside each code in the currency dropdown. */
+export const CurrencyFullNames: Record<string, string> = {
+    MVR: "Maldivian Rufiyaa",
+    USD: "US Dollar",
+    AUD: "Australian Dollar",
+    CAD: "Canadian Dollar",
+    DKK: "Danish Krone",
+    EUR: "Euro",
+    HKD: "Hong Kong Dollar",
+    JPY: "Japanese Yen",
+    NOK: "Norwegian Krone",
+    SGD: "Singapore Dollar",
+    SAR: "Saudi Riyal",
+    GBP: "Pound Sterling",
+    CHF: "Swiss Franc",
+    SEK: "Swedish Krona",
+    LKR: "Sri Lankan Rupee",
+    INR: "Indian Rupee",
+    THB: "Thai Baht",
+    MYR: "Malaysian Ringgit",
+    IDR: "Indonesian Rupiah",
+    AED: "UAE Dirham",
+}
+
 /**
  * Series ids in the MMA statistics database, table 4038 —
  * "Exchange Rates (MVR per Foreign Currency)". Each series is the monthly
