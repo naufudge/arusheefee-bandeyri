@@ -329,11 +329,17 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
                                 key={gl.id}
                                 className="flex items-baseline justify-between gap-3"
                               >
-                                <span className="flex items-baseline gap-2 truncate">
-                                  <span className="font-mono text-foreground/80">
+                                <span className="flex min-w-0 items-baseline gap-2">
+                                  <span className="shrink-0 font-mono text-foreground/80">
                                     {gl.glAccount.code}
                                   </span>
-                                  <span className="truncate text-muted-foreground">
+                                  <span
+                                    className="truncate text-foreground/70"
+                                    title={gl.glAccount.longTextEn}
+                                  >
+                                    {gl.glAccount.longTextEn}
+                                  </span>
+                                  <span className="shrink-0 rounded border bg-background px-1 font-mono text-[10px] text-muted-foreground">
                                     {gl.fund}
                                   </span>
                                 </span>

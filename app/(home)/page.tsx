@@ -31,6 +31,7 @@ import RecentPvs from "@/components/Dashboard/RecentPvs";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
+import { useGlAccounts } from "@/hooks/use-gl-accounts";
 import { PERMISSIONS } from "@/lib/permissions";
 import { formatNumberWithCommas } from "@/utils/helpers";
 import { toMvr } from "@/utils/currency";
@@ -53,6 +54,8 @@ export default function Home() {
     ...trpc.pv.glTotalsByYear.queryOptions({ year }),
     enabled: hasAccess,
   });
+  // Names for the chart tooltip — the same cached list the GL pickers use.
+  const { data: glAccounts } = useGlAccounts();
 
   const stats = useMemo(() => {
     if (!pvs) return null;
@@ -91,11 +94,12 @@ export default function Home() {
 
   const chartData = useMemo(() => {
     if (!glData) return [];
+    const names = new Map(glAccounts?.map((a) => [String(a.code), a.longTextEn]));
     return Object.entries(glData)
-      .map(([code, value]) => ({ code, value }))
+      .map(([code, value]) => ({ code, value, name: names.get(code) }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [glData]);
+  }, [glData, glAccounts]);
 
   const isEmpty = !pvsLoading && pvs && pvs.length === 0;
 
@@ -330,15 +334,17 @@ function ChartTooltip({
   label,
 }: {
   active?: boolean;
-  payload?: Array<{ value: number }>;
+  payload?: Array<{ value: number; payload?: { name?: string } }>;
   label?: string;
 }) {
   if (!active || !payload || payload.length === 0) return null;
+  const name = payload[0].payload?.name;
   return (
-    <div className="rounded-md border bg-popover px-3 py-2 text-xs shadow-md">
+    <div className="max-w-64 rounded-md border bg-popover px-3 py-2 text-xs shadow-md">
       <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
         GL {label}
       </div>
+      {name && <div className="mt-0.5 font-medium leading-snug">{name}</div>}
       <div className="mt-1 font-mono tabular-nums">
         MVR {formatNumberWithCommas(payload[0].value) ?? "0.00"}
       </div>
