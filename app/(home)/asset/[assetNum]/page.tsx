@@ -12,6 +12,7 @@ import {
   Trash2,
   Boxes,
   MapPin,
+  FileStack,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -232,6 +233,16 @@ const AssetDetailPage = ({
                 </span>
               )}
               <ProcurementChip procurement={asset.procurement} />
+              {asset.assetCreationForm && (
+                <Link
+                  href={`/asset-creation/${encodeURIComponent(asset.assetCreationForm.formNum)}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 transition hover:bg-muted hover:text-foreground"
+                  title="The asset creation form this entry was registered from"
+                >
+                  <FileStack className="size-3.5" />
+                  <span className="font-mono">{asset.assetCreationForm.formNum}</span>
+                </Link>
+              )}
             </div>
           )}
         </div>

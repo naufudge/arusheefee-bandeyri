@@ -6,6 +6,8 @@ export const createStaffSchema = z.object({
   designation: z.string().min(1, "Designation is required"),
   dhivehiName: z.string().optional(),
   dhivehiDesignation: z.string().optional(),
+  /** ID card number, e.g. "A327030" (the SAP User ID). Empty clears it. */
+  idCardNo: z.string().trim().max(20).optional(),
   /** Optional list of Role ids to assign on creation. */
   roleIds: z.array(z.string().cuid()).optional(),
 });
@@ -17,6 +19,7 @@ export const updateStaffSchema = z.object({
   designation: z.string().min(1).optional(),
   dhivehiName: z.string().optional(),
   dhivehiDesignation: z.string().optional(),
+  idCardNo: z.string().trim().max(20).optional(),
   /**
    * If provided, replaces the staff's role assignments with this exact set
    * (uses Prisma's `set` connection semantic).

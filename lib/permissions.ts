@@ -101,6 +101,17 @@ export const PERMISSIONS = {
   // is still required as the base.
   PRICEEVAL_EDIT_LOCKED: "priceeval:edit_locked",
 
+  // ----- Asset Creation -----
+  // SAP asset master data creation forms, signed in sequence. Send /
+  // authorise / SAP update are assignee-gated, not permission-gated.
+  ASSETCREATION_READ: "assetcreation:read",
+  ASSETCREATION_CREATE: "assetcreation:create",
+  ASSETCREATION_UPDATE: "assetcreation:update",
+  ASSETCREATION_DELETE: "assetcreation:delete",
+  // Override: edit a set after it has been sent. `assetcreation:update` is
+  // still required as the base.
+  ASSETCREATION_EDIT_LOCKED: "assetcreation:edit_locked",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -374,7 +385,7 @@ export const PERMISSION_GROUPS: {
         key: PERMISSIONS.PROCUREMENT_READ,
         label: "View procurements",
         description:
-          "Browse procurements and see each one's documents (GSR, price evaluation, PVs, assets) and progress.",
+          "Browse procurements and see each one's documents (GSR, price evaluation, asset creation forms, assets, PVs) and progress.",
       },
       {
         key: PERMISSIONS.PROCUREMENT_CREATE,
@@ -425,6 +436,41 @@ export const PERMISSION_GROUPS: {
         label: "Edit locked price evaluation",
         description:
           "Override the workflow lock and edit an evaluation that has been sent for signing or further. Requires \"Edit price evaluation\" as well.",
+      },
+    ],
+  },
+  {
+    label: "Asset Creation",
+    permissions: [
+      {
+        key: PERMISSIONS.ASSETCREATION_READ,
+        label: "View asset creation forms",
+        description:
+          "Browse asset creation forms, view them and download their PDFs.",
+      },
+      {
+        key: PERMISSIONS.ASSETCREATION_CREATE,
+        label: "Create asset creation form",
+        description:
+          "Start a new set of SAP asset master data creation forms.",
+      },
+      {
+        key: PERMISSIONS.ASSETCREATION_UPDATE,
+        label: "Edit asset creation form",
+        description:
+          "Modify a draft set of asset creation forms, and call back one that has been sent.",
+      },
+      {
+        key: PERMISSIONS.ASSETCREATION_DELETE,
+        label: "Delete asset creation form",
+        description:
+          "Remove a set of asset creation forms permanently. Register entries made from it are kept.",
+      },
+      {
+        key: PERMISSIONS.ASSETCREATION_EDIT_LOCKED,
+        label: "Edit locked asset creation form",
+        description:
+          "Override the workflow lock and edit a set that has been sent for signing or further. Requires \"Edit asset creation form\" as well.",
       },
     ],
   },

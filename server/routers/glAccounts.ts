@@ -12,16 +12,36 @@ const dv = (v: string | null | undefined) =>
   v === undefined ? undefined : v && v.trim() ? v.trim() : null;
 
 // "3 PV GL lines and 1 petty cash record", or null when the account is unused.
-function describeUsage(counts: { glDetails: number; pettyCash: number }): string | null {
-  const { glDetails, pettyCash } = counts;
+function describeUsage(counts: {
+  glDetails: number;
+  pettyCash: number;
+  priceEvaluations: number;
+  assetCreations: number;
+}): string | null {
+  const { glDetails, pettyCash, priceEvaluations, assetCreations } = counts;
+  const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
   const parts = [
-    glDetails > 0 ? `${glDetails} PV GL line${glDetails === 1 ? "" : "s"}` : null,
-    pettyCash > 0 ? `${pettyCash} petty cash record${pettyCash === 1 ? "" : "s"}` : null,
+    glDetails > 0 ? plural(glDetails, "PV GL line") : null,
+    pettyCash > 0 ? plural(pettyCash, "petty cash record") : null,
+    priceEvaluations > 0 ? plural(priceEvaluations, "price evaluation") : null,
+    assetCreations > 0 ? plural(assetCreations, "asset creation form") : null,
   ].filter(Boolean);
-  return parts.length > 0 ? parts.join(" and ") : null;
+  if (parts.length === 0) return null;
+  return parts.length === 1
+    ? parts[0]
+    : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
 
-const usageCount = { _count: { select: { glDetails: true, pettyCash: true } } } as const;
+const usageCount = {
+  _count: {
+    select: {
+      glDetails: true,
+      pettyCash: true,
+      priceEvaluations: true,
+      assetCreations: true,
+    },
+  },
+} as const;
 
 export const glAccountsRouter = router({
   // GET /gl-accounts - The chart of accounts, for the PV / petty cash GL

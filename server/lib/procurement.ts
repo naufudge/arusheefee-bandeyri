@@ -1,13 +1,14 @@
 import type { PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import type { ProcurementStageKey } from "@/lib/procurement";
+import { isAssetOnlyStage, type ProcurementStageKey } from "@/lib/procurement";
 
 type Db = Pick<PrismaClient, "procurement" | "gSRForm" | "priceEvaluation">;
 
 /**
- * Checks a document can join `procurementId`: the procurement exists and, for
- * the one-per-procurement types (GSR, price evaluation), the slot is free.
- * A no-op when no procurement is given.
+ * Checks a document can join `procurementId`: the procurement exists, it's
+ * an asset purchase if the document is asset-only (asset creation form,
+ * asset), and for the one-per-procurement types (GSR, price evaluation) the
+ * slot is free. A no-op when no procurement is given.
  *
  * Pass the caller's `permissions` when a document is being created straight
  * into a procurement: adding to one needs `procurement:update`, the same as
@@ -31,6 +32,7 @@ export async function assertProcurementSlot(
     where: { id: procurementId },
     select: {
       title: true,
+      isAsset: true,
       gsrForm: { select: { gsrFormNum: true } },
       priceEvaluation: { select: { evalNum: true } },
     },
@@ -39,6 +41,12 @@ export async function assertProcurementSlot(
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "That procurement no longer exists.",
+    });
+  }
+  if (isAssetOnlyStage(type) && !procurement.isAsset) {
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: `"${procurement.title}" isn't an asset purchase. Mark it as one first.`,
     });
   }
   if (type === "gsr" && procurement.gsrForm) {

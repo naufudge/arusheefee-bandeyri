@@ -40,5 +40,6 @@ export type Staff = {
     designation: string,
     dhivehiName?: string,
     dhivehiDesignation?: string,
+    idCardNo?: string,
     roleIds?: string[],
 }

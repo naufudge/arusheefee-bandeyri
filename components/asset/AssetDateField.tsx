@@ -16,8 +16,12 @@ import {
 } from "@/components/ui/popover";
 import type { AssetValues } from "@/schemas/AssetSchema";
 
-interface AssetDateFieldProps {
-  form: UseFormReturn<AssetValues>;
+/** The fields the date input reads and writes; any form with them can use it. */
+export type AssetDateFields = Pick<AssetValues, "datePrecision" | "year" | "date">;
+
+interface AssetDateFieldProps<T extends AssetDateFields> {
+  form: UseFormReturn<T>;
+  label?: string;
 }
 
 /**
@@ -26,7 +30,11 @@ interface AssetDateFieldProps {
  * calendar. The chosen mode drives `datePrecision` and either `year` or
  * `date`; AssetForm derives the stored DateTime on submit.
  */
-export const AssetDateField: React.FC<AssetDateFieldProps> = ({ form }) => {
+export function AssetDateField<T extends AssetDateFields>({
+  form: hostForm,
+  label = "Acquired",
+}: AssetDateFieldProps<T>) {
+  const form = hostForm as unknown as UseFormReturn<AssetDateFields>;
   const precision = form.watch("datePrecision");
   const year = form.watch("year");
   const date = form.watch("date");
@@ -39,7 +47,7 @@ export const AssetDateField: React.FC<AssetDateFieldProps> = ({ form }) => {
   return (
     <div className="space-y-2">
       <div className="flex min-h-5 items-center justify-between">
-        <Label>Acquired</Label>
+        <Label>{label}</Label>
         {/* Mode toggle */}
         <div className="inline-flex rounded-md border bg-muted/40 p-0.5">
           <button
@@ -125,6 +133,6 @@ export const AssetDateField: React.FC<AssetDateFieldProps> = ({ form }) => {
       )}
     </div>
   );
-};
+}
 
 export default AssetDateField;

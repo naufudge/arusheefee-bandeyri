@@ -22,8 +22,14 @@ import {
 } from "@/lib/constants/assetCategories";
 import type { AssetValues } from "@/schemas/AssetSchema";
 
-interface AssetCategorySelectProps {
-  form: UseFormReturn<AssetValues>;
+/** The fields the selector reads and writes; any form with them can use it. */
+export type AssetCategoryFields = Pick<
+  AssetValues,
+  "category" | "subcategory" | "assetType" | "assetSubtype"
+>;
+
+interface AssetCategorySelectProps<T extends AssetCategoryFields> {
+  form: UseFormReturn<T>;
 }
 
 /**
@@ -34,9 +40,10 @@ interface AssetCategorySelectProps {
  * `assetType` becomes the leaf-most selection. A "not listed" toggle lets
  * users enter a free-text type for assets outside the taxonomy.
  */
-export const AssetCategorySelect: React.FC<AssetCategorySelectProps> = ({
-  form,
-}) => {
+export function AssetCategorySelect<T extends AssetCategoryFields>({
+  form: hostForm,
+}: AssetCategorySelectProps<T>) {
+  const form = hostForm as unknown as UseFormReturn<AssetCategoryFields>;
   const category = form.watch("category");
   const assetType = form.watch("assetType");
   // Subcategory and sub-type live on the form (transient) so the number
@@ -296,6 +303,6 @@ export const AssetCategorySelect: React.FC<AssetCategorySelectProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default AssetCategorySelect;

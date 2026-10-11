@@ -12,6 +12,7 @@ import {
 import { assertProcurementSlot } from "../lib/procurement";
 import { procurementProgress, type ProcurementStageKey } from "@/lib/procurement";
 import { computeComparison, ratesByPosition } from "@/lib/price-eval";
+import { formNumRange } from "@/lib/asset-creation";
 import { pvTotal } from "@/utils/currency";
 
 // Enough of each linked document to show its row and work out progress.
@@ -56,6 +57,17 @@ const docsInclude = {
     select: { id: true, assetNum: true, assetName: true, presentLocation: true, price: true },
     orderBy: { assetNum: "asc" },
   },
+  assetCreations: {
+    select: {
+      id: true,
+      status: true,
+      description1: true,
+      quantity: true,
+      originalValue: true,
+      forms: { select: { formNum: true }, orderBy: { position: "asc" } },
+    },
+    orderBy: { createdAt: "asc" },
+  },
 } as const;
 
 type WithDocs = Prisma.ProcurementGetPayload<{ include: typeof docsInclude }>;
@@ -98,6 +110,20 @@ function summarize(p: WithDocs) {
         }
       : null,
     priceEvaluation,
+    assetCreations: p.assetCreations.map((ac) => {
+      const formNums = ac.forms.map((f) => f.formNum);
+      return {
+        id: ac.id,
+        status: ac.status,
+        formNum: formNums[0] ?? "",
+        formRange: formNumRange(formNums),
+        formCount: formNums.length,
+        description: ac.description1,
+        // Every form carries the same value.
+        totalValue: ac.originalValue != null ? ac.originalValue * formNums.length : null,
+        formNums,
+      };
+    }),
     pvs: p.pvs.map((pv) => {
       const total = pvTotal(pv);
       return {
@@ -118,11 +144,12 @@ function summarize(p: WithDocs) {
     id: p.id,
     title: p.title,
     notes: p.notes,
+    isAsset: p.isAsset,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
     createdBy: p.createdBy,
     ...docs,
-    progress: procurementProgress(docs),
+    progress: procurementProgress({ isAsset: p.isAsset, ...docs }),
   };
 }
 
@@ -138,17 +165,48 @@ async function currentLink(
   type: ProcurementStageKey,
   docId: string,
 ): Promise<{ label: string; procurementId: string | null }> {
-  const select = { procurementId: true } as const;
-  const row =
-    type === "gsr"
-      ? await db.gSRForm.findUnique({ where: { id: docId }, select: { ...select, gsrFormNum: true } }).then((r) => r && { label: `GSR form ${r.gsrFormNum}`, procurementId: r.procurementId })
-      : type === "priceEvaluation"
-        ? await db.priceEvaluation.findUnique({ where: { id: docId }, select: { ...select, evalNum: true } }).then((r) => r && { label: `Price evaluation ${r.evalNum}`, procurementId: r.procurementId })
-        : type === "pv"
-          ? await db.pV.findUnique({ where: { id: docId }, select: { ...select, pvNum: true } }).then((r) => r && { label: `PV ${r.pvNum}`, procurementId: r.procurementId })
-          : await db.asset.findUnique({ where: { id: docId }, select: { ...select, assetNum: true } }).then((r) => r && { label: `Asset ${r.assetNum}`, procurementId: r.procurementId });
+  const row = await findLinkable(db, type, docId);
   if (!row) throw new TRPCError({ code: "NOT_FOUND", message: "That document no longer exists." });
   return row;
+}
+
+async function findLinkable(
+  db: PrismaClient,
+  type: ProcurementStageKey,
+  docId: string,
+): Promise<{ label: string; procurementId: string | null } | null> {
+  const select = { procurementId: true } as const;
+  switch (type) {
+    case "gsr":
+      return db.gSRForm
+        .findUnique({ where: { id: docId }, select: { ...select, gsrFormNum: true } })
+        .then((r) => r && { label: `GSR form ${r.gsrFormNum}`, procurementId: r.procurementId });
+    case "priceEvaluation":
+      return db.priceEvaluation
+        .findUnique({ where: { id: docId }, select: { ...select, evalNum: true } })
+        .then((r) => r && { label: `Price evaluation ${r.evalNum}`, procurementId: r.procurementId });
+    case "assetCreation":
+      return db.assetCreation
+        .findUnique({
+          where: { id: docId },
+          select: { ...select, forms: { select: { formNum: true }, orderBy: { position: "asc" } } },
+        })
+        .then(
+          (r) =>
+            r && {
+              label: `Asset creation form ${formNumRange(r.forms.map((f) => f.formNum))}`,
+              procurementId: r.procurementId,
+            },
+        );
+    case "asset":
+      return db.asset
+        .findUnique({ where: { id: docId }, select: { ...select, assetNum: true } })
+        .then((r) => r && { label: `Asset ${r.assetNum}`, procurementId: r.procurementId });
+    case "pv":
+      return db.pV
+        .findUnique({ where: { id: docId }, select: { ...select, pvNum: true } })
+        .then((r) => r && { label: `PV ${r.pvNum}`, procurementId: r.procurementId });
+  }
 }
 
 // Point a document at a procurement (or detach it with null).
@@ -159,10 +217,19 @@ async function setLink(
   procurementId: string | null,
 ) {
   const data = { procurementId };
-  if (type === "gsr") await db.gSRForm.update({ where: { id: docId }, data });
-  else if (type === "priceEvaluation") await db.priceEvaluation.update({ where: { id: docId }, data });
-  else if (type === "pv") await db.pV.update({ where: { id: docId }, data });
-  else await db.asset.update({ where: { id: docId }, data });
+  const where = { id: docId };
+  switch (type) {
+    case "gsr":
+      return void (await db.gSRForm.update({ where, data }));
+    case "priceEvaluation":
+      return void (await db.priceEvaluation.update({ where, data }));
+    case "assetCreation":
+      return void (await db.assetCreation.update({ where, data }));
+    case "asset":
+      return void (await db.asset.update({ where, data }));
+    case "pv":
+      return void (await db.pV.update({ where, data }));
+  }
 }
 
 export const procurementRouter = router({
@@ -185,6 +252,7 @@ export const procurementRouter = router({
         data: {
           title: input.title,
           notes: input.notes?.trim() || null,
+          isAsset: input.isAsset,
           createdById: ctx.session.user.id,
         },
         select: { id: true },
@@ -195,10 +263,22 @@ export const procurementRouter = router({
   update: permissionProcedure("procurement:update")
     .input(updateProcurementSchema)
     .mutation(async ({ ctx, input }) => {
-      await findOr404(ctx.prisma, input.id);
+      const p = await findOr404(ctx.prisma, input.id);
+      // The asset stages hold documents: they can't just disappear.
+      if (p.isAsset && !input.isAsset && (p.assetCreations.length > 0 || p.assets.length > 0)) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "This procurement has asset creation forms or assets. Unlink them before marking it as not an asset purchase.",
+        });
+      }
       await ctx.prisma.procurement.update({
         where: { id: input.id },
-        data: { title: input.title, notes: input.notes?.trim() || null },
+        data: {
+          title: input.title,
+          notes: input.notes?.trim() || null,
+          isAsset: input.isAsset,
+        },
       });
       return { id: input.id };
     }),
@@ -242,6 +322,22 @@ export const procurementRouter = router({
             orderBy: { date: "desc" },
           });
           return rows.map((r) => ({ id: r.id, label: r.pvNum, hint: r.vendor }));
+        }
+        case "assetCreation": {
+          const rows = await ctx.prisma.assetCreation.findMany({
+            where,
+            select: {
+              id: true,
+              description1: true,
+              forms: { select: { formNum: true }, orderBy: { position: "asc" } },
+            },
+            orderBy: { createdAt: "desc" },
+          });
+          return rows.map((r) => ({
+            id: r.id,
+            label: formNumRange(r.forms.map((f) => f.formNum)),
+            hint: r.description1,
+          }));
         }
         case "asset": {
           const rows = await ctx.prisma.asset.findMany({

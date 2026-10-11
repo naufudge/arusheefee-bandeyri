@@ -8,7 +8,7 @@ import {
   deleteAssetSchema,
   nextItemSchema,
 } from "../schemas/asset.schema";
-import { AGENCY_CODE, parseAssetNumber } from "@/lib/assetNumber";
+import { nextAssetItem } from "../lib/assetNumbers";
 
 export const assetRouter = router({
   // List every asset (filtered client-side on the register, like pv-register).
@@ -24,34 +24,7 @@ export const assetRouter = router({
   nextItem: permissionProcedure("asset:create")
     .input(nextItemSchema)
     .query(async ({ ctx, input }) => {
-      const { yy, mainNum, subNum, typeNum, variantNum, noType } = input;
-      const hasVariant = variantNum !== undefined && variantNum !== null;
-
-      const assets = await ctx.prisma.asset.findMany({
-        where: { assetNum: { startsWith: `${AGENCY_CODE}-${yy}-` } },
-        select: { assetNum: true },
-      });
-
-      let max = 0;
-      for (const a of assets) {
-        const parsed = parseAssetNumber(a.assetNum);
-        if (!parsed) continue;
-        const p = parsed.parts;
-        if (p[2] !== mainNum || p[3] !== subNum) continue;
-        if (noType) {
-          // Type-less subcategory: 5-segment 433-YY-main-sub-item.
-          if (p.length !== 5) continue;
-        } else {
-          if (p[4] !== typeNum) continue;
-          if (hasVariant) {
-            if (p.length !== 7 || p[5] !== variantNum) continue;
-          } else if (p.length !== 6) {
-            continue;
-          }
-        }
-        if (parsed.item > max) max = parsed.item;
-      }
-      return { nextItem: max + 1 };
+      return { nextItem: await nextAssetItem(ctx.prisma, input) };
     }),
 
   // Single asset by its slug/number.
@@ -60,7 +33,11 @@ export const assetRouter = router({
     .query(async ({ ctx, input }) => {
       const asset = await ctx.prisma.asset.findUnique({
         where: { assetNum: input.assetNum },
-        include: { procurement: procurementBackLink },
+        include: {
+          procurement: procurementBackLink,
+          // The asset creation form it was registered from, if any.
+          assetCreationForm: { select: { formNum: true } },
+        },
       });
       if (!asset) {
         throw new TRPCError({

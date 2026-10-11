@@ -6,6 +6,8 @@ export const procurementDocTypeSchema = z.enum(PROCUREMENT_DOC_TYPES);
 const fields = {
   title: z.string().trim().min(1, "Give the procurement a title").max(200),
   notes: z.string().trim().max(2000).optional().nullable(),
+  // An asset purchase also goes through asset creation and registration.
+  isAsset: z.boolean().default(false),
 };
 
 export const createProcurementSchema = z.object(fields);

@@ -345,6 +345,9 @@ const StaffPage = () => {
                           _id: staff.id,
                           name: staff.name,
                           designation: staff.designation,
+                          dhivehiName: staff.dhivehiName ?? undefined,
+                          dhivehiDesignation: staff.dhivehiDesignation ?? undefined,
+                          idCardNo: staff.idCardNo ?? undefined,
                           roleIds: staff.roles?.map((r) => r.id) ?? [],
                         }}
                         button={

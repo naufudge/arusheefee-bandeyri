@@ -1,9 +1,9 @@
 // Procurements — shared by the server, the register and the detail page.
 //
 // A procurement groups one purchase's documents. Each document type is a
-// stage below; a future module (asset creation, capital expenditure
-// authorization, …) joins by adding a \`procurementId\` to its table and an
-// entry here.
+// stage below, in the order the purchase goes through them; a future module
+// (capital expenditure authorization, …) joins by adding a `procurementId`
+// to its table and an entry here.
 
 export const PROCUREMENT_STAGES = [
   {
@@ -11,54 +11,73 @@ export const PROCUREMENT_STAGES = [
     label: "Requisition",
     doc: "GSR form",
     multiple: false,
-    optional: false,
+    assetOnly: false,
   },
   {
     key: "priceEvaluation",
     label: "Price evaluation",
     doc: "Price evaluation",
     multiple: false,
-    optional: false,
+    assetOnly: false,
   },
   {
-    key: "pv",
-    label: "Payment",
-    doc: "Payment voucher",
+    key: "assetCreation",
+    label: "Asset creation",
+    doc: "Asset creation form",
     multiple: true,
-    optional: false,
+    // Only when the purchase is an asset.
+    assetOnly: true,
   },
   {
     key: "asset",
     label: "Asset registration",
     doc: "Asset",
     multiple: true,
-    // Only when the purchase is an asset.
-    optional: true,
+    assetOnly: true,
+  },
+  {
+    key: "pv",
+    label: "Payment",
+    doc: "Payment voucher",
+    multiple: true,
+    assetOnly: false,
   },
 ] as const;
 
 export type ProcurementStageKey = (typeof PROCUREMENT_STAGES)[number]["key"];
+export type ProcurementStage = (typeof PROCUREMENT_STAGES)[number];
 
 export const PROCUREMENT_DOC_TYPES = PROCUREMENT_STAGES.map((s) => s.key) as [
   ProcurementStageKey,
   ...ProcurementStageKey[],
 ];
 
+/** The stages a procurement goes through: the asset ones only for an asset purchase. */
+export const visibleStages = (isAsset: boolean): ProcurementStage[] =>
+  PROCUREMENT_STAGES.filter((s) => isAsset || !s.assetOnly);
+
+export const isAssetOnlyStage = (key: ProcurementStageKey) =>
+  PROCUREMENT_STAGES.some((s) => s.key === key && s.assetOnly);
+
 export type StageState = "empty" | "in-progress" | "done";
 
 /** The bits of each linked document that progress depends on. */
 export interface ProcurementDocsLike {
+  isAsset: boolean;
   gsrForm: { status: string } | null;
   priceEvaluation: { status: string } | null;
-  pvs: { status: string }[];
+  assetCreations: { status: string }[];
   assets: unknown[];
+  pvs: { status: string }[];
 }
 
 export interface ProcurementProgress {
   stages: Record<ProcurementStageKey, StageState>;
+  /** The stages shown for this procurement, in order. */
+  stageKeys: ProcurementStageKey[];
   /** Fully completed once a linked PV is posted. */
   completed: boolean;
-  /** The furthest required stage that has a document, or null if none yet. */
+  /** The furthest shown stage that has a document, or null if none yet. */
   currentStage: ProcurementStageKey | null;
 }
 
@@ -74,15 +93,21 @@ export function procurementProgress(p: ProcurementDocsLike): ProcurementProgress
     : p.priceEvaluation.status === "APPROVED"
       ? "done"
       : "in-progress";
+  const assetCreation: StageState =
+    p.assetCreations.length === 0
+      ? "empty"
+      : p.assetCreations.every((x) => x.status === "COMPLETED")
+        ? "done"
+        : "in-progress";
+  const asset: StageState = p.assets.length > 0 ? "done" : "empty";
   const pv: StageState =
     p.pvs.length === 0 ? "empty" : p.pvs.some((x) => x.status === "POSTED") ? "done" : "in-progress";
-  const asset: StageState = p.assets.length > 0 ? "done" : "empty";
 
-  const stages = { gsr, priceEvaluation, pv, asset };
-  const required = PROCUREMENT_STAGES.filter((s) => !s.optional).map((s) => s.key);
-  const currentStage = [...required].reverse().find((k) => stages[k] !== "empty") ?? null;
+  const stages = { gsr, priceEvaluation, assetCreation, asset, pv };
+  const stageKeys = visibleStages(p.isAsset).map((s) => s.key);
+  const currentStage = [...stageKeys].reverse().find((k) => stages[k] !== "empty") ?? null;
 
-  return { stages, completed: pv === "done", currentStage };
+  return { stages, stageKeys, completed: pv === "done", currentStage };
 }
 
 /** "Completed", "Ongoing · Price evaluation" or "Not started". */

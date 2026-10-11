@@ -107,7 +107,11 @@ const GlAccountsPage = () => {
     () =>
       (accounts ?? []).map((a) => ({
         ...a,
-        usage: a._count.glDetails + a._count.pettyCash,
+        usage:
+          a._count.glDetails +
+          a._count.pettyCash +
+          a._count.priceEvaluations +
+          a._count.assetCreations,
       })),
     [accounts],
   );
@@ -397,6 +401,12 @@ const GlAccountsPage = () => {
                             )}
                             {a._count.pettyCash > 0 && (
                               <div>{a._count.pettyCash} PC</div>
+                            )}
+                            {a._count.priceEvaluations > 0 && (
+                              <div>{a._count.priceEvaluations} PE</div>
+                            )}
+                            {a._count.assetCreations > 0 && (
+                              <div>{a._count.assetCreations} ACF</div>
                             )}
                           </div>
                         )}

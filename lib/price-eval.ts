@@ -132,6 +132,22 @@ export function computeComparison(
 }
 
 /**
+ * What one MVR line actually costs from a vendor: its share of the vendor's
+ * discount comes off, then GST is added if the vendor charges it. Used to
+ * prefill an asset's original value from the evaluation.
+ */
+export function landedLine(
+  line: number,
+  vendor: CompareVendor,
+  gstRate: number,
+): number {
+  const pct = vendor.discountPercent ?? 0;
+  const net = pct > 0 ? line - (line * pct) / 100 : line;
+  const gst = vendor.chargesGst ? (net * gstRate) / 100 : 0;
+  return round2(net + gst);
+}
+
+/**
  * An item's quotes laid out by vendor position (null = not quoted), as
  * `computeComparison` expects them.
  */

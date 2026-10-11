@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import type { PCRole } from "../lib/approval";
 import { computeComparison } from "@/lib/price-eval";
+import { formNumRange } from "@/lib/asset-creation";
 
 // The "did the user act on this" history filter — explicitly excludes
 // preparer / edit events (SENT_FOR_VERIFICATION, CALLED_BACK,
@@ -18,6 +19,9 @@ const HISTORY_KINDS = [
   "PE_CHECKED",
   "PE_APPROVED",
   "PE_REJECTED",
+  "AC_AUTHORIZED",
+  "AC_SAP_UPDATED",
+  "AC_REJECTED",
 ] as const;
 
 // "Currently waiting on this user at the current stage" — strict reading
@@ -55,6 +59,16 @@ function pendingPriceEvalWhere(userId: string) {
   };
 }
 
+// Asset creation sets awaiting this user's signature at the current stage.
+function pendingAssetCreationWhere(userId: string) {
+  return {
+    OR: [
+      { status: "PENDING_AUTHORIZATION" as const, authorizedById: userId },
+      { status: "PENDING_SAP_UPDATE" as const, sapUpdatedById: userId },
+    ],
+  };
+}
+
 // Which of the five back-relations on PettyCashStaff is set tells us the
 // role name. Exactly one is non-null per row (enforced by the unique FKs
 // on the PettyCash side).
@@ -78,19 +92,20 @@ export const approvalsRouter = router({
   // sum across the pending sources.
   pendingCount: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-    const [pvCount, pcCount, peCount] = await Promise.all([
+    const [pvCount, pcCount, peCount, acCount] = await Promise.all([
       ctx.prisma.pV.count({ where: pendingPvWhere(userId) }),
       ctx.prisma.pettyCashStaff.count({ where: pendingPcRoleWhere(userId) }),
       ctx.prisma.priceEvaluation.count({ where: pendingPriceEvalWhere(userId) }),
+      ctx.prisma.assetCreation.count({ where: pendingAssetCreationWhere(userId) }),
     ]);
-    return pvCount + pcCount + peCount;
+    return pvCount + pcCount + peCount + acCount;
   }),
 
   // Full data for the Pending tab.
   pending: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [pvs, pcRows, peRows] = await Promise.all([
+    const [pvs, pcRows, peRows, acRows] = await Promise.all([
       ctx.prisma.pV.findMany({
         where: pendingPvWhere(userId),
         include: {
@@ -122,7 +137,28 @@ export const approvalsRouter = router({
         },
         orderBy: { updatedAt: "asc" },
       }),
+      ctx.prisma.assetCreation.findMany({
+        where: pendingAssetCreationWhere(userId),
+        include: {
+          requestedBy: { select: { id: true, name: true, designation: true } },
+          forms: { select: { formNum: true }, orderBy: { position: "asc" } },
+        },
+        orderBy: { updatedAt: "asc" },
+      }),
     ]);
+
+    // A compact card per asset creation set.
+    const assetCreations = acRows.map((ac) => ({
+      formNum: ac.forms[0]?.formNum ?? "",
+      formRange: formNumRange(ac.forms.map((f) => f.formNum)),
+      formCount: ac.forms.length,
+      description: ac.description1,
+      quantity: ac.quantity,
+      requestedAssetClass: ac.requestedAssetClass,
+      status: ac.status,
+      updatedAt: ac.updatedAt,
+      requestedBy: ac.requestedBy,
+    }));
 
     // A compact card per evaluation: what's being bought, from whom, for how
     // much (MVR, including GST where charged).
@@ -187,7 +223,7 @@ export const approvalsRouter = router({
           new Date(b.pettyCash.date).getTime(),
       );
 
-    return { pvs, pcRoles, priceEvals };
+    return { pvs, pcRoles, priceEvals, assetCreations };
   }),
 
   // Reverse-chronological list of approve/reject events authored by
@@ -228,6 +264,14 @@ export const approvalsRouter = router({
               evalNum: true,
               section: true,
               status: true,
+            },
+          },
+          assetCreation: {
+            select: {
+              id: true,
+              description1: true,
+              status: true,
+              forms: { select: { formNum: true }, orderBy: { position: "asc" } },
             },
           },
         },

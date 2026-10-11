@@ -21,9 +21,9 @@ import {
   ClipboardCheck,
   FilePlus2,
   Scale,
-  CirclePlus,
   ShoppingBag,
   SlidersHorizontal,
+  FileStack,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
@@ -98,6 +98,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
           PERMISSIONS.PV_READ,
           PERMISSIONS.PETTYCASH_READ,
           PERMISSIONS.PRICEEVAL_READ,
+          PERMISSIONS.ASSETCREATION_READ,
         ],
         badge: "pending-approvals",
       },
@@ -199,10 +200,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         requires: PERMISSIONS.PRICEEVAL_READ,
       },
       {
-        title: "New Price Evaluation",
-        url: "/price-evaluation/create",
-        icon: CirclePlus,
-        requires: PERMISSIONS.PRICEEVAL_CREATE,
+        title: "Asset Creation Forms",
+        url: "/asset-creation-register",
+        icon: FileStack,
+        requires: PERMISSIONS.ASSETCREATION_READ,
       },
     ],
   },

@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Eye,
   FileSpreadsheet,
+  FileStack,
   History,
   Inbox,
   ReceiptText,
@@ -22,7 +23,11 @@ import { useHasAnyPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
-import { PriceEvalStatusPill, StatusPill } from "@/components/approval/StatusPill";
+import {
+  AssetCreationStatusPill,
+  PriceEvalStatusPill,
+  StatusPill,
+} from "@/components/approval/StatusPill";
 import { PVActionBar } from "@/components/approval/PVActionBar";
 import { PCActionBar } from "@/components/approval/PCActionBar";
 import {
@@ -49,6 +54,7 @@ const PendingApprovalsPage = () => {
     PERMISSIONS.PV_READ,
     PERMISSIONS.PETTYCASH_READ,
     PERMISSIONS.PRICEEVAL_READ,
+    PERMISSIONS.ASSETCREATION_READ,
   ]);
 
   const [tab, setTab] = useState<Tab>("pending");
@@ -67,7 +73,8 @@ const PendingApprovalsPage = () => {
     const pvs = pending?.pvs.length ?? 0;
     const pcs = pending?.pcRoles.length ?? 0;
     const pes = pending?.priceEvals.length ?? 0;
-    return { pvs, pcs, pes, total: pvs + pcs + pes };
+    const acs = pending?.assetCreations.length ?? 0;
+    return { pvs, pcs, pes, acs, total: pvs + pcs + pes + acs };
   }, [pending]);
 
   if (!hasAccess) return <NoAccessCard />;
@@ -90,9 +97,9 @@ const PendingApprovalsPage = () => {
       </header>
 
       {/* KPI strip */}
-      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {pendingLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
+          Array.from({ length: 5 }).map((_, i) => <KpiSkeleton key={i} />)
         ) : (
           <>
             <KpiCard
@@ -135,6 +142,16 @@ const PendingApprovalsPage = () => {
                 totals.pes === 0
                   ? "No evaluation awaiting you"
                   : "Budget check, check or approval"
+              }
+            />
+            <KpiCard
+              label="Asset creation"
+              icon={FileStack}
+              value={totals.acs.toString()}
+              sub={
+                totals.acs === 0
+                  ? "No asset form awaiting you"
+                  : "Authorisation or SAP update"
               }
             />
           </>
@@ -203,6 +220,7 @@ interface PendingTabProps {
         pvs: NonNullable<unknown>[];
         pcRoles: NonNullable<unknown>[];
         priceEvals: PePendingRow[];
+        assetCreations: AcPendingRow[];
       }
     | undefined;
   isLoading: boolean;
@@ -226,8 +244,14 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
     (data?.pcRoles as PcPendingRow[] | undefined) ?? ([] as PcPendingRow[]);
 
   const priceEvals = data?.priceEvals ?? [];
+  const assetCreations = data?.assetCreations ?? [];
 
-  if (pvs.length === 0 && pcRoles.length === 0 && priceEvals.length === 0) {
+  if (
+    pvs.length === 0 &&
+    pcRoles.length === 0 &&
+    priceEvals.length === 0 &&
+    assetCreations.length === 0
+  ) {
     return (
       <div className="rounded-md border bg-card p-12 text-center">
         <Inbox className="mx-auto size-10 text-muted-foreground/60" />
@@ -293,6 +317,73 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
           </div>
         </section>
       )}
+
+      {assetCreations.length > 0 && (
+        <section>
+          <header className="mb-3 flex items-baseline justify-between px-1">
+            <h2 className="text-sm font-semibold">Asset creation forms</h2>
+            <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground tabular-nums">
+              {assetCreations.length}
+            </span>
+          </header>
+          <div className="flex flex-col gap-3">
+            {assetCreations.map((ac) => (
+              <AcPendingCard key={ac.formNum} ac={ac} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// ----- Asset creation pending row -----
+
+type AcPendingRow = {
+  formNum: string;
+  formRange: string;
+  formCount: number;
+  description: string;
+  quantity: number;
+  requestedAssetClass: string;
+  status: "DRAFT" | "PENDING_AUTHORIZATION" | "PENDING_SAP_UPDATE" | "COMPLETED" | "REJECTED";
+  updatedAt: string | Date;
+};
+
+// Signing happens on the set's page, where the SAP updater enters the SAP
+// asset numbers.
+function AcPendingCard({ ac }: { ac: AcPendingRow }) {
+  const href = `/asset-creation/${encodeURIComponent(ac.formNum)}`;
+  const since = formatDistanceToNow(new Date(ac.updatedAt), { addSuffix: true });
+  return (
+    <div className="group flex min-w-0 flex-col gap-3 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm md:flex-row md:items-center md:gap-6">
+      <Link href={href} className="flex min-w-0 flex-1 items-center gap-6">
+        <div className="w-[150px] shrink-0 truncate font-mono text-sm font-medium tracking-tight" title={ac.formRange}>
+          {ac.formRange}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm" title={ac.description}>
+            {ac.description}
+          </span>
+          <span className="mt-1 flex min-w-0 items-center gap-2">
+            <AssetCreationStatusPill status={ac.status} />
+            <span className="truncate text-[11px] text-muted-foreground">Waiting {since}</span>
+          </span>
+        </div>
+        <div className="hidden text-right md:block">
+          <div className="font-mono text-sm tabular-nums">{ac.requestedAssetClass}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            {ac.formCount} {ac.formCount === 1 ? "form" : "forms"} · {ac.quantity}/form
+          </div>
+        </div>
+      </Link>
+      <Link
+        href={href}
+        className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-md bg-foreground px-3 text-xs font-medium text-background transition hover:bg-foreground/90 md:self-auto"
+      >
+        <Eye className="size-3.5" />
+        Review &amp; sign
+      </Link>
     </div>
   );
 }
@@ -550,6 +641,11 @@ type HistoryRow = {
     evalNum: string;
     section: string;
   } | null;
+  assetCreation?: {
+    id: string;
+    description1: string;
+    forms: { formNum: string }[];
+  } | null;
 };
 
 function HistoryTab({
@@ -614,7 +710,14 @@ function HistoryRow({ event }: { event: HistoryRow }) {
             href: `/price-evaluation/${encodeURIComponent(event.priceEvaluation.evalNum)}`,
             kindBadge: "PE" as const,
           }
-        : null;
+        : event.assetCreation && event.assetCreation.forms.length > 0
+          ? {
+              label: event.assetCreation.forms[0].formNum,
+              sub: event.assetCreation.description1,
+              href: `/asset-creation/${encodeURIComponent(event.assetCreation.forms[0].formNum)}`,
+              kindBadge: "ACF" as const,
+            }
+          : null;
 
   const roleSuffix = event.pettyCashRole
     ? ` · ${PC_ROLE_LABEL[event.pettyCashRole] ?? event.pettyCashRole}`

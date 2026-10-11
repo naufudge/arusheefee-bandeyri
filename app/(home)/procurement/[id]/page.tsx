@@ -9,6 +9,7 @@ import {
   AlertCircle,
   ChevronLeft,
   ClipboardList,
+  FileStack,
   Link2,
   Package,
   Pencil,
@@ -32,7 +33,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
-import { GSRStatusPill, PriceEvalStatusPill, StatusPill } from "@/components/approval/StatusPill";
+import {
+  AssetCreationStatusPill,
+  GSRStatusPill,
+  PriceEvalStatusPill,
+  StatusPill,
+} from "@/components/approval/StatusPill";
 import { StageTracker, ProcurementStatusPill } from "@/components/procurement/StageTracker";
 import { ProcurementDialog } from "@/components/procurement/ProcurementDialog";
 import { LinkDocumentDialog } from "@/components/procurement/LinkDocumentDialog";
@@ -41,7 +47,7 @@ import { useHasPermission } from "@/hooks/use-permissions";
 import { useToast } from "@/hooks/use-toast";
 import { PERMISSIONS, type Permission } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
-import { PROCUREMENT_STAGES, type ProcurementStageKey } from "@/lib/procurement";
+import { visibleStages, type ProcurementStageKey } from "@/lib/procurement";
 import { formatNumberWithCommas } from "@/utils/helpers";
 
 const money = (n: number) => formatNumberWithCommas(n) ?? "0.00";
@@ -61,16 +67,42 @@ const PE_LABEL: Record<string, string> = {
   APPROVED: "Approved",
   REJECTED: "Rejected",
 };
+const AC_LABEL: Record<string, string> = {
+  DRAFT: "Draft",
+  PENDING_AUTHORIZATION: "Awaiting authorisation",
+  PENDING_SAP_UPDATE: "Awaiting SAP update",
+  COMPLETED: "Completed",
+  REJECTED: "Rejected",
+};
 
-// Per stage: icon, where "Create" goes, and the permission it needs.
+// Per stage: icon, where "Create" goes, the permission it needs, and an
+// optional note under the heading.
 const STAGE_UI: Record<
   ProcurementStageKey,
-  { icon: React.ComponentType<{ className?: string }>; createHref: (id: string) => string; createPerm: Permission; createLabel: string }
+  {
+    icon: React.ComponentType<{ className?: string }>;
+    createHref: (id: string) => string;
+    createPerm: Permission;
+    createLabel: string;
+    note?: string;
+  }
 > = {
   gsr: { icon: ClipboardList, createHref: (id) => `/gsr/create?procurementId=${id}`, createPerm: PERMISSIONS.GSR_CREATE, createLabel: "Create GSR" },
   priceEvaluation: { icon: Scale, createHref: (id) => `/price-evaluation/create?procurementId=${id}`, createPerm: PERMISSIONS.PRICEEVAL_CREATE, createLabel: "Create price evaluation" },
+  assetCreation: {
+    icon: FileStack,
+    createHref: (id) => `/asset-creation/create?procurementId=${id}`,
+    createPerm: PERMISSIONS.ASSETCREATION_CREATE,
+    createLabel: "Create asset creation form",
+  },
+  asset: {
+    icon: Package,
+    createHref: (id) => `/asset/create?procurementId=${id}`,
+    createPerm: PERMISSIONS.ASSET_CREATE,
+    createLabel: "Register asset",
+    note: "Added automatically when an asset creation form is completed",
+  },
   pv: { icon: ReceiptText, createHref: (id) => `/create?procurementId=${id}`, createPerm: PERMISSIONS.PV_CREATE, createLabel: "Create PV" },
-  asset: { icon: Package, createHref: (id) => `/asset/create?procurementId=${id}`, createPerm: PERMISSIONS.ASSET_CREATE, createLabel: "Register asset" },
 };
 
 const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
@@ -85,6 +117,7 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
   const perms = {
     [PERMISSIONS.GSR_CREATE]: useHasPermission(PERMISSIONS.GSR_CREATE),
     [PERMISSIONS.PRICEEVAL_CREATE]: useHasPermission(PERMISSIONS.PRICEEVAL_CREATE),
+    [PERMISSIONS.ASSETCREATION_CREATE]: useHasPermission(PERMISSIONS.ASSETCREATION_CREATE),
     [PERMISSIONS.PV_CREATE]: useHasPermission(PERMISSIONS.PV_CREATE),
     [PERMISSIONS.ASSET_CREATE]: useHasPermission(PERMISSIONS.ASSET_CREATE),
   } as Partial<Record<Permission, boolean>>;
@@ -158,8 +191,9 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete “{p.title}”?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      The procurement is removed. Its GSR, price evaluation, PVs and assets are kept —
-                      they just won&apos;t be grouped any more.
+                      The procurement is removed. Its documents — GSR, price evaluation, asset
+                      creation forms, assets and PVs — are kept; they just won&apos;t be grouped any
+                      more.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-2">
@@ -246,7 +280,7 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
               <StageTracker progress={p.progress} detail={trackerDetail(p)} />
             </section>
 
-            {PROCUREMENT_STAGES.map((stage, i) => {
+            {visibleStages(p.isAsset).map((stage, i) => {
               const ui = STAGE_UI[stage.key];
               const rows = stageRows(p, stage.key);
               const canAddMore = stage.multiple || rows.length === 0;
@@ -262,8 +296,8 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
                         {rows.length}
                       </span>
                     )}
-                    {stage.optional && (
-                      <span className="text-[11px] text-muted-foreground">Optional — when the purchase is an asset</span>
+                    {ui.note && (
+                      <span className="text-[11px] text-muted-foreground">{ui.note}</span>
                     )}
                     {canUpdate && canAddMore && (
                       <div className="ml-auto flex items-center gap-2">
@@ -302,7 +336,7 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
                       {rows.map((row) => (
                         <li key={row.id} className="flex min-w-0 items-center gap-3 px-4 py-3 sm:gap-5 sm:px-5">
                           <Link href={row.href} className="flex min-w-0 flex-1 items-center gap-3 sm:gap-5">
-                            <span className="w-[110px] shrink-0 truncate font-mono text-sm font-medium" title={row.num}>
+                            <span className="w-[110px] shrink-0 truncate font-mono text-sm font-medium sm:w-[150px]" title={row.num}>
                               {row.num}
                             </span>
                             <span className="min-w-0 flex-1">
@@ -327,6 +361,14 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
                 </section>
               );
             })}
+
+            {!p.isAsset && canUpdate && (
+              <p className="rounded-md border border-dashed px-4 py-3 text-xs text-muted-foreground sm:px-5">
+                Buying an asset? Use <span className="font-medium text-foreground">Edit</span> to mark
+                this as an asset purchase — that adds the asset creation and asset registration
+                stages before payment.
+              </p>
+            )}
           </>
         )}
       </div>
@@ -345,8 +387,18 @@ function trackerDetail(p: ProcurementSummary): Partial<Record<ProcurementStageKe
     pv: p.pvs.length
       ? `${p.pvs.length} PV${p.pvs.length === 1 ? "" : "s"}${posted ? ` · ${posted} posted` : " · not posted yet"}`
       : undefined,
+    assetCreation: p.assetCreations.length ? assetCreationDetail(p.assetCreations) : undefined,
     asset: p.assets.length ? `${p.assets.length} asset${p.assets.length === 1 ? "" : "s"}` : undefined,
   };
+}
+
+// "1506/2026/009–013 · Awaiting SAP update", or "2 sets · 1 completed".
+function assetCreationDetail(sets: ProcurementSummary["assetCreations"]): string {
+  if (sets.length === 1) {
+    return `${sets[0].formRange} · ${AC_LABEL[sets[0].status] ?? sets[0].status}`;
+  }
+  const done = sets.filter((s) => s.status === "COMPLETED").length;
+  return `${sets.length} sets · ${done} completed`;
 }
 
 type Row = { id: string; num: string; href: string; text: string; pill?: React.ReactNode; amount?: string };
@@ -384,6 +436,15 @@ function stageRows(p: ProcurementSummary, key: ProcurementStageKey): Row[] {
         text: `${pv.vendor} · ${format(new Date(pv.date), "d MMM yyyy")}`,
         pill: <StatusPill status={pv.status} />,
         amount: pv.currency === "MVR" ? `MVR ${money(pv.total)}` : `${pv.currency} ${money(pv.total)}`,
+      }));
+    case "assetCreation":
+      return p.assetCreations.map((ac) => ({
+        id: ac.id,
+        num: ac.formRange,
+        href: `/asset-creation/${encodeURIComponent(ac.formNum)}`,
+        text: [ac.description, ac.formCount > 1 && `${ac.formCount} forms`].filter(Boolean).join(" · "),
+        pill: <AssetCreationStatusPill status={ac.status} />,
+        amount: ac.totalValue != null ? `MVR ${money(ac.totalValue)}` : undefined,
       }));
     case "asset":
       return p.assets.map((a) => ({

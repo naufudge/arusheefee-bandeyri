@@ -19,7 +19,7 @@ const LABEL = "text-[11px] font-medium uppercase tracking-[0.14em] text-muted-fo
 interface ProcurementDialogProps {
   trigger: React.ReactNode;
   /** Existing procurement to edit; omit to start a new one. */
-  procurement?: { id: string; title: string; notes: string | null };
+  procurement?: { id: string; title: string; notes: string | null; isAsset: boolean };
 }
 
 /** Start a procurement (then open it), or rename an existing one. */
@@ -32,11 +32,13 @@ export function ProcurementDialog({ trigger, procurement }: ProcurementDialogPro
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
+  const [isAsset, setIsAsset] = useState(false);
 
   function onOpenChange(next: boolean) {
     if (next) {
       setTitle(procurement?.title ?? "");
       setNotes(procurement?.notes ?? "");
+      setIsAsset(procurement?.isAsset ?? false);
     }
     setOpen(next);
   }
@@ -78,7 +80,7 @@ export function ProcurementDialog({ trigger, procurement }: ProcurementDialogPro
       toast({ title: "Give the procurement a title" });
       return;
     }
-    const payload = { title: title.trim(), notes: notes.trim() || null };
+    const payload = { title: title.trim(), notes: notes.trim() || null, isAsset };
     if (procurement) updateMutation.mutate({ id: procurement.id, ...payload });
     else createMutation.mutate(payload);
   }
@@ -95,8 +97,8 @@ export function ProcurementDialog({ trigger, procurement }: ProcurementDialogPro
             </DialogTitle>
             <DialogDescription className="mt-1 text-sm text-muted-foreground">
               {isEdit
-                ? "Rename it or update its notes."
-                : "Name the purchase, then add its GSR, price evaluation, PVs and any assets."}
+                ? "Rename it, update its notes, or change whether it's an asset purchase."
+                : "Name the purchase, then add its GSR, price evaluation and PVs — and, for an asset, its asset creation forms and register entries."}
             </DialogDescription>
           </div>
           <div className="grid gap-5 px-6 py-6">
@@ -126,6 +128,34 @@ export function ProcurementDialog({ trigger, procurement }: ProcurementDialogPro
                 className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isAsset}
+              onClick={() => setIsAsset((v) => !v)}
+              className={`flex items-start gap-3 rounded-md border px-3.5 py-3 text-left transition ${
+                isAsset ? "border-foreground/40 bg-muted/50" : "hover:bg-muted/30"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`mt-0.5 flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition ${
+                  isAsset ? "bg-foreground" : "bg-muted-foreground/30"
+                }`}
+              >
+                <span
+                  className={`size-4 rounded-full bg-background shadow-sm transition ${
+                    isAsset ? "translate-x-4" : ""
+                  }`}
+                />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">This purchase is an asset</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Adds the asset creation and asset registration stages before payment.
+                </span>
+              </span>
+            </button>
           </div>
           <div className="flex items-center justify-end gap-3 border-t bg-muted/30 px-6 py-4">
             <button

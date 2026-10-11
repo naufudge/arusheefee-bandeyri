@@ -13,6 +13,7 @@ import { glAccountsRouter } from "./glAccounts";
 import { priceEvalRouter } from "./priceEval";
 import { settingsRouter } from "./settings";
 import { procurementRouter } from "./procurement";
+import { assetCreationRouter } from "./assetCreation";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -29,6 +30,7 @@ export const appRouter = router({
   priceEval: priceEvalRouter,
   settings: settingsRouter,
   procurement: procurementRouter,
+  assetCreation: assetCreationRouter,
 });
 
 // Export type router type signature,

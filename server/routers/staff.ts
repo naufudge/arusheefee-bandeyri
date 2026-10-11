@@ -29,6 +29,7 @@ export const staffRouter = router({
           designation: input.designation,
           dhivehiName: input.dhivehiName,
           dhivehiDesignation: input.dhivehiDesignation,
+          idCardNo: input.idCardNo?.toUpperCase() || null,
           ...(input.roleIds && input.roleIds.length > 0
             ? { roles: { connect: input.roleIds.map((id) => ({ id })) } }
             : {}),
@@ -43,7 +44,7 @@ export const staffRouter = router({
   update: permissionProcedure("staff:update")
     .input(updateStaffSchema)
     .mutation(async ({ ctx, input }) => {
-      const { id, roleIds, ...updateData } = input;
+      const { id, roleIds, idCardNo, ...updateData } = input;
 
       const existing = await ctx.prisma.staff.findUnique({ where: { id } });
       if (!existing) {
@@ -57,6 +58,9 @@ export const staffRouter = router({
         where: { id },
         data: {
           ...updateData,
+          ...(idCardNo !== undefined
+            ? { idCardNo: idCardNo.toUpperCase() || null }
+            : {}),
           // If roleIds was provided, REPLACE the staff's role set with
           // exactly these roles (set semantic, not connect/disconnect).
           ...(roleIds !== undefined

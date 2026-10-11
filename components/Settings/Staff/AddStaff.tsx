@@ -40,6 +40,12 @@ const staffFormSchema = z.object({
   designation: z.string().min(3, "Please write a valid designation."),
   dhivehiName: z.string().optional(),
   dhivehiDesignation: z.string().optional(),
+  idCardNo: z
+    .string()
+    .trim()
+    .max(20)
+    .regex(/^[A-Za-z0-9]*$/, "Letters and digits only, e.g. A327030")
+    .optional(),
 });
 
 // RTL Thaana inputs for the Dhivehi name/designation fields (left-aligned).
@@ -80,6 +86,7 @@ const AddStaff: React.FC<AddStaffProps> = ({
       designation: staff?.designation ?? "",
       dhivehiName: staff?.dhivehiName ?? "",
       dhivehiDesignation: staff?.dhivehiDesignation ?? "",
+      idCardNo: staff?.idCardNo ?? "",
     },
   });
 
@@ -95,6 +102,7 @@ const AddStaff: React.FC<AddStaffProps> = ({
         designation: staff?.designation ?? "",
         dhivehiName: staff?.dhivehiName ?? "",
         dhivehiDesignation: staff?.dhivehiDesignation ?? "",
+        idCardNo: staff?.idCardNo ?? "",
       });
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedRoleIds(new Set(staff?.roleIds ?? []));
@@ -149,6 +157,7 @@ const AddStaff: React.FC<AddStaffProps> = ({
         designation: values.designation,
         dhivehiName: values.dhivehiName,
         dhivehiDesignation: values.dhivehiDesignation,
+        idCardNo: values.idCardNo ?? "",
         roleIds,
       });
     } else {
@@ -272,6 +281,26 @@ const AddStaff: React.FC<AddStaffProps> = ({
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="idCardNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                      ID card no. <span className="ml-1 normal-case tracking-normal">(optional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. A327030"
+                        className="h-9 font-mono text-sm uppercase"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
 
               {canManageRoles && (
                 <div className="grid gap-1.5">

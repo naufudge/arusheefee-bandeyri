@@ -73,6 +73,7 @@ const ProcurementRegisterPage = () => {
         p.priceEvaluation?.vendorName ?? "",
         ...p.pvs.flatMap((pv) => [pv.pvNum, pv.vendor]),
         ...p.assets.flatMap((a) => [a.assetNum, a.assetName]),
+        ...p.assetCreations.flatMap((ac) => [...ac.formNums, ac.description]),
       ];
       return haystack.some((text) => text.toLowerCase().includes(q));
     });
@@ -119,7 +120,7 @@ const ProcurementRegisterPage = () => {
           <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Procurement</div>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">Procurements</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Each purchase with its requisition, price evaluation, payments and assets.
+            Each purchase with its requisition, price evaluation, asset forms and payments.
           </p>
         </div>
         {canCreate &&
@@ -213,7 +214,7 @@ const ProcurementRegisterPage = () => {
             <p className="mt-1 text-sm text-muted-foreground">
               {filtersActive
                 ? "Try adjusting or clearing the filters."
-                : "Start one to keep a purchase's GSR, price evaluation, PVs and assets together."}
+                : "Start one to keep a purchase's GSR, price evaluation, asset forms and PVs together."}
             </p>
             {filtersActive ? (
               <button
@@ -236,8 +237,9 @@ const ProcurementRegisterPage = () => {
             const chips = [
               p.gsrForm && `GSR ${p.gsrForm.gsrFormNum}`,
               p.priceEvaluation && `PE ${p.priceEvaluation.evalNum}`,
-              ...p.pvs.map((pv) => `PV ${pv.pvNum}`),
+              ...p.assetCreations.map((ac) => `ACF ${ac.formRange}`),
               p.assets.length ? `${p.assets.length} asset${p.assets.length === 1 ? "" : "s"}` : null,
+              ...p.pvs.map((pv) => `PV ${pv.pvNum}`),
             ].filter((c): c is string => Boolean(c));
             const paid = p.pvs.filter((pv) => pv.status === "POSTED").reduce((s, pv) => s + pv.totalMvr, 0);
             return (
@@ -252,6 +254,11 @@ const ProcurementRegisterPage = () => {
                   </span>
                   <span className="mt-1.5 flex min-w-0 flex-wrap items-center gap-2">
                     <ProcurementStatusPill progress={p.progress} />
+                    {p.isAsset && (
+                      <span className="rounded-full border px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                        Asset
+                      </span>
+                    )}
                     <span className="text-[11px] tabular-nums text-muted-foreground">
                       {format(new Date(p.createdAt), "d MMM yyyy")}
                     </span>

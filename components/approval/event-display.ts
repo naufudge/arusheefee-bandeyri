@@ -9,6 +9,7 @@ import {
   BookCheck,
   UserPen,
   Wallet,
+  DatabaseZap,
 } from "lucide-react";
 import type { ApprovalEventKind } from "@prisma/client";
 
@@ -45,6 +46,11 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   PE_APPROVED: "Approved to spend",
   PE_CALLED_BACK: "Called back to draft",
   PE_REJECTED: "Rejected",
+  AC_SENT: "Requested & sent for authorisation",
+  AC_AUTHORIZED: "Authorised",
+  AC_SAP_UPDATED: "SAP asset master updated",
+  AC_CALLED_BACK: "Called back to draft",
+  AC_REJECTED: "Rejected",
 };
 
 export const KIND_ICON: Record<
@@ -78,6 +84,11 @@ export const KIND_ICON: Record<
   PE_APPROVED: ShieldCheck,
   PE_CALLED_BACK: Undo2,
   PE_REJECTED: XCircle,
+  AC_SENT: Send,
+  AC_AUTHORIZED: ShieldCheck,
+  AC_SAP_UPDATED: DatabaseZap,
+  AC_CALLED_BACK: Undo2,
+  AC_REJECTED: XCircle,
 };
 
 export const KIND_TONE: Record<
@@ -215,6 +226,31 @@ export const KIND_TONE: Record<
     icon: "text-muted-foreground",
   },
   PE_REJECTED: {
+    bg: "bg-red-50 dark:bg-red-900/20",
+    ring: "ring-red-200 dark:ring-red-800/60",
+    icon: "text-red-600 dark:text-red-400",
+  },
+  AC_SENT: {
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    ring: "ring-blue-200 dark:ring-blue-800/60",
+    icon: "text-blue-600 dark:text-blue-400",
+  },
+  AC_AUTHORIZED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  AC_SAP_UPDATED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  AC_CALLED_BACK: {
+    bg: "bg-muted",
+    ring: "ring-border",
+    icon: "text-muted-foreground",
+  },
+  AC_REJECTED: {
     bg: "bg-red-50 dark:bg-red-900/20",
     ring: "ring-red-200 dark:ring-red-800/60",
     icon: "text-red-600 dark:text-red-400",

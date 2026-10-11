@@ -331,6 +331,13 @@ export type ExportableAsset = {
   category: string;
   subcategory: string | null;
   assetType: string | null;
+  /** Set when the entry came from an asset creation form (FA register only). */
+  creation?: {
+    formNum: string;
+    glCode: number;
+    vendor: string | null;
+    usefulLife: number | null;
+  } | null;
 };
 
 function dateCell(asset: ExportableAsset): string | number {
@@ -492,10 +499,11 @@ function splitAssetCode(assetNum: string): {
 /**
  * Build the single-sheet "FA register" workbook. Mirrors the layout of
  * Asset Register 2026.xlsx: one flat "FA register" sheet with a frozen header
- * row. Columns we don't store (Code Number, Serial Number, Finance/GL code,
- * Section, PO number, Vendor, life, remaks, etc.) are left empty so the file
- * is a ready-to-fill template. The caller decides which assets to include
- * (a single year or all).
+ * row. Columns we don't store (Code Number, Serial Number, Finance code,
+ * Section, PO number, remaks, etc.) are left empty so the file is a
+ * ready-to-fill template; GL code, asset creation form no, vendor and life
+ * come from the asset creation form when the entry was made from one. The
+ * caller decides which assets to include (a single year or all).
  */
 export function buildFaRegisterWorkbook(
   assets: ExportableAsset[],
@@ -543,6 +551,12 @@ export function buildFaRegisterWorkbook(
       ? new Date(a.date).getUTCFullYear()
       : "";
     row.getCell(19).value = a.SAPassetNum ?? ""; // Asset Number (SAP asset no.)
+    if (a.creation) {
+      row.getCell(13).value = a.creation.glCode; // GL Code
+      row.getCell(20).value = a.creation.formNum; // Asset Creation form No
+      row.getCell(22).value = a.creation.vendor ?? ""; // Vendor
+      row.getCell(23).value = a.creation.usefulLife ?? ""; // life
+    }
   });
 
   // Narrow for the code-segment columns, wide for the name + location columns.

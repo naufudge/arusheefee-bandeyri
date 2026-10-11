@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { buildFaRegisterWorkbook } from "@/lib/assetWorkbook";
+import { assetClassByCode } from "@/lib/asset-classes";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -30,9 +31,45 @@ export async function GET(request: NextRequest) {
           }
         : {};
 
-    const assets = await prisma.asset.findMany({
+    const rows = await prisma.asset.findMany({
       where,
       orderBy: [{ assetNum: "asc" }],
+      include: {
+        assetCreationForm: {
+          select: {
+            formNum: true,
+            assetCreation: {
+              select: {
+                vendor: true,
+                usefulLifeYears: true,
+                requestedAssetClass: true,
+                assetClass: true,
+                glAccount: { select: { code: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Entries made from an asset creation form carry its GL code, number,
+    // vendor and useful life (the class default when the form left it).
+    const assets = rows.map(({ assetCreationForm: form, ...a }) => {
+      const ac = form?.assetCreation;
+      return {
+        ...a,
+        creation: form && ac
+          ? {
+              formNum: form.formNum,
+              glCode: ac.glAccount.code,
+              vendor: ac.vendor,
+              usefulLife:
+                ac.usefulLifeYears ??
+                assetClassByCode(ac.assetClass ?? ac.requestedAssetClass)?.defaultLife ??
+                null,
+            }
+          : null,
+      };
     });
 
     const workbook = buildFaRegisterWorkbook(assets);

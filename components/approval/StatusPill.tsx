@@ -4,6 +4,7 @@ import type {
   GSRStatus,
   PcReconStatus,
   PriceEvalStatus,
+  AssetCreationStatus,
 } from "@prisma/client";
 
 const PV_STATUS_STYLE: Record<
@@ -206,6 +207,58 @@ export function PriceEvalStatusPill({
   className?: string;
 }) {
   const style = PRICE_EVAL_STATUS_STYLE[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.06em] ${style.classes} ${className ?? ""}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+      {style.label}
+    </span>
+  );
+}
+
+const ASSET_CREATION_STATUS_STYLE: Record<
+  AssetCreationStatus,
+  { label: string; classes: string; dot: string }
+> = {
+  DRAFT: {
+    label: "Draft",
+    classes: "bg-muted text-muted-foreground",
+    dot: "bg-muted-foreground/60",
+  },
+  PENDING_AUTHORIZATION: {
+    label: "Awaiting authorisation",
+    classes: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+    dot: "bg-amber-500",
+  },
+  PENDING_SAP_UPDATE: {
+    label: "Awaiting SAP update",
+    classes: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+    dot: "bg-amber-500",
+  },
+  COMPLETED: {
+    label: "Completed",
+    classes: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+    dot: "bg-emerald-500",
+  },
+  REJECTED: {
+    label: "Rejected",
+    classes: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    dot: "bg-red-500",
+  },
+};
+
+export const assetCreationStatusLabel = (status: AssetCreationStatus) =>
+  ASSET_CREATION_STATUS_STYLE[status].label;
+
+export function AssetCreationStatusPill({
+  status,
+  className,
+}: {
+  status: AssetCreationStatus;
+  className?: string;
+}) {
+  const style = ASSET_CREATION_STATUS_STYLE[status];
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.06em] ${style.classes} ${className ?? ""}`}
