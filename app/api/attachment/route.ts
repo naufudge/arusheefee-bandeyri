@@ -10,7 +10,7 @@ import {
 // Reference types governed by the generic `attachment:*` permissions.
 // Other reference types (staff_signature, etc.) are owned by their own
 // routes (e.g. `/api/profile/signature`) and don't pass through here.
-const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash"]);
+const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash", "price_evaluation"]);
 
 export async function POST(request: NextRequest) {
   const session = await auth();

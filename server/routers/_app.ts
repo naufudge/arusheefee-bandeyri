@@ -10,6 +10,8 @@ import { assetRouter } from "./asset";
 import { gsrRouter } from "./gsr";
 import { pcReconRouter } from "./pcRecon";
 import { glAccountsRouter } from "./glAccounts";
+import { priceEvalRouter } from "./priceEval";
+import { settingsRouter } from "./settings";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -23,6 +25,8 @@ export const appRouter = router({
   gsr: gsrRouter,
   pcRecon: pcReconRouter,
   glAccounts: glAccountsRouter,
+  priceEval: priceEvalRouter,
+  settings: settingsRouter,
 });
 
 // Export type router type signature,

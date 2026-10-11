@@ -1,4 +1,4 @@
-import { router, permissionProcedure } from "../trpc";
+import { router, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import axios from "axios";
@@ -116,10 +116,10 @@ function rateForMonth(observations: Observation[], date: Date): number | undefin
 
 export const exchangeRatesRouter = router({
   // Rates in MVR per one unit of each foreign currency, for the month of
-  // the given date (defaults to today). Used by PvForm to fill in the rate
-  // when the currency or the PV date changes; gating behind pv:read keeps
-  // it consistent with anyone who can see PVs.
-  get: permissionProcedure("pv:read")
+  // the given date (defaults to today). Used by the PV and price evaluation
+  // forms to fill in a rate when the currency or date changes. MMA's rates
+  // are public figures, so any signed-in user may read them.
+  get: protectedProcedure
     .input(z.object({ date: z.coerce.date().optional() }).optional())
     .query(async ({ input }) => {
       const series = await getSeries();

@@ -63,6 +63,13 @@ model Staff {
   authorizedPcRecons PcReconciliation[] @relation("PcReconAuthorizedBy")
   rejectedPcRecons   PcReconciliation[] @relation("PcReconRejectedBy")
 
+  // Price evaluation role assignments
+  preparedPriceEvals      PriceEvaluation[] @relation("PriceEvalPreparedBy")
+  budgetCheckedPriceEvals PriceEvaluation[] @relation("PriceEvalBudgetCheckedBy")
+  checkedPriceEvals       PriceEvaluation[] @relation("PriceEvalCheckedBy")
+  approvedPriceEvals      PriceEvaluation[] @relation("PriceEvalApprovedBy")
+  rejectedPriceEvals      PriceEvaluation[] @relation("PriceEvalRejectedBy")
+
   // Approval timeline: every event this staff member triggered
   // (sent/verified/authorised/rejected) across PVs and petty cash.
   approvalEvents ApprovalEvent[] @relation("ApprovalActor")
@@ -210,8 +217,9 @@ model GlAccount {
   // cash GL picker and enforced when a petty cash record is saved).
   pettyCashAllowed Boolean @default(false)
 
-  glDetails GLDetail[]
-  pettyCash PettyCash[]
+  glDetails        GLDetail[]
+  pettyCash        PettyCash[]
+  priceEvaluations PriceEvaluation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -512,6 +520,127 @@ model PcReconciliationItem {
   @@map("pc_reconciliation_items")
 }
 
+// ----- Price evaluation (އަގުބަލާ ފޯމް) -----
+// Procurement stage comparing three vendors' quotes for the same items.
+// Signed in sequence: prepared (sent) → budget checked → checked → approved.
+// Totals are computed from items × quotes (lib/price-eval.ts), not stored.
+model PriceEvaluation {
+  id      String   @id @default(cuid())
+  evalNum String   @unique // "YYYY-N", e.g. "2026-35" — suggested, editable
+  date    DateTime
+  section String // requesting section (Dhivehi)
+  method  String // evaluation method (Dhivehi), e.g. "ކޯޓޭޝަން"
+
+  // Budget check. The balance and availability are entered by the budget
+  // checker when they sign.
+  glAccountId     Int
+  glAccount       GlAccount @relation(fields: [glAccountId], references: [id], onDelete: Restrict)
+  budgetBalance   Float?
+  budgetAvailable Boolean?
+
+  // GST % applied to vendors that charge it. Copied from the global setting
+  // while the evaluation is a draft; frozen once it's sent.
+  gstRate Float
+
+  // The chosen vendor (its position, 0–2) and why.
+  selectedVendor  Int?
+  selectionReason String?
+
+  // Signatories
+  preparedById      String?
+  budgetCheckedById String?
+  checkedById       String?
+  approvedById      String?
+
+  preparedBy      Staff? @relation("PriceEvalPreparedBy", fields: [preparedById], references: [id])
+  budgetCheckedBy Staff? @relation("PriceEvalBudgetCheckedBy", fields: [budgetCheckedById], references: [id])
+  checkedBy       Staff? @relation("PriceEvalCheckedBy", fields: [checkedById], references: [id])
+  approvedBy      Staff? @relation("PriceEvalApprovedBy", fields: [approvedById], references: [id])
+
+  // ----- Approval workflow -----
+  status           PriceEvalStatus @default(DRAFT)
+  sentAt           DateTime?
+  budgetCheckedAt  DateTime?
+  checkedAt        DateTime?
+  approvedAt       DateTime?
+  rejectedAt       DateTime?
+  rejectedById     String?
+  rejectionComment String?
+
+  rejectedBy     Staff?          @relation("PriceEvalRejectedBy", fields: [rejectedById], references: [id])
+  approvalEvents ApprovalEvent[]
+
+  vendors PriceEvalVendor[]
+  items   PriceEvalItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([glAccountId])
+  @@map("price_evaluations")
+}
+
+// One of the three vendors compared. A quote in a foreign currency is
+// converted to MVR with `exchangeRate` (MVR per unit).
+model PriceEvalVendor {
+  id           String  @id @default(cuid())
+  position     Int // 0–2, left-to-right on the form
+  name         String
+  currency     String  @default("MVR")
+  exchangeRate Float   @default(1)
+  chargesGst   Boolean @default(true)
+  // Discount the vendor offers on their subtotal, as a %; null = none.
+  // Taken off before GST.
+  discountPercent Float?
+
+  evaluationId String
+  evaluation   PriceEvaluation  @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  quotes       PriceEvalQuote[]
+
+  @@unique([evaluationId, position])
+  @@map("price_eval_vendors")
+}
+
+model PriceEvalItem {
+  id       String @id @default(cuid())
+  position Int
+  name     String // English or Dhivehi
+  qty      Float
+
+  evaluationId String
+  evaluation   PriceEvaluation  @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  quotes       PriceEvalQuote[]
+
+  @@index([evaluationId])
+  @@map("price_eval_items")
+}
+
+// A vendor's unit price for one item, in the vendor's currency. No row
+// means the vendor didn't quote that item.
+model PriceEvalQuote {
+  id   String @id @default(cuid())
+  rate Float
+
+  itemId   String
+  item     PriceEvalItem   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  vendorId String
+  vendor   PriceEvalVendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, vendorId])
+  @@index([vendorId])
+  @@map("price_eval_quotes")
+}
+
+// App-wide settings as key/value pairs, e.g. "gst_rate" = "8".
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}
+
 // ----- Asset register -----
 // Flat registry row, one per physical asset (plain CRUD — no approval
 // workflow). `assetNum` is the human-readable key (e.g. 433-18-02-15-79-01)
@@ -600,6 +729,15 @@ enum PcReconStatus {
   REJECTED
 }
 
+enum PriceEvalStatus {
+  DRAFT
+  PENDING_BUDGET_CHECK
+  PENDING_CHECK
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
 // Discriminator for ApprovalEvent rows. PV events are sequential stages;
 // PC events are per-role since PC approvals are out-of-order.
 enum ApprovalEventKind {
@@ -624,6 +762,12 @@ enum ApprovalEventKind {
   PCRECON_AUTHORIZED
   PCRECON_CALLED_BACK
   PCRECON_REJECTED
+  PE_SENT
+  PE_BUDGET_CHECKED
+  PE_CHECKED
+  PE_APPROVED
+  PE_CALLED_BACK
+  PE_REJECTED
 }
 
 // Polymorphic timeline table. Exactly one of `pvId` / `pettyCashId` is
@@ -637,6 +781,7 @@ model ApprovalEvent {
   pettyCashId      String?
   gsrFormId        String?
   pcReconciliationId String?
+  priceEvaluationId  String?
   pettyCashRole    String?
   actorId          String
   comment          String?
@@ -646,11 +791,13 @@ model ApprovalEvent {
   pettyCash        PettyCash?        @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
   gsrForm          GSRForm?          @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
   pcReconciliation PcReconciliation? @relation(fields: [pcReconciliationId], references: [id], onDelete: Cascade)
+  priceEvaluation  PriceEvaluation?  @relation(fields: [priceEvaluationId], references: [id], onDelete: Cascade)
   actor            Staff             @relation("ApprovalActor", fields: [actorId], references: [id])
 
   @@index([pvId, createdAt])
   @@index([pettyCashId, createdAt])
   @@index([gsrFormId, createdAt])
   @@index([pcReconciliationId, createdAt])
+  @@index([priceEvaluationId, createdAt])
   @@map("approval_events")
 }

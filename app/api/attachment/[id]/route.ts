@@ -5,7 +5,7 @@ import { hasPermission } from "@/lib/permissions";
 import { deleteFile, getFileStream } from "@/lib/sharepoint";
 
 // Reference types governed by the generic `attachment:*` permissions.
-const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash"]);
+const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash", "price_evaluation"]);
 
 export async function GET(
   _request: NextRequest,

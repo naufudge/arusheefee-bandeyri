@@ -8,6 +8,7 @@ import {
   RotateCcw,
   BookCheck,
   UserPen,
+  Wallet,
 } from "lucide-react";
 import type { ApprovalEventKind } from "@prisma/client";
 
@@ -38,6 +39,12 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   PCRECON_AUTHORIZED: "Authorized",
   PCRECON_CALLED_BACK: "Called back to draft",
   PCRECON_REJECTED: "Rejected",
+  PE_SENT: "Prepared & sent for budget check",
+  PE_BUDGET_CHECKED: "Budget checked",
+  PE_CHECKED: "Checked",
+  PE_APPROVED: "Approved to spend",
+  PE_CALLED_BACK: "Called back to draft",
+  PE_REJECTED: "Rejected",
 };
 
 export const KIND_ICON: Record<
@@ -65,6 +72,12 @@ export const KIND_ICON: Record<
   PCRECON_AUTHORIZED: ShieldCheck,
   PCRECON_CALLED_BACK: Undo2,
   PCRECON_REJECTED: XCircle,
+  PE_SENT: Send,
+  PE_BUDGET_CHECKED: Wallet,
+  PE_CHECKED: CheckCircle2,
+  PE_APPROVED: ShieldCheck,
+  PE_CALLED_BACK: Undo2,
+  PE_REJECTED: XCircle,
 };
 
 export const KIND_TONE: Record<
@@ -172,6 +185,36 @@ export const KIND_TONE: Record<
     icon: "text-muted-foreground",
   },
   PCRECON_REJECTED: {
+    bg: "bg-red-50 dark:bg-red-900/20",
+    ring: "ring-red-200 dark:ring-red-800/60",
+    icon: "text-red-600 dark:text-red-400",
+  },
+  PE_SENT: {
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    ring: "ring-blue-200 dark:ring-blue-800/60",
+    icon: "text-blue-600 dark:text-blue-400",
+  },
+  PE_BUDGET_CHECKED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  PE_CHECKED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  PE_APPROVED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  PE_CALLED_BACK: {
+    bg: "bg-muted",
+    ring: "ring-border",
+    icon: "text-muted-foreground",
+  },
+  PE_REJECTED: {
     bg: "bg-red-50 dark:bg-red-900/20",
     ring: "ring-red-200 dark:ring-red-800/60",
     icon: "text-red-600 dark:text-red-400",

@@ -24,7 +24,7 @@ export interface AttachmentQueueHandle {
    * keeps the parent created but should toast the partial failure).
    */
   flush: (
-    referenceType: "pv" | "petty_cash",
+    referenceType: "pv" | "petty_cash" | "price_evaluation",
     referenceId: string,
   ) => Promise<boolean>;
   /** True when there's nothing to upload. */

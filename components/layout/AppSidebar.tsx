@@ -20,6 +20,9 @@ import {
   FilePlus,
   ClipboardCheck,
   FilePlus2,
+  Scale,
+  CirclePlus,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
@@ -64,6 +67,8 @@ type NavItem = {
   url: string;
   icon: React.ComponentType<{ className?: string }>;
   requires?: Permission;
+  /** Visible when the user holds any one of these (instead of `requires`). */
+  requiresAny?: Permission[];
   items?: NavSubItem[];
   /**
    * Renders a numeric badge in the row driven by a tRPC query. Kept as
@@ -87,9 +92,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         title: "Pending Approvals",
         url: "/pending-approvals",
         icon: Inbox,
-        // Soft gate: page itself uses `useHasAnyPermission` to also
-        // admit `pettycash:read` users — see /pending-approvals/page.tsx.
-        requires: PERMISSIONS.PV_READ,
+        // Same gate as the page itself (/pending-approvals/page.tsx).
+        requiresAny: [
+          PERMISSIONS.PV_READ,
+          PERMISSIONS.PETTYCASH_READ,
+          PERMISSIONS.PRICEEVAL_READ,
+        ],
         badge: "pending-approvals",
       },
     ],
@@ -175,6 +183,23 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Procurement",
+    items: [
+      {
+        title: "Price Evaluations",
+        url: "/price-evaluation-register",
+        icon: Scale,
+        requires: PERMISSIONS.PRICEEVAL_READ,
+      },
+      {
+        title: "New Price Evaluation",
+        url: "/price-evaluation/create",
+        icon: CirclePlus,
+        requires: PERMISSIONS.PRICEEVAL_CREATE,
+      },
+    ],
+  },
+  {
     label: "Configure",
     items: [
       {
@@ -205,6 +230,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
             url: "/settings/gl-accounts",
             icon: ListTree,
             requires: PERMISSIONS.GLACCOUNT_READ,
+          },
+          {
+            title: "General",
+            url: "/settings/general",
+            icon: SlidersHorizontal,
+            requires: PERMISSIONS.SETTINGS_MANAGE,
           },
         ],
       },
@@ -252,6 +283,11 @@ export function AppSidebar() {
             );
             if (visibleSub.length === 0) return null;
             return { ...item, items: visibleSub };
+          }
+          if (item.requiresAny) {
+            return item.requiresAny.some((p) => userPermissions.includes(p))
+              ? item
+              : null;
           }
           return hasPermission(item.requires) ? item : null;
         })

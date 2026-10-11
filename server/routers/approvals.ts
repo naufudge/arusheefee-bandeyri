@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import type { PCRole } from "../lib/approval";
+import { computeComparison } from "@/lib/price-eval";
 
 // The "did the user act on this" history filter — explicitly excludes
 // preparer / edit events (SENT_FOR_VERIFICATION, CALLED_BACK,
@@ -13,6 +14,10 @@ const HISTORY_KINDS = [
   "REJECTED",
   "PC_ROLE_APPROVED",
   "PC_ROLE_REJECTED",
+  "PE_BUDGET_CHECKED",
+  "PE_CHECKED",
+  "PE_APPROVED",
+  "PE_REJECTED",
 ] as const;
 
 // "Currently waiting on this user at the current stage" — strict reading
@@ -39,6 +44,17 @@ function pendingPcRoleWhere(userId: string) {
   };
 }
 
+// Price evaluations awaiting this user's signature at the current stage.
+function pendingPriceEvalWhere(userId: string) {
+  return {
+    OR: [
+      { status: "PENDING_BUDGET_CHECK" as const, budgetCheckedById: userId },
+      { status: "PENDING_CHECK" as const, checkedById: userId },
+      { status: "PENDING_APPROVAL" as const, approvedById: userId },
+    ],
+  };
+}
+
 // Which of the five back-relations on PettyCashStaff is set tells us the
 // role name. Exactly one is non-null per row (enforced by the unique FKs
 // on the PettyCash side).
@@ -59,21 +75,22 @@ function derivePcRole(row: {
 
 export const approvalsRouter = router({
   // Tiny query for the sidebar badge. No record-level details — just a
-  // sum across the two pending sources.
+  // sum across the pending sources.
   pendingCount: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-    const [pvCount, pcCount] = await Promise.all([
+    const [pvCount, pcCount, peCount] = await Promise.all([
       ctx.prisma.pV.count({ where: pendingPvWhere(userId) }),
       ctx.prisma.pettyCashStaff.count({ where: pendingPcRoleWhere(userId) }),
+      ctx.prisma.priceEvaluation.count({ where: pendingPriceEvalWhere(userId) }),
     ]);
-    return pvCount + pcCount;
+    return pvCount + pcCount + peCount;
   }),
 
   // Full data for the Pending tab.
   pending: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [pvs, pcRows] = await Promise.all([
+    const [pvs, pcRows, peRows] = await Promise.all([
       ctx.prisma.pV.findMany({
         where: pendingPvWhere(userId),
         include: {
@@ -96,7 +113,43 @@ export const approvalsRouter = router({
           balanceCollectedFor: true,
         },
       }),
+      ctx.prisma.priceEvaluation.findMany({
+        where: pendingPriceEvalWhere(userId),
+        include: {
+          preparedBy: { select: { id: true, name: true, designation: true } },
+          vendors: { orderBy: { position: "asc" } },
+          items: { orderBy: { position: "asc" }, include: { quotes: true } },
+        },
+        orderBy: { updatedAt: "asc" },
+      }),
     ]);
+
+    // A compact card per evaluation: what's being bought, from whom, for how
+    // much (MVR, including GST where charged).
+    const priceEvals = peRows.map((pe) => {
+      const positionOf = new Map(pe.vendors.map((v) => [v.id, v.position]));
+      const items = pe.items.map((it) => {
+        const rates: (number | null)[] = pe.vendors.map(() => null);
+        for (const q of it.quotes) {
+          const v = positionOf.get(q.vendorId);
+          if (v !== undefined) rates[v] = q.rate;
+        }
+        return { qty: it.qty, rates };
+      });
+      const comparison = computeComparison(items, pe.vendors, pe.gstRate);
+      const chosen = pe.selectedVendor;
+      return {
+        evalNum: pe.evalNum,
+        section: pe.section,
+        date: pe.date,
+        status: pe.status,
+        updatedAt: pe.updatedAt,
+        preparedBy: pe.preparedBy,
+        itemsSummary: pe.items.map((it) => it.name).join(", "),
+        vendorName: chosen != null ? (pe.vendors[chosen]?.name ?? null) : null,
+        total: chosen != null ? (comparison.vendors[chosen]?.total ?? null) : null,
+      };
+    });
 
     // Reshape PC rows into a flat list of { pettyCash, role, row }. Drop
     // any orphan rows (back-relations all null) — shouldn't happen given
@@ -134,7 +187,7 @@ export const approvalsRouter = router({
           new Date(b.pettyCash.date).getTime(),
       );
 
-    return { pvs, pcRoles };
+    return { pvs, pcRoles, priceEvals };
   }),
 
   // Reverse-chronological list of approve/reject events authored by
@@ -167,6 +220,14 @@ export const approvalsRouter = router({
               pettyCashNum: true,
               sectionUnit: true,
               formNum: true,
+            },
+          },
+          priceEvaluation: {
+            select: {
+              id: true,
+              evalNum: true,
+              section: true,
+              status: true,
             },
           },
         },

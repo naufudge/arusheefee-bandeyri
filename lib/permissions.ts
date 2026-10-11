@@ -82,6 +82,17 @@ export const PERMISSIONS = {
   // still required as the base.
   PCRECON_EDIT_LOCKED: "pcrecon:edit_locked",
 
+  // ----- Price Evaluation -----
+  // Procurement quote comparison with a sequential sign-off. Send /
+  // budget-check / check / approve are assignee-gated, not permission-gated.
+  PRICEEVAL_READ: "priceeval:read",
+  PRICEEVAL_CREATE: "priceeval:create",
+  PRICEEVAL_UPDATE: "priceeval:update",
+  PRICEEVAL_DELETE: "priceeval:delete",
+  // Override: edit an evaluation after it has been sent. `priceeval:update`
+  // is still required as the base.
+  PRICEEVAL_EDIT_LOCKED: "priceeval:edit_locked",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -89,6 +100,9 @@ export const PERMISSIONS = {
   STAFF_SYNC: "staff:sync",
 
   ROLES_MANAGE: "roles:manage",
+
+  // App-wide settings (Settings → General), e.g. the GST rate.
+  SETTINGS_MANAGE: "settings:manage",
 
   // ----- GL accounts (chart of accounts) -----
   // Gate Settings → GL Accounts and its writes. The account list itself is
@@ -346,6 +360,39 @@ export const PERMISSION_GROUPS: {
     ],
   },
   {
+    label: "Price Evaluation",
+    permissions: [
+      {
+        key: PERMISSIONS.PRICEEVAL_READ,
+        label: "View price evaluations",
+        description:
+          "Browse the price evaluation register, view evaluations and download their PDFs.",
+      },
+      {
+        key: PERMISSIONS.PRICEEVAL_CREATE,
+        label: "Create price evaluation",
+        description: "Start a new price evaluation comparing vendor quotes.",
+      },
+      {
+        key: PERMISSIONS.PRICEEVAL_UPDATE,
+        label: "Edit price evaluation",
+        description:
+          "Modify a draft price evaluation, and call back one that has been sent.",
+      },
+      {
+        key: PERMISSIONS.PRICEEVAL_DELETE,
+        label: "Delete price evaluation",
+        description: "Remove a price evaluation permanently.",
+      },
+      {
+        key: PERMISSIONS.PRICEEVAL_EDIT_LOCKED,
+        label: "Edit locked price evaluation",
+        description:
+          "Override the workflow lock and edit an evaluation that has been sent for signing or further. Requires \"Edit price evaluation\" as well.",
+      },
+    ],
+  },
+  {
     label: "Staff",
     permissions: [
       {
@@ -383,6 +430,17 @@ export const PERMISSION_GROUPS: {
         label: "Manage roles",
         description:
           "Create, edit, and delete roles, and assign them to staff.",
+      },
+    ],
+  },
+  {
+    label: "General Settings",
+    permissions: [
+      {
+        key: PERMISSIONS.SETTINGS_MANAGE,
+        label: "Manage general settings",
+        description:
+          "Open Settings → General and change app-wide values such as the GST rate.",
       },
     ],
   },

@@ -29,7 +29,7 @@ type Attachment = {
 };
 
 interface AttachmentSectionProps {
-  referenceType: "pv" | "petty_cash";
+  referenceType: "pv" | "petty_cash" | "price_evaluation";
   referenceId: string;
   /** If false, the upload widget is hidden (e.g. no read permission). */
   canAdd?: boolean;
