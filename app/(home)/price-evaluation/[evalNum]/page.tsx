@@ -25,6 +25,7 @@ import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
 import { PriceEvalStatusPill } from "@/components/approval/StatusPill";
+import { ProcurementChip } from "@/components/procurement/ProcurementChip";
 import { SignatoryCard } from "@/components/approval/SignatoryCard";
 import { ApprovalTimeline } from "@/components/approval/ApprovalTimeline";
 import { PriceEvalActionBar } from "@/components/approval/PriceEvalActionBar";
@@ -144,6 +145,7 @@ const PriceEvaluationDetailPage = ({ params }: { params: Promise<{ evalNum: stri
         {pe && (
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:mt-4 sm:gap-x-5">
             <PriceEvalStatusPill status={pe.status} />
+            <ProcurementChip procurement={pe.procurement} />
             <span className="tabular-nums text-foreground">{format(new Date(pe.date), "d MMM yyyy")}</span>
             <span dir="rtl" className="font-faruma text-[13px] text-foreground">{pe.section}</span>
             <span className="tabular-nums">

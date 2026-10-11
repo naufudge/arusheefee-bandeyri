@@ -22,6 +22,7 @@ import {
   FilePlus2,
   Scale,
   CirclePlus,
+  ShoppingBag,
   SlidersHorizontal,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
@@ -185,6 +186,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Procurement",
     items: [
+      {
+        title: "Procurements",
+        url: "/procurement-register",
+        icon: ShoppingBag,
+        requires: PERMISSIONS.PROCUREMENT_READ,
+      },
       {
         title: "Price Evaluations",
         url: "/price-evaluation-register",

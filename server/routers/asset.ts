@@ -1,5 +1,6 @@
 import { router, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { assertProcurementSlot, procurementBackLink } from "../lib/procurement";
 import {
   createAssetSchema,
   updateAssetSchema,
@@ -59,6 +60,7 @@ export const assetRouter = router({
     .query(async ({ ctx, input }) => {
       const asset = await ctx.prisma.asset.findUnique({
         where: { assetNum: input.assetNum },
+        include: { procurement: procurementBackLink },
       });
       if (!asset) {
         throw new TRPCError({
@@ -81,7 +83,11 @@ export const assetRouter = router({
           message: `Asset ${input.assetNum} already exists`,
         });
       }
-      return ctx.prisma.asset.create({ data: input });
+      const { procurementId, ...data } = input;
+      await assertProcurementSlot(ctx.prisma, procurementId, "asset", ctx.session.permissions);
+      return ctx.prisma.asset.create({
+        data: { ...data, procurementId: procurementId ?? null },
+      });
     }),
 
   // Update by assetNum (the slug is immutable). No nested records, so a

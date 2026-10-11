@@ -29,6 +29,8 @@ type AssetRecord = any;
 
 interface AssetFormProps {
   asset?: AssetRecord;
+  /** Set when opened from a procurement: the new record joins it. */
+  procurementId?: string;
 }
 
 function buildDefaults(asset?: AssetRecord): AssetValues {
@@ -114,7 +116,7 @@ const Section: React.FC<{
   </section>
 );
 
-const AssetForm: React.FC<AssetFormProps> = ({ asset }) => {
+const AssetForm: React.FC<AssetFormProps> = ({ asset, procurementId }) => {
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -135,7 +137,11 @@ const AssetForm: React.FC<AssetFormProps> = ({ asset }) => {
       onSuccess: (data) => {
         toast({ title: "Success", description: "Asset created." });
         invalidate();
-        router.push(`/asset/${encodeURIComponent(data.assetNum)}`);
+        router.push(
+          procurementId
+            ? `/procurement/${procurementId}`
+            : `/asset/${encodeURIComponent(data.assetNum)}`,
+        );
       },
       onError: (error) => {
         toast({
@@ -205,7 +211,7 @@ const AssetForm: React.FC<AssetFormProps> = ({ asset }) => {
     if (isEdit) {
       updateMutation.mutate(payload);
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate({ ...payload, procurementId: procurementId ?? null });
     }
   };
 

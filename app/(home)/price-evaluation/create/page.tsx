@@ -1,15 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { PriceEvalForm } from "@/components/price-evaluation/PriceEvalForm";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { ProcurementContextBanner } from "@/components/procurement/ProcurementChip";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 
-const CreatePriceEvaluation = () => {
+const CreatePriceEvaluation = ({
+  searchParams,
+}: {
+  searchParams: Promise<{ procurementId?: string }>;
+}) => {
+  // Opened from a procurement's "Create …" button.
+  const { procurementId } = use(searchParams);
   const router = useRouter();
   const hasAccess = useHasPermission(PERMISSIONS.PRICEEVAL_CREATE);
 
@@ -46,7 +53,8 @@ const CreatePriceEvaluation = () => {
       </header>
 
       <div className="mx-auto mt-8 max-w-6xl pb-16">
-        <PriceEvalForm />
+        <ProcurementContextBanner procurementId={procurementId} />
+        <PriceEvalForm procurementId={procurementId} />
       </div>
     </div>
   );

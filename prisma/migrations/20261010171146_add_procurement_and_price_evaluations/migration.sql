@@ -1,7 +1,14 @@
--- Price evaluation module (އަގުބަލާ ފޯމް): evaluations, their three vendors
--- (each with its own currency, GST on by default, and an optional discount %),
--- items and per-vendor quotes; approval-timeline hooks; and a key/value
--- app_settings table seeded with the global GST rate.
+-- Procurement & price evaluation.
+--
+-- Price evaluation (އަގުބަލާ ފޯމް): evaluations, their three vendors (each with
+-- its own currency, GST on by default, and an optional discount %), items and
+-- per-vendor quotes; approval-timeline hooks; and a key/value app_settings
+-- table seeded with the global GST rate.
+--
+-- Procurements: a parent record grouping one purchase's documents. GSR forms,
+-- price evaluations (one each per procurement), PVs and assets (any number)
+-- link to it through a nullable procurementId; deleting a procurement unlinks
+-- them (SET NULL) rather than deleting them.
 
 -- CreateEnum
 CREATE TYPE "PriceEvalStatus" AS ENUM ('DRAFT', 'PENDING_BUDGET_CHECK', 'PENDING_CHECK', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED');
@@ -157,6 +164,58 @@ ALTER TABLE "price_eval_quotes" ADD CONSTRAINT "price_eval_quotes_vendorId_fkey"
 ALTER TABLE "approval_events" ADD CONSTRAINT "approval_events_priceEvaluationId_fkey" FOREIGN KEY ("priceEvaluationId") REFERENCES "price_evaluations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 
+-- ----- Procurements -----
+-- AlterTable
+ALTER TABLE "assets" ADD COLUMN     "procurementId" TEXT;
+
+-- AlterTable
+ALTER TABLE "gsr_forms" ADD COLUMN     "procurementId" TEXT;
+
+-- AlterTable
+ALTER TABLE "price_evaluations" ADD COLUMN     "procurementId" TEXT;
+
+-- AlterTable
+ALTER TABLE "pvs" ADD COLUMN     "procurementId" TEXT;
+
+-- CreateTable
+CREATE TABLE "procurements" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "notes" TEXT,
+    "createdById" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "procurements_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "assets_procurementId_idx" ON "assets"("procurementId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "gsr_forms_procurementId_key" ON "gsr_forms"("procurementId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "price_evaluations_procurementId_key" ON "price_evaluations"("procurementId");
+
+-- CreateIndex
+CREATE INDEX "pvs_procurementId_idx" ON "pvs"("procurementId");
+
+-- AddForeignKey
+ALTER TABLE "pvs" ADD CONSTRAINT "pvs_procurementId_fkey" FOREIGN KEY ("procurementId") REFERENCES "procurements"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "gsr_forms" ADD CONSTRAINT "gsr_forms_procurementId_fkey" FOREIGN KEY ("procurementId") REFERENCES "procurements"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "price_evaluations" ADD CONSTRAINT "price_evaluations_procurementId_fkey" FOREIGN KEY ("procurementId") REFERENCES "procurements"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assets" ADD CONSTRAINT "assets_procurementId_fkey" FOREIGN KEY ("procurementId") REFERENCES "procurements"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "procurements" ADD CONSTRAINT "procurements_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- Global GST rate (%), managed in Settings → General.
 INSERT INTO "app_settings" ("key", "value", "updatedAt") VALUES ('gst_rate', '8', CURRENT_TIMESTAMP)
 ON CONFLICT ("key") DO NOTHING;
@@ -167,7 +226,9 @@ UPDATE "roles"
 SET "permissions" = "permissions" || ARRAY(
       SELECT p FROM unnest(ARRAY[
         'priceeval:read', 'priceeval:create', 'priceeval:update',
-        'priceeval:delete', 'priceeval:edit_locked', 'settings:manage'
+        'priceeval:delete', 'priceeval:edit_locked', 'settings:manage',
+        'procurement:read', 'procurement:create', 'procurement:update',
+        'procurement:delete'
       ]::text[]) AS p
       WHERE NOT (p = ANY ("roles"."permissions"))
     ),

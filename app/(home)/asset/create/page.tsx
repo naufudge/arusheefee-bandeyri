@@ -1,15 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import AssetForm from "@/components/asset/AssetForm";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { ProcurementContextBanner } from "@/components/procurement/ProcurementChip";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 
-const CreateAsset = () => {
+const CreateAsset = ({
+  searchParams,
+}: {
+  searchParams: Promise<{ procurementId?: string }>;
+}) => {
+  // Opened from a procurement's "Create …" button.
+  const { procurementId } = use(searchParams);
   const router = useRouter();
   const hasAccess = useHasPermission(PERMISSIONS.ASSET_CREATE);
 
@@ -52,7 +59,8 @@ const CreateAsset = () => {
 
       {/* Body */}
       <div className="mx-auto mt-8 max-w-3xl pb-16">
-        <AssetForm />
+        <ProcurementContextBanner procurementId={procurementId} />
+        <AssetForm procurementId={procurementId} />
       </div>
     </div>
   );

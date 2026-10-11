@@ -70,6 +70,9 @@ model Staff {
   approvedPriceEvals      PriceEvaluation[] @relation("PriceEvalApprovedBy")
   rejectedPriceEvals      PriceEvaluation[] @relation("PriceEvalRejectedBy")
 
+  // Procurements this staff member started
+  createdProcurements Procurement[] @relation("ProcurementCreatedBy")
+
   // Approval timeline: every event this staff member triggered
   // (sent/verified/authorised/rejected) across PVs and petty cash.
   approvalEvents ApprovalEvent[] @relation("ApprovalActor")
@@ -171,10 +174,16 @@ model PV {
   // Invoice relation (one-to-many)
   invoices Invoice[]
 
+  // The procurement this payment belongs to, if any (a procurement can
+  // have several PVs).
+  procurementId String?
+  procurement   Procurement? @relation(fields: [procurementId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
+  @@index([procurementId])
   @@map("pvs")
 }
 
@@ -428,6 +437,10 @@ model GSRForm {
 
   items GSRItem[]
 
+  // The procurement this requisition starts, if any (one GSR per procurement).
+  procurementId String?      @unique
+  procurement   Procurement? @relation(fields: [procurementId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -573,6 +586,10 @@ model PriceEvaluation {
   vendors PriceEvalVendor[]
   items   PriceEvalItem[]
 
+  // The procurement this evaluation belongs to, if any (one per procurement).
+  procurementId String?      @unique
+  procurement   Procurement? @relation(fields: [procurementId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -675,13 +692,44 @@ model Asset {
   subcategory String? // taxonomy subcategory; the leaf for type-less subcategories
   assetType   String? // Excel sheet name / leaf type; null when the subcategory has no types
 
+  // The procurement that bought this asset, if any.
+  procurementId String?
+  procurement   Procurement? @relation(fields: [procurementId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([assetType])
   @@index([category])
   @@index([subcategory])
+  @@index([procurementId])
   @@map("assets")
+}
+
+// ----- Procurement -----
+// Groups the documents of one purchase: its requisition (GSR), price
+// evaluation, payment vouchers and, when it buys an asset, the asset
+// register entries. Documents link here through their own nullable
+// `procurementId`, so every module still works on its own; deleting a
+// procurement unlinks its documents rather than deleting them. Status is
+// derived from the documents (lib/procurement.ts), not stored.
+model Procurement {
+  id    String  @id @default(cuid())
+  title String // e.g. "Printer Servicing"
+  notes String?
+
+  createdById String?
+  createdBy   Staff?  @relation("ProcurementCreatedBy", fields: [createdById], references: [id])
+
+  gsrForm         GSRForm?
+  priceEvaluation PriceEvaluation?
+  pvs             PV[]
+  assets          Asset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("procurements")
 }
 
 // Whether an Asset's `date` was recorded as a bare year or a full date.

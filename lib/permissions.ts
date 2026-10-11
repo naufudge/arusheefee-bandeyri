@@ -82,6 +82,14 @@ export const PERMISSIONS = {
   // still required as the base.
   PCRECON_EDIT_LOCKED: "pcrecon:edit_locked",
 
+  // ----- Procurement -----
+  // A parent record grouping one purchase's GSR, price evaluation, PVs and
+  // assets. `procurement:update` also covers linking / unlinking documents.
+  PROCUREMENT_READ: "procurement:read",
+  PROCUREMENT_CREATE: "procurement:create",
+  PROCUREMENT_UPDATE: "procurement:update",
+  PROCUREMENT_DELETE: "procurement:delete",
+
   // ----- Price Evaluation -----
   // Procurement quote comparison with a sequential sign-off. Send /
   // budget-check / check / approve are assignee-gated, not permission-gated.
@@ -356,6 +364,34 @@ export const PERMISSION_GROUPS: {
         label: "Edit locked reconciliation report",
         description:
           "Override the workflow lock and edit a report that has been sent for approval or further. Requires \"Edit reconciliation report\" as well.",
+      },
+    ],
+  },
+  {
+    label: "Procurement",
+    permissions: [
+      {
+        key: PERMISSIONS.PROCUREMENT_READ,
+        label: "View procurements",
+        description:
+          "Browse procurements and see each one's documents (GSR, price evaluation, PVs, assets) and progress.",
+      },
+      {
+        key: PERMISSIONS.PROCUREMENT_CREATE,
+        label: "Create procurement",
+        description: "Start a new procurement.",
+      },
+      {
+        key: PERMISSIONS.PROCUREMENT_UPDATE,
+        label: "Edit procurement",
+        description:
+          "Rename a procurement and link or unlink its documents.",
+      },
+      {
+        key: PERMISSIONS.PROCUREMENT_DELETE,
+        label: "Delete procurement",
+        description:
+          "Remove a procurement. Its documents are kept, just no longer grouped.",
       },
     ],
   },

@@ -17,6 +17,7 @@ import {
   getSignatureDataUrl,
 } from "../lib/approval";
 import { resolveGlAccountIds } from "../lib/glAccounts";
+import { assertProcurementSlot, procurementBackLink } from "../lib/procurement";
 import { toMvr } from "@/utils/currency";
 
 // GL lines as stored: the form sends each line's GL code; the line keeps the
@@ -113,6 +114,7 @@ const pvInclude = {
     },
     orderBy: { createdAt: "asc" },
   },
+  procurement: procurementBackLink,
 } as const;
 
 export const pvRouter = router({
@@ -226,7 +228,7 @@ export const pvRouter = router({
   create: permissionProcedure("pv:create")
     .input(createPvSchema)
     .mutation(async ({ ctx, input }) => {
-      const { invoices, ...pvData } = input;
+      const { invoices, procurementId, ...pvData } = input;
 
       // Check if pvNum already exists
       const existing = await ctx.prisma.pV.findUnique({
@@ -244,11 +246,13 @@ export const pvRouter = router({
         ctx.prisma,
         invoices.flatMap((inv) => inv.glDetails.map((gl) => gl.code)),
       );
+      await assertProcurementSlot(ctx.prisma, procurementId, "pv", ctx.session.permissions);
 
       // Use nested create for PV with invoices and GL details
       return ctx.prisma.pV.create({
         data: {
           ...pvData,
+          procurementId: procurementId ?? null,
           invoices: {
             create: invoices.map((invoice) => ({
               comments: invoice.comments,

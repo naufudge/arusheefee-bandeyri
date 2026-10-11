@@ -18,6 +18,7 @@ import {
 import { assertActorHasSignature, getSignatureDataUrl } from "../lib/approval";
 import { resolveGlAccountIds } from "../lib/glAccounts";
 import { getGstRate } from "../lib/settings";
+import { assertProcurementSlot, procurementBackLink } from "../lib/procurement";
 import {
   STAGE_ROLE,
   computeComparison,
@@ -45,6 +46,7 @@ const baseInclude = {
   rejectedBy: staffSelect,
   vendors: { orderBy: { position: "asc" } },
   items: { orderBy: { position: "asc" }, include: { quotes: true } },
+  procurement: procurementBackLink,
 } as const;
 
 const fullInclude = {
@@ -162,7 +164,7 @@ export const priceEvalRouter = router({
   create: permissionProcedure("priceeval:create")
     .input(createPriceEvalSchema)
     .mutation(async ({ ctx, input }) => {
-      const { evalNum, glCode, vendors, items, ...fields } = input;
+      const { evalNum, glCode, vendors, items, procurementId, ...fields } = input;
 
       const existing = await ctx.prisma.priceEvaluation.findUnique({
         where: { evalNum },
@@ -177,10 +179,17 @@ export const priceEvalRouter = router({
 
       const glIds = await resolveGlAccountIds(ctx.prisma, [glCode]);
       const gstRate = await getGstRate(ctx.prisma);
+      await assertProcurementSlot(ctx.prisma, procurementId, "priceEvaluation", ctx.session.permissions);
 
       const id = await ctx.prisma.$transaction(async (tx) => {
         const pe = await tx.priceEvaluation.create({
-          data: { evalNum, glAccountId: glIds.get(glCode)!, gstRate, ...fields },
+          data: {
+            evalNum,
+            glAccountId: glIds.get(glCode)!,
+            gstRate,
+            procurementId: procurementId ?? null,
+            ...fields,
+          },
           select: { id: true },
         });
         await createChildren(tx, pe.id, { vendors, items });

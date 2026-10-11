@@ -21,6 +21,7 @@ import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
 import { StatusPill } from "@/components/approval/StatusPill";
+import { ProcurementChip } from "@/components/procurement/ProcurementChip";
 import { SignatoryCard } from "@/components/approval/SignatoryCard";
 import { EditSignatoryDialog } from "@/components/approval/EditSignatoryDialog";
 import { ApprovalTimeline } from "@/components/approval/ApprovalTimeline";
@@ -187,6 +188,7 @@ const PvDetailPage = ({ params }: { params: Promise<{ pvNum: string }> }) => {
         {pv && (
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:mt-4 sm:gap-x-5">
             <StatusPill status={pv.status} />
+            <ProcurementChip procurement={pv.procurement} />
             <span className="italic tabular-nums text-foreground">
               {format(new Date(pv.date), "d MMM yyyy")}
             </span>

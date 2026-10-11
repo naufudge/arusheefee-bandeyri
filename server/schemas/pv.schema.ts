@@ -58,7 +58,10 @@ const pvFieldsSchema = z.object({
 // a silently-stored 1 — every "Amt. in MVR" on the printed voucher then
 // matched the document-currency column exactly. Reject it at the boundary
 // instead of writing a voucher that reads wrong.
-export const createPvSchema = pvFieldsSchema.superRefine((pv, ctx) => {
+const requireExchangeRate = (
+  pv: { currency: string; exchangeRate: number },
+  ctx: z.RefinementCtx,
+) => {
   if (pv.currency.toLowerCase() === "mvr") return;
   if (pv.exchangeRate === 1) {
     ctx.addIssue({
@@ -67,10 +70,17 @@ export const createPvSchema = pvFieldsSchema.superRefine((pv, ctx) => {
       message: `A ${pv.currency} PV needs an exchange rate to MVR. The rate is filled in from the MMA statistics database — if it didn't load, enter it manually.`,
     });
   }
-});
+};
 
-// Update PV schema - same as create
-export const updatePvSchema = createPvSchema;
+export const createPvSchema = pvFieldsSchema
+  .extend({
+    // Create it already linked to a procurement (from the procurement page).
+    procurementId: z.string().min(1).optional().nullable(),
+  })
+  .superRefine(requireExchangeRate);
+
+// Same fields; a PV's procurement is managed from the procurement page.
+export const updatePvSchema = pvFieldsSchema.superRefine(requireExchangeRate);
 
 // Reassign one signatory on an existing PV, without touching invoices.
 // `pv.update` can't do this: it demands the whole voucher (and rewrites

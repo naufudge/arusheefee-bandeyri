@@ -50,6 +50,8 @@ export const createPriceEvalSchema = z.object({
     .trim()
     .regex(EVAL_NUM_FORMAT, "Must be in the format 2026-35"),
   ...priceEvalFields,
+  // Create it already linked to a procurement (from the procurement page).
+  procurementId: z.string().min(1).optional().nullable(),
 });
 
 // The number identifies the record and can't be changed on edit.

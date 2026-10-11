@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { NoAccessCard } from "@/components/shared/PermissionGate";
+import { ProcurementChip } from "@/components/procurement/ProcurementChip";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
@@ -230,6 +231,7 @@ const AssetDetailPage = ({
                   {asset.presentLocation}
                 </span>
               )}
+              <ProcurementChip procurement={asset.procurement} />
             </div>
           )}
         </div>

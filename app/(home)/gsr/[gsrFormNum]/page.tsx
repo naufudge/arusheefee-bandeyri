@@ -20,6 +20,7 @@ import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
 import { useTRPC } from "@/lib/trpc";
 import { GSRStatusPill } from "@/components/approval/StatusPill";
+import { ProcurementChip } from "@/components/procurement/ProcurementChip";
 import { SignatoryCard } from "@/components/approval/SignatoryCard";
 import { ApprovalTimeline } from "@/components/approval/ApprovalTimeline";
 import { GSRActionBar } from "@/components/approval/GSRActionBar";
@@ -132,6 +133,7 @@ const GsrDetailPage = ({
         {gsr && (
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:mt-4 sm:gap-x-5">
             <GSRStatusPill status={gsr.status} />
+            <ProcurementChip procurement={gsr.procurement} />
             <span className="italic tabular-nums text-foreground">
               {format(new Date(gsr.date), "d MMM yyyy")}
             </span>

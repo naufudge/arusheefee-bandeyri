@@ -20,6 +20,8 @@ interface GsrFormProps {
   // Accept either the form schema type or the tRPC response type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gsr?: any;
+  /** Set when opened from a procurement: the new record joins it. */
+  procurementId?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -96,7 +98,7 @@ function useGsrForm(gsr?: any) {
   return useForm<z.infer<typeof GsrSchema>>(formConfig);
 }
 
-const GsrForm: React.FC<GsrFormProps> = ({ gsr }) => {
+const GsrForm: React.FC<GsrFormProps> = ({ gsr, procurementId }) => {
   const { toast } = useToast();
   const router = useRouter();
   const trpc = useTRPC();
@@ -140,7 +142,11 @@ const GsrForm: React.FC<GsrFormProps> = ({ gsr }) => {
       onSuccess: (data) => {
         toast({ title: "Success", description: "GSR form created." });
         invalidate();
-        router.push(`/gsr/${encodeURIComponent(data.gsrFormNum)}`);
+        router.push(
+          procurementId
+            ? `/procurement/${procurementId}`
+            : `/gsr/${encodeURIComponent(data.gsrFormNum)}`,
+        );
       },
       onError: (error) => {
         toast({
@@ -197,7 +203,7 @@ const GsrForm: React.FC<GsrFormProps> = ({ gsr }) => {
     };
 
     if (!gsr) {
-      createMutation.mutate(payload);
+      createMutation.mutate({ ...payload, procurementId: procurementId ?? null });
     } else {
       updateMutation.mutate(payload);
     }

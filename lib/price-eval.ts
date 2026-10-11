@@ -132,6 +132,23 @@ export function computeComparison(
 }
 
 /**
+ * An item's quotes laid out by vendor position (null = not quoted), as
+ * `computeComparison` expects them.
+ */
+export function ratesByPosition(
+  vendors: { id: string; position: number }[],
+  quotes: { vendorId: string; rate: number }[],
+): (number | null)[] {
+  const positionOf = new Map(vendors.map((v) => [v.id, v.position]));
+  const rates: (number | null)[] = vendors.map(() => null);
+  for (const q of quotes) {
+    const v = positionOf.get(q.vendorId);
+    if (v !== undefined) rates[v] = q.rate;
+  }
+  return rates;
+}
+
+/**
  * The form's standard reason sentence: "Of the prices received from N
  * parties, the lowest was sent by {vendor}."
  */

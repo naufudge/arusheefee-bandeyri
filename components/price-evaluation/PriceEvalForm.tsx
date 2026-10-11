@@ -123,9 +123,11 @@ function buildDefaults(pe?: PriceEvalDetail): PriceEvalFormValues {
 interface PriceEvalFormProps {
   /** Existing evaluation to edit; omit to create a new one. */
   evaluation?: PriceEvalDetail;
+  /** Set when opened from a procurement: the new record joins it. */
+  procurementId?: string;
 }
 
-export function PriceEvalForm({ evaluation }: PriceEvalFormProps) {
+export function PriceEvalForm({ evaluation, procurementId }: PriceEvalFormProps) {
   const isEdit = Boolean(evaluation);
   const router = useRouter();
   const trpc = useTRPC();
@@ -231,7 +233,11 @@ export function PriceEvalForm({ evaluation }: PriceEvalFormProps) {
       queryKey: trpc.priceEval.getByNum.queryKey({ evalNum: result.evalNum }),
     });
     toast({ title: isEdit ? "Changes saved" : "Price evaluation created" });
-    router.push(`/price-evaluation/${encodeURIComponent(result.evalNum)}`);
+    router.push(
+      procurementId && !isEdit
+        ? `/procurement/${procurementId}`
+        : `/price-evaluation/${encodeURIComponent(result.evalNum)}`,
+    );
   };
   const onError = (err: { message: string }) =>
     toast({ title: "Could not save", description: err.message });
@@ -270,7 +276,7 @@ export function PriceEvalForm({ evaluation }: PriceEvalFormProps) {
       approvedById: values.approvedById || null,
     };
     if (isEdit) updateMutation.mutate(payload, { onSuccess: onSaved });
-    else createMutation.mutate(payload, { onSuccess: onSaved });
+    else createMutation.mutate({ ...payload, procurementId: procurementId ?? null }, { onSuccess: onSaved });
   };
 
   // The reason defaults to the form's standard sentence for the chosen

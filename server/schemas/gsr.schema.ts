@@ -12,7 +12,7 @@ export const gsrItemSchema = z.object({
 
 // Create GSR schema - accepts staff IDs. `gsrFormNum` is entered manually
 // (free-form, not auto-generated) and must be unique (enforced in the router).
-export const createGsrSchema = z.object({
+const gsrFieldsSchema = z.object({
   gsrFormNum: z.string().min(1),
   section: z.string().min(1),
   date: z.coerce.date(),
@@ -26,8 +26,14 @@ export const createGsrSchema = z.object({
   items: z.array(gsrItemSchema).min(1),
 });
 
-// Update GSR schema - same as create
-export const updateGsrSchema = createGsrSchema;
+export const createGsrSchema = gsrFieldsSchema.extend({
+  // Create it already linked to a procurement (from the procurement page).
+  procurementId: z.string().min(1).optional().nullable(),
+});
+
+// Update GSR schema - same fields (a GSR's procurement is changed from the
+// procurement page, not by editing the form).
+export const updateGsrSchema = gsrFieldsSchema;
 
 // Get GSR by gsrFormNum
 export const getGsrByNumSchema = z.object({

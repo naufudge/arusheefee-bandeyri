@@ -1,5 +1,6 @@
 import { router, protectedProcedure, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { assertProcurementSlot, procurementBackLink } from "../lib/procurement";
 import {
   createGsrSchema,
   updateGsrSchema,
@@ -27,6 +28,7 @@ const gsrInclude = {
     },
     orderBy: { createdAt: "asc" },
   },
+  procurement: procurementBackLink,
 } as const;
 
 export const gsrRouter = router({
@@ -62,7 +64,7 @@ export const gsrRouter = router({
   create: permissionProcedure("gsr:create")
     .input(createGsrSchema)
     .mutation(async ({ ctx, input }) => {
-      const { items, ...gsrData } = input;
+      const { items, procurementId, ...gsrData } = input;
 
       const existing = await ctx.prisma.gSRForm.findUnique({
         where: { gsrFormNum: gsrData.gsrFormNum },
@@ -74,10 +76,12 @@ export const gsrRouter = router({
           message: `GSR form ${gsrData.gsrFormNum} already exists`,
         });
       }
+      await assertProcurementSlot(ctx.prisma, procurementId, "gsr", ctx.session.permissions);
 
       return ctx.prisma.gSRForm.create({
         data: {
           ...gsrData,
+          procurementId: procurementId ?? null,
           items: {
             create: items.map((item) => ({
               particulars: item.particulars,

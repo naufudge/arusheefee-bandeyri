@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +37,8 @@ interface PvFormProps {
   // Accept either the form schema type or the tRPC response type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pv?: any;
+  /** Set when opened from a procurement: the new record joins it. */
+  procurementId?: string;
 }
 
 // "USD · US Dollar" — the code, with the full name muted beside it.
@@ -175,7 +178,8 @@ function usePvForm(pv?: any) {
   return useForm<z.infer<typeof PvSchema>>(formConfig)
 }
 
-const PvForm: React.FC<PvFormProps> = ({ pv }) => {
+const PvForm: React.FC<PvFormProps> = ({ pv, procurementId }) => {
+  const router = useRouter();
   // Attachment perms are independent of the PV's workflow status now.
   // Server enforces the same; this just keeps the UI in sync.
   const canUploadAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_UPLOAD);
@@ -364,6 +368,8 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
           description: "Successfully created a new PV!",
         });
         setSubmitBtnState(true);
+        // Opened from a procurement: go back to it.
+        if (procurementId) router.push(`/procurement/${procurementId}`);
       },
       onError: (error) => {
         toast({
@@ -612,7 +618,7 @@ const PvForm: React.FC<PvFormProps> = ({ pv }) => {
 
     if (!pv) {
       // Create new PV
-      createMutation.mutate(transformedData);
+      createMutation.mutate({ ...transformedData, procurementId: procurementId ?? null });
     } else {
       // Update existing PV
       updateMutation.mutate(transformedData);

@@ -6,7 +6,7 @@ import { z } from "zod";
 // leaf type (the subcategory is the leaf). category/subcategory/assetType are
 // kept lenient (no taxonomy refine) so messy import rows warn rather than
 // hard-reject.
-export const createAssetSchema = z.object({
+const assetFieldsSchema = z.object({
   assetNum: z.string().min(1),
   SAPassetNum: z.string().optional().nullable(),
   assetName: z.string().min(1),
@@ -28,8 +28,14 @@ export const createAssetSchema = z.object({
   assetType: z.string().optional().nullable(),
 });
 
-// Update mirrors create. assetNum is the key and is not changed on update.
-export const updateAssetSchema = createAssetSchema;
+export const createAssetSchema = assetFieldsSchema.extend({
+  // Create it already linked to a procurement (from the procurement page).
+  procurementId: z.string().min(1).optional().nullable(),
+});
+
+// Update mirrors create's fields. assetNum is the key and is not changed on
+// update; the procurement link is managed from the procurement page.
+export const updateAssetSchema = assetFieldsSchema;
 
 export const getAssetByNumSchema = z.object({
   assetNum: z.string().min(1),
