@@ -147,7 +147,8 @@ function AssetCodingCard() {
       <div className="space-y-4 px-5 py-5">
         <p className="text-sm text-muted-foreground">
           The SAP coding printed at the top of asset creation forms. New forms start with these
-          values; forms already made keep their own.
+          values; forms already made keep their own. The functional area can also be changed on
+          each form.
         </p>
         <form
           className="space-y-4"

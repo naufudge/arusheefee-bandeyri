@@ -6,7 +6,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { CalendarIcon, Minus, Plus, Settings2, Sparkles } from "lucide-react";
+import { CalendarIcon, Minus, Plus, RotateCcw, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Form,
@@ -205,10 +205,11 @@ export function AssetCreationForm({ assetCreation, source, procurementId }: Asse
     }
   }, [isEdit, nextNums, getValues, setValue]);
 
-  const { data: coding, isLoading: codingLoading } = useQuery({
-    ...trpc.settings.assetCoding.queryOptions(),
-    enabled: !isEdit && !source,
-  });
+  // The global defaults: they fill a new set, and the functional area offers
+  // a reset to its default on any set.
+  const { data: coding } = useQuery(
+    trpc.settings.assetCoding.queryOptions(),
+  );
   useEffect(() => {
     if (!coding || getValues("agencyName")) return;
     for (const { key } of ASSET_CODING_FIELDS) setValue(key, coding[key]);
@@ -289,11 +290,7 @@ export function AssetCreationForm({ assetCreation, source, procurementId }: Asse
     assetClass != null && toNumber(lifeNow) != null && toNumber(lifeNow) !== assetClass.defaultLife;
   const valueNow = useWatch({ control, name: "originalValue" });
   const formsNow = useWatch({ control, name: "forms" });
-  const codingNow = useWatch({
-    control,
-    name: ["agencyName", "businessArea", "costCentre", "fund", "functionalArea"],
-  });
-  const [editCoding, setEditCoding] = useState(false);
+  const functionalAreaNow = useWatch({ control, name: "functionalArea" });
   const signers = useWatch({ control, name: ["requestedById", "authorizedById", "sapUpdatedById"] });
 
   // Asset register preview (Create only).
@@ -568,49 +565,53 @@ export function AssetCreationForm({ assetCreation, source, procurementId }: Asse
         </section>
 
         {/* ---------- SAP coding ---------- */}
+        {/* Agency, business area, cost centre and fund come from Settings →
+            General; only the functional area varies by form. */}
         <section className="rounded-md border bg-card p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className={SECTION_LABEL}>SAP coding</div>
-              {!editCoding && (
-                <p className="mt-1.5 truncate font-mono text-xs text-foreground/80">
-                  {codingNow.some(Boolean)
-                    ? codingNow.filter(Boolean).join("  ·  ")
-                    : codingLoading
-                      ? "Loading…"
-                      : "Not set — use Edit to fill it in"}
-                </p>
+          <div className={cn(SECTION_LABEL, "mb-5")}>SAP coding</div>
+          <div>
+            <FormField
+              control={control}
+              name="functionalArea"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Functional area</FormLabel>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="font-mono text-sm sm:w-[280px]"
+                        placeholder="S067005001001001"
+                      />
+                    </FormControl>
+                    {coding &&
+                      (functionalAreaNow.trim() === coding.functionalArea ? (
+                        <span className="text-[11px] text-muted-foreground">Default</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setValue("functionalArea", coding.functionalArea, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            })
+                          }
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition hover:text-foreground"
+                        >
+                          <RotateCcw className="size-3" />
+                          Reset to default
+                        </button>
+                      ))}
+                  </div>
+                  <FormDescription className="text-[11px]">
+                    Starts with the default from Settings → General; change it for this form if
+                    the asset falls under a different functional area.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setEditCoding((v) => !v)}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-xs font-medium transition hover:bg-muted"
-            >
-              <Settings2 className="size-3.5" />
-              {editCoding ? "Done" : "Edit"}
-            </button>
+            />
           </div>
-          {editCoding && (
-            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {ASSET_CODING_FIELDS.map((f) => (
-                <FormField
-                  key={f.key}
-                  control={control}
-                  name={f.key}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{f.label}</FormLabel>
-                      <FormControl>
-                        <Input {...field} className="font-mono text-sm" placeholder={f.placeholder} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              ))}
-            </div>
-          )}
         </section>
 
         {/* ---------- Asset general information ---------- */}
