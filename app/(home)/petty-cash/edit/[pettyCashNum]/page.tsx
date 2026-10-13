@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, AlertCircle } from "lucide-react";
@@ -30,6 +30,14 @@ const PettyCashEditPage = ({
     ...trpc.pettycash.getByNum.queryOptions({ pettyCashNum }),
     enabled: hasAccess,
   });
+
+  // Opened by a number the record has since been changed from: move to the
+  // current one.
+  useEffect(() => {
+    if (record && record.pettyCashNum !== decodeURIComponent(pettyCashNum)) {
+      router.replace(`/petty-cash/edit/${encodeURIComponent(record.pettyCashNum)}`);
+    }
+  }, [record, pettyCashNum, router]);
 
   if (!hasAccess) return <NoAccessCard />;
 

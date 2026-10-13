@@ -202,6 +202,31 @@ export async function POST(request: NextRequest) {
   });
   const existingSet = new Set(existing.map((e) => e.pettyCashNum));
 
+  // A row carrying a number that a record has since been renumbered from is
+  // that record, not a new one: never import it again.
+  const unmatched = rows.map((r) => r.pettyCashNum).filter((n) => !existingSet.has(n));
+  const renumbered = unmatched.length
+    ? await prisma.pettyCash.findMany({
+        where: { previousNums: { hasSome: unmatched } },
+        select: { pettyCashNum: true, previousNums: true },
+      })
+    : [];
+  const renumberedTo = new Map<string, string>();
+  for (const pc of renumbered) {
+    for (const old of pc.previousNums) renumberedTo.set(old, pc.pettyCashNum);
+  }
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const now = !existingSet.has(rows[i].pettyCashNum) && renumberedTo.get(rows[i].pettyCashNum);
+    if (now) {
+      invalid.push({
+        num: rows[i].pettyCashNum,
+        error: `Renumbered to ${now} — already in the register, not imported again`,
+        row: rows[i].rowNumber,
+      });
+      rows.splice(i, 1);
+    }
+  }
+
   if (mode === "preview") {
     return NextResponse.json({
       summary: {

@@ -7,14 +7,27 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
+import { Pencil } from "lucide-react";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { glAccountOptions, useGlAccounts } from "@/hooks/use-gl-accounts";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
@@ -23,6 +36,7 @@ import {
   type AttachmentQueueHandle,
 } from "@/components/attachments/AttachmentQueue";
 import {
+  PETTY_CASH_NUM_FORMAT,
   PettyCashSchema,
   PettyCashCreateSchema,
   PettyCashValues,
@@ -35,7 +49,7 @@ import {
 import ItemsForm from "@/components/petty-cash/ItemsForm";
 import { Staff } from "@/types";
 import { useTRPC } from "@/lib/trpc";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Control } from "react-hook-form";
 
 interface PettyCashFormProps {
@@ -135,6 +149,7 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
   const router = useRouter();
   const { toast } = useToast();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const canEditParked = useHasPermission(PERMISSIONS.PETTYCASH_EDIT_PARKED_DATE);
   const canEditPosting = useHasPermission(
@@ -144,6 +159,15 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
   // now. Server enforces the same.
   const canUploadAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_UPLOAD);
   const canDeleteAttachments = useHasPermission(PERMISSIONS.ATTACHMENT_DELETE);
+  // The number of an existing record stays locked until the user
+  // deliberately chooses to change it.
+  const [numberUnlocked, setNumberUnlocked] = useState(false);
+  // A save waiting for the user to confirm the new number.
+  const [pendingRename, setPendingRename] = useState<{
+    values: PettyCashValues;
+    from: string;
+    to: string;
+  } | null>(null);
 
   const [submitBtnState, setSubmitBtnState] = useState(true);
 
@@ -243,11 +267,19 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
   const updateMutation = useMutation(
     trpc.pettycash.update.mutationOptions({
       onSuccess: (data) => {
+        const renamed = pettyCash && data.pettyCashNum !== pettyCash.pettyCashNum;
         toast({
           title: "Saved",
-          description: `Petty cash ${data.pettyCashNum} updated.`,
+          description: renamed
+            ? `Petty cash ${pettyCash.pettyCashNum} is now ${data.pettyCashNum}.`
+            : `Petty cash ${data.pettyCashNum} updated.`,
         });
         setSubmitBtnState(true);
+        queryClient.invalidateQueries({ queryKey: trpc.pettycash.pathKey() });
+        if (renamed) {
+          setNumberUnlocked(false);
+          router.replace(`/petty-cash/edit/${encodeURIComponent(data.pettyCashNum)}`);
+        }
       },
       onError: (error) => {
         toast({
@@ -259,10 +291,7 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
     }),
   );
 
-  const onSubmit = (values: PettyCashValues) => {
-    setSubmitBtnState(false);
-
-    const payload = {
+  const buildPayload = (values: PettyCashValues) => ({
       pettyCashNum: values.pettyCashNum,
       date: values.date,
       formNum: values.formNum,
@@ -281,13 +310,40 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
         name: it.name || null,
         nameDhivehi: it.nameDhivehi || null,
       })),
-    };
+  });
 
+  const onSubmit = (values: PettyCashValues) => {
     if (!pettyCash) {
-      createMutation.mutate(payload);
-    } else {
-      updateMutation.mutate(payload);
+      setSubmitBtnState(false);
+      createMutation.mutate(buildPayload(values));
+      return;
     }
+
+    // The record is always found by its current number; a different value
+    // in the field is a renumbering, confirmed before it's saved.
+    const from = pettyCash.pettyCashNum as string;
+    const to = values.pettyCashNum.trim();
+    if (to !== from) {
+      if (!PETTY_CASH_NUM_FORMAT.test(to)) {
+        form.setError("pettyCashNum", { message: "Must be in the format PC-20-2026" });
+        return;
+      }
+      setPendingRename({ values, from, to });
+      return;
+    }
+    setSubmitBtnState(false);
+    updateMutation.mutate({ ...buildPayload(values), pettyCashNum: from });
+  };
+
+  const confirmRename = () => {
+    if (!pendingRename) return;
+    setSubmitBtnState(false);
+    updateMutation.mutate({
+      ...buildPayload(pendingRename.values),
+      pettyCashNum: pendingRename.from,
+      newPettyCashNum: pendingRename.to,
+    });
+    setPendingRename(null);
   };
 
   return (
@@ -300,14 +356,63 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <PettyCashInputField
+            <FormField
               control={control}
               name="pettyCashNum"
-              label="Petty Cash Number"
-              required={!pettyCash}
-              register={register}
-              disabled={!!pettyCash}
-              description={pettyCash ? "" : "Eg: PC-20-2026"}
+              render={({ field }) => {
+                const locked = !!pettyCash && !numberUnlocked;
+                const changed =
+                  !!pettyCash && (field.value ?? "").trim() !== pettyCash.pettyCashNum;
+                return (
+                  <FormItem>
+                    <div className="flex min-h-5 items-center justify-between gap-2">
+                      <FormLabel>Petty Cash Number</FormLabel>
+                      {pettyCash &&
+                        (numberUnlocked ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setValue("pettyCashNum", pettyCash.pettyCashNum);
+                              form.clearErrors("pettyCashNum");
+                              setNumberUnlocked(false);
+                            }}
+                            className="text-[11px] font-medium text-muted-foreground transition hover:text-foreground"
+                          >
+                            Keep {pettyCash.pettyCashNum}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setNumberUnlocked(true)}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition hover:text-foreground"
+                          >
+                            <Pencil className="size-3" />
+                            Change
+                          </button>
+                        ))}
+                    </div>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value ?? ""}
+                        placeholder="PC-20-2026"
+                        disabled={locked}
+                        className="font-mono"
+                      />
+                    </FormControl>
+                    {!pettyCash ? (
+                      <FormDescription className="text-xs">Eg: PC-20-2026</FormDescription>
+                    ) : numberUnlocked ? (
+                      <FormDescription className="text-xs text-amber-700 dark:text-amber-400">
+                        {changed ? `Was ${pettyCash.pettyCashNum}. ` : ""}
+                        Saving moves the record, its register entry and reconciliation links to
+                        the new number; the old one still opens it.
+                      </FormDescription>
+                    ) : null}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <PettyCashInputField
               control={control}
@@ -469,6 +574,33 @@ const PettyCashForm: React.FC<PettyCashFormProps> = ({ pettyCash }) => {
           </button>
         </div>
       </form>
+
+      <AlertDialog open={!!pendingRename} onOpenChange={(open) => !open && setPendingRename(null)}>
+        <AlertDialogContent className="bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Change {pendingRename?.from} to{" "}
+              <span className="font-mono">{pendingRename?.to}</span>?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  The record, its register entry and any reconciliation report links move to the
+                  new number, and the change is recorded on its timeline. Its approvals are kept.
+                </p>
+                <p>
+                  Links and bookmarks to {pendingRename?.from} keep opening this record, and a
+                  register import that still has {pendingRename?.from} won&apos;t add it again.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRename}>Change number &amp; save</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Form>
   );
 };

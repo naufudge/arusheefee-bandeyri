@@ -55,11 +55,12 @@ export const createPettyCashSchema = z.object({
 });
 
 // Update reuses every create field except the strict format on
-// `pettyCashNum`. The mutation uses pettyCashNum only as the WHERE clause
-// to find the record — it can't actually rename anything — so loosening
-// here is safe and lets edits flow through for legacy entries.
+// `pettyCashNum`, which here only finds the record — so legacy numbers can
+// still be edited without first being renamed. Renumbering goes through
+// `newPettyCashNum` (strict format; see the router).
 export const updatePettyCashSchema = createPettyCashSchema.extend({
   pettyCashNum: z.string().min(1),
+  newPettyCashNum: pettyCashNumStrict.optional().nullable(),
 });
 
 export const getPettyCashByNumSchema = z.object({

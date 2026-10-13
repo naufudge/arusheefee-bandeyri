@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -82,6 +82,14 @@ const PettyCashDetailPage = ({
     ...trpc.pettycash.getByNum.queryOptions({ pettyCashNum }),
     enabled: hasAccess,
   });
+
+  // Opened by a number the record has since been changed from: move to the
+  // current one.
+  useEffect(() => {
+    if (pc && pc.pettyCashNum !== decodeURIComponent(pettyCashNum)) {
+      router.replace(`/petty-cash/${encodeURIComponent(pc.pettyCashNum)}`);
+    }
+  }, [pc, pettyCashNum, router]);
 
   if (!hasAccess) return <NoAccessCard />;
 
@@ -197,6 +205,12 @@ const PettyCashDetailPage = ({
               {pc.items.length} {pc.items.length === 1 ? "item" : "items"}
             </span>
             <span>{pc.sectionUnit}</span>
+            {pc.previousNums.length > 0 && (
+              <span title="Numbers this record had before it was changed">
+                Formerly{" "}
+                <span className="font-mono">{pc.previousNums.join(", ")}</span>
+              </span>
+            )}
           </div>
         )}
       </header>

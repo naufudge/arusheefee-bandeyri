@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure, permissionProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { Prisma } from "@prisma/client";
 import { requirePermission } from "@/lib/permissions";
 import {
   createPettyCashSchema,
@@ -80,13 +81,21 @@ export const pettyCashRouter = router({
     });
   }),
 
+  // A renumbered record is still found by its old number (old links and
+  // bookmarks); the page then moves to the current number.
   getByNum: permissionProcedure("pettycash:read")
     .input(getPettyCashByNumSchema)
     .query(async ({ ctx, input }) => {
-      const record = await ctx.prisma.pettyCash.findUnique({
-        where: { pettyCashNum: input.pettyCashNum },
-        include: pettyCashInclude,
-      });
+      const record =
+        (await ctx.prisma.pettyCash.findUnique({
+          where: { pettyCashNum: input.pettyCashNum },
+          include: pettyCashInclude,
+        })) ??
+        (await ctx.prisma.pettyCash.findFirst({
+          where: { previousNums: { has: input.pettyCashNum } },
+          include: pettyCashInclude,
+          orderBy: { updatedAt: "desc" },
+        }));
       if (!record) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -296,6 +305,26 @@ export const pettyCashRouter = router({
         });
       }
 
+      // Renumbering changes the record's identity, so the new number must
+      // not collide with another record, and the change is logged.
+      const oldNum = existing.pettyCashNum;
+      const newNum =
+        input.newPettyCashNum && input.newPettyCashNum !== oldNum
+          ? input.newPettyCashNum
+          : null;
+      if (newNum) {
+        const taken = await ctx.prisma.pettyCash.findUnique({
+          where: { pettyCashNum: newNum },
+          select: { id: true },
+        });
+        if (taken) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `${newNum} is already used by another petty cash record.`,
+          });
+        }
+      }
+
       // Only re-check the GL code when it changes: a record keeps its
       // existing account even if that account is later un-ticked for petty cash.
       const glAccountId =
@@ -325,102 +354,140 @@ export const pettyCashRouter = router({
         });
       }
 
-      return ctx.prisma.$transaction(async (tx) => {
-        // Classify each role: preserve, reset (delete + recreate), or noop.
-        for (const role of PC_ROLES) {
-          const existingRow = existing[role];
-          const incoming = input[role] ?? null;
+      try {
+        return await ctx.prisma.$transaction(async (tx) => {
+          // Classify each role: preserve, reset (delete + recreate), or noop.
+          for (const role of PC_ROLES) {
+            const existingRow = existing[role];
+            const incoming = input[role] ?? null;
 
-          if (!existingRow && !incoming) {
-            // Was empty, still empty. Nothing to do.
-            continue;
-          }
-
-          if (existingRow && incoming) {
-            const sameStaff = existingRow.staffId === incoming.staffId;
-            const sameAmount = amountUnchanged(
-              existingRow.amount,
-              incoming.amount ?? null,
-            );
-            if (sameStaff && sameAmount) {
-              // Preserve approval state. Update only the transaction date
-              // (which is form-supplied and unrelated to approval).
-              await tx.pettyCashStaff.update({
-                where: { id: existingRow.id },
-                data: { date: incoming.date },
-              });
+            if (!existingRow && !incoming) {
+              // Was empty, still empty. Nothing to do.
               continue;
             }
-          }
 
-          // Reset path. If the old row was approved, log a timeline event
-          // before deleting so the audit trail explains the missing
-          // signature on a previously-completed role.
-          if (existingRow) {
-            if (existingRow.isApproved) {
-              await tx.approvalEvent.create({
+            if (existingRow && incoming) {
+              const sameStaff = existingRow.staffId === incoming.staffId;
+              const sameAmount = amountUnchanged(
+                existingRow.amount,
+                incoming.amount ?? null,
+              );
+              if (sameStaff && sameAmount) {
+                // Preserve approval state. Update only the transaction date
+                // (which is form-supplied and unrelated to approval).
+                await tx.pettyCashStaff.update({
+                  where: { id: existingRow.id },
+                  data: { date: incoming.date },
+                });
+                continue;
+              }
+            }
+
+            // Reset path. If the old row was approved, log a timeline event
+            // before deleting so the audit trail explains the missing
+            // signature on a previously-completed role.
+            if (existingRow) {
+              if (existingRow.isApproved) {
+                await tx.approvalEvent.create({
+                  data: {
+                    kind: "PC_ROLE_RESET_ON_EDIT",
+                    pettyCashId: existing.id,
+                    pettyCashRole: role,
+                    actorId: ctx.session.user.id,
+                  },
+                });
+              }
+              // Detach FK first, then delete the orphaned row.
+              await tx.pettyCash.update({
+                where: { id: existing.id },
+                data: { [PC_ROLE_TO_FK[role]]: null },
+              });
+              await tx.pettyCashStaff.delete({ where: { id: existingRow.id } });
+            }
+
+            if (incoming) {
+              await tx.pettyCash.update({
+                where: { id: existing.id },
                 data: {
-                  kind: "PC_ROLE_RESET_ON_EDIT",
-                  pettyCashId: existing.id,
-                  pettyCashRole: role,
-                  actorId: ctx.session.user.id,
+                  [role]: {
+                    create: {
+                      staffId: incoming.staffId,
+                      amount: incoming.amount ?? null,
+                      isApproved: false,
+                      date: incoming.date,
+                    },
+                  },
                 },
               });
             }
-            // Detach FK first, then delete the orphaned row.
-            await tx.pettyCash.update({
-              where: { id: existing.id },
-              data: { [PC_ROLE_TO_FK[role]]: null },
-            });
-            await tx.pettyCashStaff.delete({ where: { id: existingRow.id } });
           }
 
-          if (incoming) {
-            await tx.pettyCash.update({
-              where: { id: existing.id },
+          // Items use the existing wholesale delete-recreate — they're not
+          // tied to approval state.
+          await tx.pettyCashItem.deleteMany({
+            where: { pettyCashId: existing.id },
+          });
+
+          if (newNum) {
+            // Reconciliation reports keep the number as a link to the record.
+            await tx.pcReconciliationItem.updateMany({
+              where: { sourcePettyCashNum: oldNum },
+              data: { sourcePettyCashNum: newNum },
+            });
+            await tx.approvalEvent.create({
               data: {
-                [role]: {
-                  create: {
-                    staffId: incoming.staffId,
-                    amount: incoming.amount ?? null,
-                    isApproved: false,
-                    date: incoming.date,
-                  },
-                },
+                kind: "PC_NUMBER_CHANGED",
+                pettyCashId: existing.id,
+                actorId: ctx.session.user.id,
+                comment: `${oldNum} → ${newNum}`,
               },
             });
           }
-        }
 
-        // Items use the existing wholesale delete-recreate — they're not
-        // tied to approval state.
-        await tx.pettyCashItem.deleteMany({
-          where: { pettyCashId: existing.id },
-        });
-
-        return tx.pettyCash.update({
-          where: { pettyCashNum: input.pettyCashNum },
-          data: {
-            date: input.date,
-            formNum: input.formNum,
-            sectionUnit: input.sectionUnit,
-            totalRequiredAmount: input.totalRequiredAmount,
-            glAccountId,
-            parkedDate: input.parkedDate ?? null,
-            postingDate: input.postingDate ?? null,
-            // A human edit via the role-based form supersedes system
-            // approval: the record becomes a normal role-tracked record.
-            systemApproved: false,
-            items: {
-              create: input.items.map((item) => ({
-                qty: item.qty,
-                name: item.name,
-              })),
+          return tx.pettyCash.update({
+            where: { id: existing.id },
+            data: {
+              ...(newNum
+                ? {
+                    pettyCashNum: newNum,
+                    // Remember the old number; drop the new one if this
+                    // record once had it (renumbered back).
+                    previousNums: [
+                      ...existing.previousNums.filter((n) => n !== oldNum && n !== newNum),
+                      oldNum,
+                    ],
+                  }
+                : {}),
+              date: input.date,
+              formNum: input.formNum,
+              sectionUnit: input.sectionUnit,
+              totalRequiredAmount: input.totalRequiredAmount,
+              glAccountId,
+              parkedDate: input.parkedDate ?? null,
+              postingDate: input.postingDate ?? null,
+              // A human edit via the role-based form supersedes system
+              // approval: the record becomes a normal role-tracked record.
+              systemApproved: false,
+              items: {
+                create: input.items.map((item) => ({
+                  qty: item.qty,
+                  name: item.name,
+                })),
+              },
             },
-          },
-          include: pettyCashInclude,
+            include: pettyCashInclude,
+          });
         });
-      });
+      } catch (err) {
+        // Another record took the number between the check and the save.
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `${newNum ?? oldNum} is already used by another petty cash record.`,
+          });
+        }
+        throw err;
+      }
     }),
 
   delete: permissionProcedure("pettycash:delete")

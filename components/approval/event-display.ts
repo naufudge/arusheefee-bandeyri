@@ -10,6 +10,7 @@ import {
   UserPen,
   Wallet,
   DatabaseZap,
+  Hash,
 } from "lucide-react";
 import type { ApprovalEventKind } from "@prisma/client";
 
@@ -30,6 +31,7 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   PC_ROLE_APPROVED: "Approved",
   PC_ROLE_REJECTED: "Rejected",
   PC_ROLE_RESET_ON_EDIT: "Reset on edit",
+  PC_NUMBER_CHANGED: "Number changed",
   GSR_SENT_FOR_AUTHORIZATION: "Sent for authorization",
   GSR_AUTHORIZED: "Authorized",
   GSR_RECEIVED: "Received",
@@ -68,6 +70,7 @@ export const KIND_ICON: Record<
   PC_ROLE_APPROVED: CheckCircle2,
   PC_ROLE_REJECTED: XCircle,
   PC_ROLE_RESET_ON_EDIT: RotateCcw,
+  PC_NUMBER_CHANGED: Hash,
   GSR_SENT_FOR_AUTHORIZATION: Send,
   GSR_AUTHORIZED: ShieldCheck,
   GSR_RECEIVED: CheckCircle2,
@@ -146,6 +149,11 @@ export const KIND_TONE: Record<
     icon: "text-red-600 dark:text-red-400",
   },
   PC_ROLE_RESET_ON_EDIT: {
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+    ring: "ring-amber-200 dark:ring-amber-800/60",
+    icon: "text-amber-600 dark:text-amber-400",
+  },
+  PC_NUMBER_CHANGED: {
     bg: "bg-amber-50 dark:bg-amber-900/20",
     ring: "ring-amber-200 dark:ring-amber-800/60",
     icon: "text-amber-600 dark:text-amber-400",
