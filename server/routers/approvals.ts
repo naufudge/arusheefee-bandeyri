@@ -22,6 +22,12 @@ const HISTORY_KINDS = [
   "AC_AUTHORIZED",
   "AC_SAP_UPDATED",
   "AC_REJECTED",
+  "GSR_AUTHORIZED",
+  "GSR_RECEIVED",
+  "GSR_REJECTED",
+  "PCRECON_CHECKED",
+  "PCRECON_AUTHORIZED",
+  "PCRECON_REJECTED",
 ] as const;
 
 // "Currently waiting on this user at the current stage" — strict reading
@@ -69,6 +75,27 @@ function pendingAssetCreationWhere(userId: string) {
   };
 }
 
+// GSR forms awaiting this user: authorisation, then (optional) receipt.
+function pendingGsrWhere(userId: string) {
+  return {
+    OR: [
+      { status: "PENDING_AUTHORIZATION" as const, authorizedById: userId },
+      { status: "PENDING_RECEIPT" as const, receivedById: userId },
+    ],
+  };
+}
+
+// Petty cash reconciliation reports awaiting this user's check or
+// authorisation.
+function pendingPcReconWhere(userId: string) {
+  return {
+    OR: [
+      { status: "PENDING_CHECK" as const, checkedById: userId },
+      { status: "PENDING_AUTHORIZATION" as const, authorizedById: userId },
+    ],
+  };
+}
+
 // Which of the five back-relations on PettyCashStaff is set tells us the
 // role name. Exactly one is non-null per row (enforced by the unique FKs
 // on the PettyCash side).
@@ -92,20 +119,22 @@ export const approvalsRouter = router({
   // sum across the pending sources.
   pendingCount: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-    const [pvCount, pcCount, peCount, acCount] = await Promise.all([
+    const counts = await Promise.all([
       ctx.prisma.pV.count({ where: pendingPvWhere(userId) }),
       ctx.prisma.pettyCashStaff.count({ where: pendingPcRoleWhere(userId) }),
       ctx.prisma.priceEvaluation.count({ where: pendingPriceEvalWhere(userId) }),
       ctx.prisma.assetCreation.count({ where: pendingAssetCreationWhere(userId) }),
+      ctx.prisma.gSRForm.count({ where: pendingGsrWhere(userId) }),
+      ctx.prisma.pcReconciliation.count({ where: pendingPcReconWhere(userId) }),
     ]);
-    return pvCount + pcCount + peCount + acCount;
+    return counts.reduce((sum, n) => sum + n, 0);
   }),
 
   // Full data for the Pending tab.
   pending: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [pvs, pcRows, peRows, acRows] = await Promise.all([
+    const [pvs, pcRows, peRows, acRows, gsrRows, reconRows] = await Promise.all([
       ctx.prisma.pV.findMany({
         where: pendingPvWhere(userId),
         include: {
@@ -145,7 +174,43 @@ export const approvalsRouter = router({
         },
         orderBy: { updatedAt: "asc" },
       }),
+      ctx.prisma.gSRForm.findMany({
+        where: pendingGsrWhere(userId),
+        include: {
+          requestedBy: { select: { id: true, name: true, designation: true } },
+          items: { select: { particulars: true } },
+        },
+        orderBy: { updatedAt: "asc" },
+      }),
+      ctx.prisma.pcReconciliation.findMany({
+        where: pendingPcReconWhere(userId),
+        include: {
+          preparedBy: { select: { id: true, name: true, designation: true } },
+        },
+        orderBy: { updatedAt: "asc" },
+      }),
     ]);
+
+    const gsrForms = gsrRows.map((g) => ({
+      gsrFormNum: g.gsrFormNum,
+      section: g.section,
+      date: g.date,
+      status: g.status,
+      updatedAt: g.updatedAt,
+      requestedBy: g.requestedBy,
+      itemsSummary: g.items.map((it) => it.particulars).filter(Boolean).join(", "),
+    }));
+
+    const pcRecons = reconRows.map((r) => ({
+      reportNum: r.reportNum,
+      periodText: r.periodText,
+      weekStart: r.weekStart,
+      weekEnd: r.weekEnd,
+      status: r.status,
+      updatedAt: r.updatedAt,
+      preparedBy: r.preparedBy,
+      total: r.total,
+    }));
 
     // A compact card per asset creation set.
     const assetCreations = acRows.map((ac) => ({
@@ -223,7 +288,7 @@ export const approvalsRouter = router({
           new Date(b.pettyCash.date).getTime(),
       );
 
-    return { pvs, pcRoles, priceEvals, assetCreations };
+    return { pvs, pcRoles, priceEvals, assetCreations, gsrForms, pcRecons };
   }),
 
   // Reverse-chronological list of approve/reject events authored by
@@ -273,6 +338,12 @@ export const approvalsRouter = router({
               status: true,
               forms: { select: { formNum: true }, orderBy: { position: "asc" } },
             },
+          },
+          gsrForm: {
+            select: { id: true, gsrFormNum: true, section: true, status: true },
+          },
+          pcReconciliation: {
+            select: { id: true, reportNum: true, periodText: true, status: true },
           },
         },
         orderBy: { createdAt: "desc" },

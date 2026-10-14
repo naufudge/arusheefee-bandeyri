@@ -55,6 +55,10 @@ export function PcReconActionBar({
       queryKey: trpc.pcRecon.getByNum.queryKey({ reportNum }),
     });
     queryClient.invalidateQueries({ queryKey: trpc.pcRecon.list.queryKey() });
+    // Keep the sidebar badge and the approvals inbox in step.
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pendingCount.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pending.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.history.pathKey() });
   }
 
   function handleApprovalError(

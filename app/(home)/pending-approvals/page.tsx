@@ -10,11 +10,10 @@ import {
   ClipboardList,
   Eye,
   FileSpreadsheet,
-  FileStack,
+  Files,
   History,
   Inbox,
   ReceiptText,
-  Scale,
   Wallet,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,6 +24,8 @@ import { useTRPC } from "@/lib/trpc";
 import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import {
   AssetCreationStatusPill,
+  GSRStatusPill,
+  PcReconStatusPill,
   PriceEvalStatusPill,
   StatusPill,
 } from "@/components/approval/StatusPill";
@@ -55,6 +56,8 @@ const PendingApprovalsPage = () => {
     PERMISSIONS.PETTYCASH_READ,
     PERMISSIONS.PRICEEVAL_READ,
     PERMISSIONS.ASSETCREATION_READ,
+    PERMISSIONS.GSR_READ,
+    PERMISSIONS.PCRECON_READ,
   ]);
 
   const [tab, setTab] = useState<Tab>("pending");
@@ -72,9 +75,19 @@ const PendingApprovalsPage = () => {
   const totals = useMemo(() => {
     const pvs = pending?.pvs.length ?? 0;
     const pcs = pending?.pcRoles.length ?? 0;
-    const pes = pending?.priceEvals.length ?? 0;
-    const acs = pending?.assetCreations.length ?? 0;
-    return { pvs, pcs, pes, acs, total: pvs + pcs + pes + acs };
+    // Everything else, with a short breakdown for the KPI card.
+    const others = [
+      [pending?.gsrForms.length ?? 0, "GSR", "GSRs"],
+      [pending?.pcRecons.length ?? 0, "reconciliation", "reconciliations"],
+      [pending?.priceEvals.length ?? 0, "price evaluation", "price evaluations"],
+      [pending?.assetCreations.length ?? 0, "asset form", "asset forms"],
+    ] as const;
+    const other = others.reduce((sum, [n]) => sum + n, 0);
+    const otherBreakdown = others
+      .filter(([n]) => n > 0)
+      .map(([n, one, many]) => `${n} ${n === 1 ? one : many}`)
+      .join(" · ");
+    return { pvs, pcs, other, otherBreakdown, total: pvs + pcs + other };
   }, [pending]);
 
   if (!hasAccess) return <NoAccessCard />;
@@ -97,9 +110,9 @@ const PendingApprovalsPage = () => {
       </header>
 
       {/* KPI strip */}
-      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {pendingLoading ? (
-          Array.from({ length: 5 }).map((_, i) => <KpiSkeleton key={i} />)
+          Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
         ) : (
           <>
             <KpiCard
@@ -135,24 +148,10 @@ const PendingApprovalsPage = () => {
               }
             />
             <KpiCard
-              label="Price evaluations"
-              icon={Scale}
-              value={totals.pes.toString()}
-              sub={
-                totals.pes === 0
-                  ? "No evaluation awaiting you"
-                  : "Budget check, check or approval"
-              }
-            />
-            <KpiCard
-              label="Asset creation"
-              icon={FileStack}
-              value={totals.acs.toString()}
-              sub={
-                totals.acs === 0
-                  ? "No asset form awaiting you"
-                  : "Authorisation or SAP update"
-              }
+              label="Other forms"
+              icon={Files}
+              value={totals.other.toString()}
+              sub={totals.other === 0 ? "No other form awaiting you" : totals.otherBreakdown}
             />
           </>
         )}
@@ -221,6 +220,8 @@ interface PendingTabProps {
         pcRoles: NonNullable<unknown>[];
         priceEvals: PePendingRow[];
         assetCreations: AcPendingRow[];
+        gsrForms: GsrPendingRow[];
+        pcRecons: ReconPendingRow[];
       }
     | undefined;
   isLoading: boolean;
@@ -245,12 +246,16 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
 
   const priceEvals = data?.priceEvals ?? [];
   const assetCreations = data?.assetCreations ?? [];
+  const gsrForms = data?.gsrForms ?? [];
+  const pcRecons = data?.pcRecons ?? [];
 
   if (
     pvs.length === 0 &&
     pcRoles.length === 0 &&
     priceEvals.length === 0 &&
-    assetCreations.length === 0
+    assetCreations.length === 0 &&
+    gsrForms.length === 0 &&
+    pcRecons.length === 0
   ) {
     return (
       <div className="rounded-md border bg-card p-12 text-center">
@@ -302,6 +307,38 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
         </section>
       )}
 
+      {gsrForms.length > 0 && (
+        <section>
+          <header className="mb-3 flex items-baseline justify-between px-1">
+            <h2 className="text-sm font-semibold">GSR forms</h2>
+            <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground tabular-nums">
+              {gsrForms.length}
+            </span>
+          </header>
+          <div className="flex flex-col gap-3">
+            {gsrForms.map((g) => (
+              <GsrPendingCard key={g.gsrFormNum} gsr={g} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {pcRecons.length > 0 && (
+        <section>
+          <header className="mb-3 flex items-baseline justify-between px-1">
+            <h2 className="text-sm font-semibold">Reconciliation reports</h2>
+            <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground tabular-nums">
+              {pcRecons.length}
+            </span>
+          </header>
+          <div className="flex flex-col gap-3">
+            {pcRecons.map((r) => (
+              <ReconPendingCard key={r.reportNum} recon={r} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {priceEvals.length > 0 && (
         <section>
           <header className="mb-3 flex items-baseline justify-between px-1">
@@ -333,6 +370,102 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
           </div>
         </section>
       )}
+    </div>
+  );
+}
+
+// ----- GSR pending row -----
+
+type GsrPendingRow = {
+  gsrFormNum: string;
+  section: string;
+  status: "DRAFT" | "PENDING_AUTHORIZATION" | "PENDING_RECEIPT" | "COMPLETED" | "REJECTED";
+  updatedAt: string | Date;
+  requestedBy: { name: string } | null;
+  itemsSummary: string;
+};
+
+// Authorising or acknowledging receipt happens on the form's page.
+function GsrPendingCard({ gsr }: { gsr: GsrPendingRow }) {
+  const href = `/gsr/${encodeURIComponent(gsr.gsrFormNum)}`;
+  const since = formatDistanceToNow(new Date(gsr.updatedAt), { addSuffix: true });
+  return (
+    <div className="group flex min-w-0 flex-col gap-3 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm md:flex-row md:items-center md:gap-6">
+      <Link href={href} className="flex min-w-0 flex-1 items-center gap-6">
+        <div className="max-w-[180px] shrink-0 truncate font-mono text-sm font-medium tracking-tight" title={gsr.gsrFormNum}>
+          {gsr.gsrFormNum}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm" dir="auto" title={gsr.itemsSummary}>
+            {gsr.itemsSummary || "—"}
+          </span>
+          <span className="mt-1 flex min-w-0 items-center gap-2">
+            <GSRStatusPill status={gsr.status} />
+            <span className="truncate text-[11px] text-muted-foreground">Waiting {since}</span>
+          </span>
+        </div>
+        <div className="hidden max-w-[200px] text-right md:block">
+          <div dir="rtl" className="truncate font-faruma text-[13px]">{gsr.section}</div>
+          <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+            {gsr.requestedBy ? `from ${gsr.requestedBy.name}` : "requester not set"}
+          </div>
+        </div>
+      </Link>
+      <Link
+        href={href}
+        className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-md bg-foreground px-3 text-xs font-medium text-background transition hover:bg-foreground/90 md:self-auto"
+      >
+        <Eye className="size-3.5" />
+        Review &amp; sign
+      </Link>
+    </div>
+  );
+}
+
+// ----- Reconciliation report pending row -----
+
+type ReconPendingRow = {
+  reportNum: string;
+  periodText: string;
+  status: "DRAFT" | "PENDING_CHECK" | "PENDING_AUTHORIZATION" | "COMPLETED" | "REJECTED";
+  updatedAt: string | Date;
+  preparedBy: { name: string } | null;
+  total: number;
+};
+
+// Checking or authorising happens on the report's page.
+function ReconPendingCard({ recon }: { recon: ReconPendingRow }) {
+  const href = `/pc-reconciliation/${encodeURIComponent(recon.reportNum)}`;
+  const since = formatDistanceToNow(new Date(recon.updatedAt), { addSuffix: true });
+  return (
+    <div className="group flex min-w-0 flex-col gap-3 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm md:flex-row md:items-center md:gap-6">
+      <Link href={href} className="flex min-w-0 flex-1 items-center gap-6">
+        <div className="w-[84px] shrink-0 truncate font-mono text-sm font-medium tracking-tight" title={recon.reportNum}>
+          {recon.reportNum}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span dir="rtl" className="truncate text-right font-faruma text-[13px] md:text-left" title={recon.periodText}>
+            {recon.periodText}
+          </span>
+          <span className="mt-1 flex min-w-0 items-center gap-2">
+            <PcReconStatusPill status={recon.status} />
+            <span className="truncate text-[11px] text-muted-foreground">Waiting {since}</span>
+          </span>
+        </div>
+        <div className="hidden text-right md:block">
+          <div className="font-mono text-sm tabular-nums">{formatMVR(recon.total) ?? "—"}</div>
+          <div className="max-w-[160px] truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+            {recon.preparedBy ? `by ${recon.preparedBy.name}` : "total"}
+          </div>
+        </div>
+      </Link>
+      <Link
+        href={href}
+        className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-md bg-foreground px-3 text-xs font-medium text-background transition hover:bg-foreground/90 md:self-auto"
+      >
+        <Eye className="size-3.5" />
+        Review &amp; sign
+      </Link>
     </div>
   );
 }
@@ -646,6 +779,8 @@ type HistoryRow = {
     description1: string;
     forms: { formNum: string }[];
   } | null;
+  gsrForm?: { id: string; gsrFormNum: string; section: string } | null;
+  pcReconciliation?: { id: string; reportNum: string; periodText: string } | null;
 };
 
 function HistoryTab({
@@ -717,7 +852,21 @@ function HistoryRow({ event }: { event: HistoryRow }) {
               href: `/asset-creation/${encodeURIComponent(event.assetCreation.forms[0].formNum)}`,
               kindBadge: "ACF" as const,
             }
-          : null;
+          : event.gsrForm
+            ? {
+                label: event.gsrForm.gsrFormNum,
+                sub: event.gsrForm.section,
+                href: `/gsr/${encodeURIComponent(event.gsrForm.gsrFormNum)}`,
+                kindBadge: "GSR" as const,
+              }
+            : event.pcReconciliation
+              ? {
+                  label: event.pcReconciliation.reportNum,
+                  sub: event.pcReconciliation.periodText,
+                  href: `/pc-reconciliation/${encodeURIComponent(event.pcReconciliation.reportNum)}`,
+                  kindBadge: "REC" as const,
+                }
+              : null;
 
   const roleSuffix = event.pettyCashRole
     ? ` · ${PC_ROLE_LABEL[event.pettyCashRole] ?? event.pettyCashRole}`

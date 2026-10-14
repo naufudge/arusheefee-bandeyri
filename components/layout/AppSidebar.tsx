@@ -99,6 +99,8 @@ const navGroups: { label: string; items: NavItem[] }[] = [
           PERMISSIONS.PETTYCASH_READ,
           PERMISSIONS.PRICEEVAL_READ,
           PERMISSIONS.ASSETCREATION_READ,
+          PERMISSIONS.GSR_READ,
+          PERMISSIONS.PCRECON_READ,
         ],
         badge: "pending-approvals",
       },

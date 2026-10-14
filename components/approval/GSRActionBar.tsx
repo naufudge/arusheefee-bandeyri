@@ -52,6 +52,10 @@ export function GSRActionBar({
       queryKey: trpc.gsr.getByNum.queryKey({ gsrFormNum }),
     });
     queryClient.invalidateQueries({ queryKey: trpc.gsr.list.queryKey() });
+    // Keep the sidebar badge and the approvals inbox in step.
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pendingCount.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.pending.queryKey() });
+    queryClient.invalidateQueries({ queryKey: trpc.approvals.history.pathKey() });
   }
 
   function handleApprovalError(

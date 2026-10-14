@@ -373,11 +373,18 @@ export const pettyCashRouter = router({
                 incoming.amount ?? null,
               );
               if (sameStaff && sameAmount) {
-                // Preserve approval state. Update only the transaction date
-                // (which is form-supplied and unrelated to approval).
+                // Preserve approval state. Update the transaction date (which
+                // is form-supplied and unrelated to approval), and treat the
+                // save as the answer to a rejection: the role goes back to
+                // its approver's inbox. The timeline keeps the rejection.
                 await tx.pettyCashStaff.update({
                   where: { id: existingRow.id },
-                  data: { date: incoming.date },
+                  data: {
+                    date: incoming.date,
+                    ...(existingRow.rejectedAt
+                      ? { rejectedAt: null, rejectionComment: null }
+                      : {}),
+                  },
                 });
                 continue;
               }

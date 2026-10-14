@@ -507,6 +507,14 @@ export const pvRouter = router({
           message: "Assign a verifier before sending for verification.",
         });
       }
+      // Without a first authoriser the PV would wait, once verified, at a
+      // stage nobody is assigned to (and show in no one's inbox).
+      if (!pv.authorisedByOneId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Assign the first authoriser before sending for verification.",
+        });
+      }
 
       return ctx.prisma.$transaction(async (tx) => {
         await tx.approvalEvent.create({
