@@ -8,6 +8,7 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
   - validate on the server;
   - handle edge cases;
   - wrap multi-step writes in a transaction.
+- **Stay consistent.** New features, functions and modules must be consistent with the system's existing logic, architecture and features. Before building, look at how comparable modules already do it and follow them: reuse shared helpers and components, and mirror their behaviour. For example, signatories are staff selects that default to the logged-in user.
 - **Short comments.** One or two lines on *why*. No essays, and don't restate the code.
 - **Security first.** This is a government budget portal:
   - Every tRPC procedure is `permissionProcedure("module:action")`, or a `protectedProcedure` with an explicit assignee check. Never use `publicProcedure` for data.
