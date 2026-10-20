@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ClipboardList,
   FileStack,
+  Landmark,
   Link2,
   Package,
   Pencil,
@@ -35,6 +36,7 @@ import {
 import { NoAccessCard } from "@/components/shared/PermissionGate";
 import {
   AssetCreationStatusPill,
+  CeaStatusPill,
   GSRStatusPill,
   PriceEvalStatusPill,
   StatusPill,
@@ -95,6 +97,12 @@ const STAGE_UI: Record<
     createPerm: PERMISSIONS.ASSETCREATION_CREATE,
     createLabel: "Create asset creation form",
   },
+  cea: {
+    icon: Landmark,
+    createHref: (id) => `/cea/create?procurementId=${id}`,
+    createPerm: PERMISSIONS.CEA_CREATE,
+    createLabel: "Create CEA form",
+  },
   asset: {
     icon: Package,
     createHref: (id) => `/asset/create?procurementId=${id}`,
@@ -118,6 +126,7 @@ const ProcurementDetailPage = ({ params }: { params: Promise<{ id: string }> }) 
     [PERMISSIONS.GSR_CREATE]: useHasPermission(PERMISSIONS.GSR_CREATE),
     [PERMISSIONS.PRICEEVAL_CREATE]: useHasPermission(PERMISSIONS.PRICEEVAL_CREATE),
     [PERMISSIONS.ASSETCREATION_CREATE]: useHasPermission(PERMISSIONS.ASSETCREATION_CREATE),
+    [PERMISSIONS.CEA_CREATE]: useHasPermission(PERMISSIONS.CEA_CREATE),
     [PERMISSIONS.PV_CREATE]: useHasPermission(PERMISSIONS.PV_CREATE),
     [PERMISSIONS.ASSET_CREATE]: useHasPermission(PERMISSIONS.ASSET_CREATE),
   } as Partial<Record<Permission, boolean>>;
@@ -388,6 +397,9 @@ function trackerDetail(p: ProcurementSummary): Partial<Record<ProcurementStageKe
       ? `${p.pvs.length} PV${p.pvs.length === 1 ? "" : "s"}${posted ? ` · ${posted} posted` : " · not posted yet"}`
       : undefined,
     assetCreation: p.assetCreations.length ? assetCreationDetail(p.assetCreations) : undefined,
+    cea: p.capitalExpenditure
+      ? `${p.capitalExpenditure.ceaNum} · ${p.capitalExpenditure.status === "SIGNED" ? "Signed" : "Draft"}`
+      : undefined,
     asset: p.assets.length ? `${p.assets.length} asset${p.assets.length === 1 ? "" : "s"}` : undefined,
   };
 }
@@ -446,6 +458,17 @@ function stageRows(p: ProcurementSummary, key: ProcurementStageKey): Row[] {
         pill: <AssetCreationStatusPill status={ac.status} />,
         amount: ac.totalValue != null ? `MVR ${money(ac.totalValue)}` : undefined,
       }));
+    case "cea":
+      return p.capitalExpenditure
+        ? [{
+            id: p.capitalExpenditure.id,
+            num: p.capitalExpenditure.ceaNum,
+            href: `/cea/${encodeURIComponent(p.capitalExpenditure.ceaNum)}`,
+            text: "Capital expenditure authorization",
+            pill: <CeaStatusPill status={p.capitalExpenditure.status} />,
+            amount: p.capitalExpenditure.total != null ? `MVR ${money(p.capitalExpenditure.total)}` : undefined,
+          }]
+        : [];
     case "asset":
       return p.assets.map((a) => ({
         id: a.id,

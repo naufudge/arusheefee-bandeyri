@@ -24,6 +24,7 @@ import {
   ShoppingBag,
   SlidersHorizontal,
   FileStack,
+  Landmark,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { PendingApprovalsBadge } from "@/components/approval/PendingApprovalsBadge";
@@ -206,6 +207,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         url: "/asset-creation-register",
         icon: FileStack,
         requires: PERMISSIONS.ASSETCREATION_READ,
+      },
+      {
+        title: "CEA Forms",
+        url: "/cea-register",
+        icon: Landmark,
+        requires: PERMISSIONS.CEA_READ,
       },
     ],
   },

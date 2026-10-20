@@ -17,14 +17,16 @@ function describeUsage(counts: {
   pettyCash: number;
   priceEvaluations: number;
   assetCreations: number;
+  capitalExpenditures: number;
 }): string | null {
-  const { glDetails, pettyCash, priceEvaluations, assetCreations } = counts;
+  const { glDetails, pettyCash, priceEvaluations, assetCreations, capitalExpenditures } = counts;
   const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
   const parts = [
     glDetails > 0 ? plural(glDetails, "PV GL line") : null,
     pettyCash > 0 ? plural(pettyCash, "petty cash record") : null,
     priceEvaluations > 0 ? plural(priceEvaluations, "price evaluation") : null,
     assetCreations > 0 ? plural(assetCreations, "asset creation form") : null,
+    capitalExpenditures > 0 ? plural(capitalExpenditures, "CEA form") : null,
   ].filter(Boolean);
   if (parts.length === 0) return null;
   return parts.length === 1
@@ -39,6 +41,7 @@ const usageCount = {
       pettyCash: true,
       priceEvaluations: true,
       assetCreations: true,
+      capitalExpenditures: true,
     },
   },
 } as const;

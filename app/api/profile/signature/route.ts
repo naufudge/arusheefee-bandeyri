@@ -7,8 +7,10 @@ import {
   getFileStream,
   uploadFile,
 } from "@/lib/sharepoint";
+import { detectPdfImage } from "@/lib/image-check";
 
 const SIGNATURE_REF_TYPE = "staff_signature";
+const MAX_SIGNATURE_BYTES = 2 * 1024 * 1024;
 
 async function findCurrent(staffId: string) {
   return prisma.attachment.findFirst({
@@ -56,14 +58,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "filename is required" }, { status: 400 });
   }
 
-  const mimeType = request.headers.get("content-type") ?? "";
-  if (!mimeType.startsWith("image/")) {
-    return NextResponse.json(
-      { error: "Signature must be an image" },
-      { status: 400 },
-    );
-  }
-
   let buffer: ArrayBuffer;
   try {
     buffer = await request.arrayBuffer();
@@ -77,6 +71,17 @@ export async function POST(request: NextRequest) {
   }
   if (buffer.byteLength === 0) {
     return NextResponse.json({ error: "Empty image body" }, { status: 400 });
+  }
+  if (buffer.byteLength > MAX_SIGNATURE_BYTES) {
+    return NextResponse.json({ error: "Signature must be under 2 MB" }, { status: 400 });
+  }
+  // Signatures print on PDFs, which only take PNG or JPEG: check the bytes.
+  const mimeType = detectPdfImage(new Uint8Array(buffer));
+  if (!mimeType) {
+    return NextResponse.json(
+      { error: "Signature must be a PNG or JPEG image" },
+      { status: 400 },
+    );
   }
 
   const staffId = session.user.id;

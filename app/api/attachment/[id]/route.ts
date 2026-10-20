@@ -4,7 +4,8 @@ import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { deleteFile, getFileStream } from "@/lib/sharepoint";
 
-// Reference types governed by the generic `attachment:*` permissions.
+// The only reference types this route serves (see ../route.ts). Rows of any
+// other type — signatures, … — are reported as not found.
 const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash", "price_evaluation"]);
 
 export async function GET(
@@ -25,17 +26,14 @@ export async function GET(
   const attachment = await prisma.attachment.findUnique({
     where: { id: numericId },
   });
-  if (!attachment || !attachment.sharepointFileName) {
+  if (
+    !attachment ||
+    !attachment.sharepointFileName ||
+    !GENERIC_REFERENCE_TYPES.has(attachment.reference_type)
+  ) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-
-  // `attachment:read` covers download for the generic types. Other ref
-  // types are owned by their own routes (signatures via /api/profile/
-  // signature) and rarely flow through this endpoint.
-  if (
-    GENERIC_REFERENCE_TYPES.has(attachment.reference_type) &&
-    !hasPermission(session, "attachment:read")
-  ) {
+  if (!hasPermission(session, "attachment:read")) {
     return NextResponse.json(
       { error: "Missing permission: attachment:read" },
       { status: 403 },
@@ -77,19 +75,13 @@ export async function DELETE(
   const attachment = await prisma.attachment.findUnique({
     where: { id: numericId },
   });
-  if (!attachment) {
+  if (!attachment || !GENERIC_REFERENCE_TYPES.has(attachment.reference_type)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Generic `attachment:delete` gate. No longer tied to parent-record
-  // state — anyone with this permission can remove evidence regardless
-  // of whether the parent PV/petty cash is locked. Workflow lock is
-  // about voucher data integrity; attachments are evidence and
-  // managed separately.
-  if (
-    GENERIC_REFERENCE_TYPES.has(attachment.reference_type) &&
-    !hasPermission(session, "attachment:delete")
-  ) {
+  // Not tied to the parent record's workflow lock: attachments are
+  // evidence, managed separately from voucher data.
+  if (!hasPermission(session, "attachment:delete")) {
     return NextResponse.json(
       { error: "Missing permission: attachment:delete" },
       { status: 403 },

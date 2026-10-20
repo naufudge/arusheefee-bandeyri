@@ -111,7 +111,8 @@ const GlAccountsPage = () => {
           a._count.glDetails +
           a._count.pettyCash +
           a._count.priceEvaluations +
-          a._count.assetCreations,
+          a._count.assetCreations +
+          a._count.capitalExpenditures,
       })),
     [accounts],
   );
@@ -407,6 +408,9 @@ const GlAccountsPage = () => {
                             )}
                             {a._count.assetCreations > 0 && (
                               <div>{a._count.assetCreations} ACF</div>
+                            )}
+                            {a._count.capitalExpenditures > 0 && (
+                              <div>{a._count.capitalExpenditures} CEA</div>
                             )}
                           </div>
                         )}

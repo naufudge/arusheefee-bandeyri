@@ -13,6 +13,7 @@ import { assertProcurementSlot } from "../lib/procurement";
 import { procurementProgress, type ProcurementStageKey } from "@/lib/procurement";
 import { computeComparison, ratesByPosition } from "@/lib/price-eval";
 import { formNumRange } from "@/lib/asset-creation";
+import { peSource, resolveCea } from "@/lib/cea";
 import { pvTotal } from "@/utils/currency";
 
 // Enough of each linked document to show its row and work out progress.
@@ -36,8 +37,24 @@ const docsInclude = {
       date: true,
       gstRate: true,
       selectedVendor: true,
+      section: true,
+      budgetBalance: true,
+      glAccountId: true,
+      glAccount: { select: { code: true, longTextEn: true } },
       vendors: { orderBy: { position: "asc" } },
       items: { orderBy: { position: "asc" }, include: { quotes: true } },
+    },
+  },
+  capitalExpenditure: {
+    select: {
+      id: true,
+      ceaNum: true,
+      status: true,
+      section: true,
+      glAccountId: true,
+      glAccount: { select: { code: true, longTextEn: true } },
+      budgetBalance: true,
+      items: { orderBy: { position: "asc" } },
     },
   },
   pvs: {
@@ -138,6 +155,15 @@ function summarize(p: WithDocs) {
       };
     }),
     assets: p.assets,
+    // A draft CEA's cost follows the price evaluation, as on its own page.
+    capitalExpenditure: p.capitalExpenditure
+      ? {
+          id: p.capitalExpenditure.id,
+          ceaNum: p.capitalExpenditure.ceaNum,
+          status: p.capitalExpenditure.status,
+          total: resolveCea(p.capitalExpenditure, pe ? peSource(pe) : null).total,
+        }
+      : null,
   };
 
   return {
@@ -185,6 +211,10 @@ async function findLinkable(
       return db.priceEvaluation
         .findUnique({ where: { id: docId }, select: { ...select, evalNum: true } })
         .then((r) => r && { label: `Price evaluation ${r.evalNum}`, procurementId: r.procurementId });
+    case "cea":
+      return db.capitalExpenditure
+        .findUnique({ where: { id: docId }, select: { ...select, ceaNum: true } })
+        .then((r) => r && { label: `CEA form ${r.ceaNum}`, procurementId: r.procurementId });
     case "assetCreation":
       return db.assetCreation
         .findUnique({
@@ -225,6 +255,8 @@ async function setLink(
       return void (await db.priceEvaluation.update({ where, data }));
     case "assetCreation":
       return void (await db.assetCreation.update({ where, data }));
+    case "cea":
+      return void (await db.capitalExpenditure.update({ where, data }));
     case "asset":
       return void (await db.asset.update({ where, data }));
     case "pv":
@@ -322,6 +354,18 @@ export const procurementRouter = router({
             orderBy: { date: "desc" },
           });
           return rows.map((r) => ({ id: r.id, label: r.pvNum, hint: r.vendor }));
+        }
+        case "cea": {
+          const rows = await ctx.prisma.capitalExpenditure.findMany({
+            where,
+            select: { id: true, ceaNum: true, items: { select: { description: true }, orderBy: { position: "asc" } } },
+            orderBy: { createdAt: "desc" },
+          });
+          return rows.map((r) => ({
+            id: r.id,
+            label: r.ceaNum,
+            hint: joinNames(r.items.map((i) => i.description ?? "")),
+          }));
         }
         case "assetCreation": {
           const rows = await ctx.prisma.assetCreation.findMany({

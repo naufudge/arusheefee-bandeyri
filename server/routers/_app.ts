@@ -14,6 +14,7 @@ import { priceEvalRouter } from "./priceEval";
 import { settingsRouter } from "./settings";
 import { procurementRouter } from "./procurement";
 import { assetCreationRouter } from "./assetCreation";
+import { ceaRouter } from "./cea";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -31,6 +32,7 @@ export const appRouter = router({
   settings: settingsRouter,
   procurement: procurementRouter,
   assetCreation: assetCreationRouter,
+  cea: ceaRouter,
 });
 
 // Export type router type signature,

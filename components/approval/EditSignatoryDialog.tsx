@@ -16,6 +16,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Label } from "@/components/ui/label";
+import { DesignationField } from "@/components/shared/DesignationField";
 import type { PvSignatoryRole } from "@/server/schemas/pv.schema";
 
 // Sentinel for the "leave unassigned" row — the picker treats "" as
@@ -163,10 +165,8 @@ export function EditSignatoryDialog({
           </div>
         )}
 
-        <div className="grid gap-1.5">
-          <label className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Staff
-          </label>
+        <div className="space-y-2">
+          <Label>Name</Label>
           {staffError ? (
             <p className="text-xs text-red-600 dark:text-red-400">
               Could not load the staff list: {staffError.message}
@@ -181,12 +181,7 @@ export function EditSignatoryDialog({
                 ...(canUnassign
                   ? [{ value: UNASSIGNED, label: "— Leave unassigned —" }]
                   : []),
-                ...selectableStaff.map((s) => ({
-                  value: s.id,
-                  label: s.designation?.trim()
-                    ? `${s.name} · ${s.designation}`
-                    : s.name,
-                })),
+                ...selectableStaff.map((s) => ({ value: s.id, label: s.name })),
               ]}
               disabled={isLoading || mutation.isPending}
               placeholder={isLoading ? "Loading staff…" : "Select a staff"}
@@ -195,6 +190,9 @@ export function EditSignatoryDialog({
             />
           )}
         </div>
+        {!staffError && (
+          <DesignationField value={selectableStaff.find((s) => s.id === selected)?.designation} />
+        )}
 
         <DialogFooter className="gap-2">
           <Button

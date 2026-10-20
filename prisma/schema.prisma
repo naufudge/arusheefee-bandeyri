@@ -79,6 +79,9 @@ model Staff {
   sapUpdatedAssetCreations AssetCreation[] @relation("AssetCreationSapUpdatedBy")
   rejectedAssetCreations   AssetCreation[] @relation("AssetCreationRejectedBy")
 
+  // Capital expenditure authorizations this staff member requests (and signs)
+  requestedCeas CapitalExpenditure[] @relation("CeaRequestedBy")
+
   // Procurements this staff member started
   createdProcurements Procurement[] @relation("ProcurementCreatedBy")
 
@@ -235,10 +238,11 @@ model GlAccount {
   // cash GL picker and enforced when a petty cash record is saved).
   pettyCashAllowed Boolean @default(false)
 
-  glDetails        GLDetail[]
-  pettyCash        PettyCash[]
-  priceEvaluations PriceEvaluation[]
-  assetCreations   AssetCreation[]
+  glDetails           GLDetail[]
+  pettyCash           PettyCash[]
+  priceEvaluations    PriceEvaluation[]
+  assetCreations      AssetCreation[]
+  capitalExpenditures CapitalExpenditure[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -829,6 +833,70 @@ model AssetCreationForm {
   @@map("asset_creation_forms")
 }
 
+// ----- Capital expenditure authorization (CEA) -----
+// "ޕީ. އެސް. އައި. ޕީ. ގައި ނުހިމެނޭ ކެޕިޓަލް ތަކެތި ހޯދުމުގެ ހުއްދައަށް އެދޭ ފޯމު".
+// While a draft sits in a procurement with a price evaluation, its section,
+// budget code, balance and item rows come live from that evaluation
+// (lib/cea.ts); the stored values below are the hand-entered ones, frozen
+// from the evaluation when the requester signs.
+model CapitalExpenditure {
+  id           String   @id @default(cuid())
+  ceaNum       String   @unique // "(FRM)433-CA/433/2026/189"
+  date         DateTime
+  businessArea String
+
+  section       String?
+  glAccountId   Int?
+  glAccount     GlAccount? @relation(fields: [glAccountId], references: [id], onDelete: Restrict)
+  budgetBalance Float?
+
+  // Financial Executive, prefilled from Settings → General; signs on paper.
+  feNameEn        String?
+  feNameDv        String?
+  feDesignationEn String?
+  feDesignationDv String?
+
+  // The requester signs the form in the app.
+  requestedById  String?
+  requestedBy    Staff?          @relation("CeaRequestedBy", fields: [requestedById], references: [id])
+  status         CeaStatus       @default(DRAFT)
+  signedAt       DateTime?
+  approvalEvents ApprovalEvent[]
+
+  items CeaItem[]
+
+  // One per procurement.
+  procurementId String?      @unique
+  procurement   Procurement? @relation(fields: [procurementId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([glAccountId])
+  @@map("capital_expenditures")
+}
+
+// One row of the CEA table. description/qty/cost are hand-entered or frozen;
+// the other columns are always entered on the CEA (Dhivehi text).
+model CeaItem {
+  id          String  @id @default(cuid())
+  position    Int
+  description String?
+  qty         Float?
+  cost        Float?
+  onHand      String?
+  acquired    String?
+  condition   String?
+  reason      String?
+
+  ceaId String
+  cea   CapitalExpenditure @relation(fields: [ceaId], references: [id], onDelete: Cascade)
+
+  @@unique([ceaId, position])
+  @@map("cea_items")
+}
+
 // ----- Procurement -----
 // Groups the documents of one purchase: its requisition (GSR), price
 // evaluation, payment vouchers and, when it buys an asset, the asset
@@ -846,11 +914,12 @@ model Procurement {
   createdById String?
   createdBy   Staff?  @relation("ProcurementCreatedBy", fields: [createdById], references: [id])
 
-  gsrForm         GSRForm?
-  priceEvaluation PriceEvaluation?
-  pvs             PV[]
-  assets          Asset[]
-  assetCreations  AssetCreation[]
+  gsrForm            GSRForm?
+  priceEvaluation    PriceEvaluation?
+  pvs                PV[]
+  assets             Asset[]
+  assetCreations     AssetCreation[]
+  capitalExpenditure CapitalExpenditure?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -922,6 +991,11 @@ enum AssetCreationStatus {
   REJECTED
 }
 
+enum CeaStatus {
+  DRAFT
+  SIGNED
+}
+
 // "Request for" on the asset creation form.
 enum AssetRequestType {
   CREATE
@@ -966,6 +1040,8 @@ enum ApprovalEventKind {
   AC_SAP_UPDATED
   AC_CALLED_BACK
   AC_REJECTED
+  CEA_SIGNED
+  CEA_REOPENED
 }
 
 // Polymorphic timeline table. Exactly one of `pvId` / `pettyCashId` is
@@ -973,26 +1049,28 @@ enum ApprovalEventKind {
 // `pettyCashRole` is populated only for PC events to identify which of
 // the five roles the event refers to.
 model ApprovalEvent {
-  id                 String            @id @default(cuid())
-  kind               ApprovalEventKind
-  pvId               String?
-  pettyCashId        String?
-  gsrFormId          String?
-  pcReconciliationId String?
-  priceEvaluationId  String?
-  assetCreationId    String?
-  pettyCashRole      String?
-  actorId            String
-  comment            String?
-  createdAt          DateTime          @default(now())
+  id                   String            @id @default(cuid())
+  kind                 ApprovalEventKind
+  pvId                 String?
+  pettyCashId          String?
+  gsrFormId            String?
+  pcReconciliationId   String?
+  priceEvaluationId    String?
+  assetCreationId      String?
+  capitalExpenditureId String?
+  pettyCashRole        String?
+  actorId              String
+  comment              String?
+  createdAt            DateTime          @default(now())
 
-  pv               PV?               @relation(fields: [pvId], references: [id], onDelete: Cascade)
-  pettyCash        PettyCash?        @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
-  gsrForm          GSRForm?          @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
-  pcReconciliation PcReconciliation? @relation(fields: [pcReconciliationId], references: [id], onDelete: Cascade)
-  priceEvaluation  PriceEvaluation?  @relation(fields: [priceEvaluationId], references: [id], onDelete: Cascade)
-  assetCreation    AssetCreation?    @relation(fields: [assetCreationId], references: [id], onDelete: Cascade)
-  actor            Staff             @relation("ApprovalActor", fields: [actorId], references: [id])
+  pv                 PV?                 @relation(fields: [pvId], references: [id], onDelete: Cascade)
+  pettyCash          PettyCash?          @relation(fields: [pettyCashId], references: [id], onDelete: Cascade)
+  gsrForm            GSRForm?            @relation(fields: [gsrFormId], references: [id], onDelete: Cascade)
+  pcReconciliation   PcReconciliation?   @relation(fields: [pcReconciliationId], references: [id], onDelete: Cascade)
+  priceEvaluation    PriceEvaluation?    @relation(fields: [priceEvaluationId], references: [id], onDelete: Cascade)
+  assetCreation      AssetCreation?      @relation(fields: [assetCreationId], references: [id], onDelete: Cascade)
+  capitalExpenditure CapitalExpenditure? @relation(fields: [capitalExpenditureId], references: [id], onDelete: Cascade)
+  actor              Staff               @relation("ApprovalActor", fields: [actorId], references: [id])
 
   @@index([pvId, createdAt])
   @@index([pettyCashId, createdAt])
@@ -1000,5 +1078,6 @@ model ApprovalEvent {
   @@index([pcReconciliationId, createdAt])
   @@index([priceEvaluationId, createdAt])
   @@index([assetCreationId, createdAt])
+  @@index([capitalExpenditureId, createdAt])
   @@map("approval_events")
 }

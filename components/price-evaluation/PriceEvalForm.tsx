@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { DesignationField } from "@/components/shared/DesignationField";
 import { AttachmentSection } from "@/components/attachments/AttachmentSection";
 import {
   AttachmentQueue,
@@ -152,7 +153,7 @@ export function PriceEvalForm({ evaluation, procurementId }: PriceEvalFormProps)
     () =>
       (staff ?? [])
         .filter((s) => s.designation?.trim())
-        .map((s) => ({ value: s.id, label: s.name, hint: s.designation })),
+        .map((s) => ({ value: s.id, label: s.name })),
     [staff],
   );
 
@@ -531,20 +532,24 @@ export function PriceEvalForm({ evaluation, procurementId }: PriceEvalFormProps)
                       control={control}
                       name={name}
                       render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <SearchableSelect
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              options={staffOptions}
-                              placeholder="Select staff"
-                              searchPlaceholder="Search staff…"
-                              emptyMessage="No staff available"
-                              contentClassName="w-[min(22rem,90vw)]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <>
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <SearchableSelect
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={staffOptions}
+                                placeholder="Select staff"
+                                searchPlaceholder="Search staff…"
+                                emptyMessage="No staff available"
+                                contentClassName="w-[min(22rem,90vw)]"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                          <DesignationField value={staff?.find((s) => s.id === field.value)?.designation} />
+                        </>
                       )}
                     />
                   </div>

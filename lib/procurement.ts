@@ -29,6 +29,13 @@ export const PROCUREMENT_STAGES = [
     assetOnly: true,
   },
   {
+    key: "cea",
+    label: "Capital expenditure",
+    doc: "CEA form",
+    multiple: false,
+    assetOnly: true,
+  },
+  {
     key: "asset",
     label: "Asset registration",
     doc: "Asset",
@@ -67,6 +74,7 @@ export interface ProcurementDocsLike {
   gsrForm: { status: string } | null;
   priceEvaluation: { status: string } | null;
   assetCreations: { status: string }[];
+  capitalExpenditure: { status: string } | null;
   assets: unknown[];
   pvs: { status: string }[];
 }
@@ -99,11 +107,16 @@ export function procurementProgress(p: ProcurementDocsLike): ProcurementProgress
       : p.assetCreations.every((x) => x.status === "COMPLETED")
         ? "done"
         : "in-progress";
+  const cea: StageState = !p.capitalExpenditure
+    ? "empty"
+    : p.capitalExpenditure.status === "SIGNED"
+      ? "done"
+      : "in-progress";
   const asset: StageState = p.assets.length > 0 ? "done" : "empty";
   const pv: StageState =
     p.pvs.length === 0 ? "empty" : p.pvs.some((x) => x.status === "POSTED") ? "done" : "in-progress";
 
-  const stages = { gsr, priceEvaluation, assetCreation, asset, pv };
+  const stages = { gsr, priceEvaluation, assetCreation, cea, asset, pv };
   const stageKeys = visibleStages(p.isAsset).map((s) => s.key);
   const currentStage = [...stageKeys].reverse().find((k) => stages[k] !== "empty") ?? null;
 

@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { DesignationField } from "@/components/shared/DesignationField";
 import { AssetCategorySelect } from "@/components/asset/AssetCategorySelect";
 import { AssetDateField } from "@/components/asset/AssetDateField";
 import { useTRPC } from "@/lib/trpc";
@@ -184,7 +185,7 @@ export function AssetCreationForm({ assetCreation, source, procurementId }: Asse
     () =>
       (staff ?? [])
         .filter((s) => s.designation?.trim())
-        .map((s) => ({ value: s.id, label: s.name, hint: s.designation })),
+        .map((s) => ({ value: s.id, label: s.name })),
     [staff],
   );
   const classOptions = useMemo(() => assetClassOptions(), []);
@@ -898,6 +899,7 @@ export function AssetCreationForm({ assetCreation, source, procurementId }: Asse
                     name={name}
                     render={({ field }) => (
                       <FormItem>
+                        <FormLabel>Name</FormLabel>
                         <FormControl>
                           <SearchableSelect
                             value={field.value}
@@ -913,6 +915,7 @@ export function AssetCreationForm({ assetCreation, source, procurementId }: Asse
                       </FormItem>
                     )}
                   />
+                  <DesignationField value={person?.designation} />
                   {person && (
                     <span className="text-[11px] text-muted-foreground">
                       {person.idCardNo ? (

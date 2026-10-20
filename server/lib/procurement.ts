@@ -35,6 +35,7 @@ export async function assertProcurementSlot(
       isAsset: true,
       gsrForm: { select: { gsrFormNum: true } },
       priceEvaluation: { select: { evalNum: true } },
+      capitalExpenditure: { select: { ceaNum: true } },
     },
   });
   if (!procurement) {
@@ -53,6 +54,12 @@ export async function assertProcurementSlot(
     throw new TRPCError({
       code: "CONFLICT",
       message: `"${procurement.title}" already has GSR form ${procurement.gsrForm.gsrFormNum}. Unlink it first.`,
+    });
+  }
+  if (type === "cea" && procurement.capitalExpenditure) {
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: `"${procurement.title}" already has CEA form ${procurement.capitalExpenditure.ceaNum}. Unlink it first.`,
     });
   }
   if (type === "priceEvaluation" && procurement.priceEvaluation) {

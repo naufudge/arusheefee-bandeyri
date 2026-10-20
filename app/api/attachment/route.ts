@@ -7,9 +7,9 @@ import {
   uploadFile,
 } from "@/lib/sharepoint";
 
-// Reference types governed by the generic `attachment:*` permissions.
-// Other reference types (staff_signature, etc.) are owned by their own
-// routes (e.g. `/api/profile/signature`) and don't pass through here.
+// The only reference types this route serves, all governed by the generic
+// `attachment:*` permissions. Anything else (signatures, …) has its own
+// route, so it's refused here rather than left unchecked.
 const GENERIC_REFERENCE_TYPES = new Set(["pv", "petty_cash", "price_evaluation"]);
 
 export async function POST(request: NextRequest) {
@@ -40,12 +40,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "filename is required" }, { status: 400 });
   }
 
-  // Generic `attachment:upload` gate covers all known reference types.
-  // Unknown types still require the permission as a defensive default.
-  if (
-    GENERIC_REFERENCE_TYPES.has(referenceType) &&
-    !hasPermission(session, "attachment:upload")
-  ) {
+  if (!GENERIC_REFERENCE_TYPES.has(referenceType)) {
+    return NextResponse.json({ error: "Unsupported referenceType" }, { status: 400 });
+  }
+  if (!hasPermission(session, "attachment:upload")) {
     return NextResponse.json(
       { error: "Missing permission: attachment:upload" },
       { status: 403 },
@@ -114,14 +112,10 @@ export async function GET(request: NextRequest) {
   const referenceType = searchParams.get("referenceType");
   const referenceId = searchParams.get("referenceId");
 
-  // Listing generic-type attachments requires `attachment:read`. Lookups
-  // for other reference types (signatures, etc.) are handled by their
-  // own routes and bypass this list endpoint anyway.
-  if (
-    referenceType &&
-    GENERIC_REFERENCE_TYPES.has(referenceType) &&
-    !hasPermission(session, "attachment:read")
-  ) {
+  if (!referenceType || !GENERIC_REFERENCE_TYPES.has(referenceType)) {
+    return NextResponse.json({ error: "Unsupported referenceType" }, { status: 400 });
+  }
+  if (!hasPermission(session, "attachment:read")) {
     return NextResponse.json(
       { error: "Missing permission: attachment:read" },
       { status: 403 },
@@ -130,7 +124,7 @@ export async function GET(request: NextRequest) {
 
   const attachments = await prisma.attachment.findMany({
     where: {
-      ...(referenceType ? { reference_type: referenceType } : {}),
+      reference_type: referenceType,
       ...(referenceId ? { reference_id: referenceId } : {}),
     },
     orderBy: { createdAt: "desc" },

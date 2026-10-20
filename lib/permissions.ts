@@ -112,6 +112,15 @@ export const PERMISSIONS = {
   // still required as the base.
   ASSETCREATION_EDIT_LOCKED: "assetcreation:edit_locked",
 
+  // ----- Capital Expenditure Authorization -----
+  // Signing is creator-gated, not permission-gated.
+  CEA_READ: "cea:read",
+  CEA_CREATE: "cea:create",
+  CEA_UPDATE: "cea:update",
+  CEA_DELETE: "cea:delete",
+  // Override: edit a signed CEA, or reopen one someone else created.
+  CEA_EDIT_LOCKED: "cea:edit_locked",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -436,6 +445,37 @@ export const PERMISSION_GROUPS: {
         label: "Edit locked price evaluation",
         description:
           "Override the workflow lock and edit an evaluation that has been sent for signing or further. Requires \"Edit price evaluation\" as well.",
+      },
+    ],
+  },
+  {
+    label: "Capital Expenditure Authorization",
+    permissions: [
+      {
+        key: PERMISSIONS.CEA_READ,
+        label: "View CEA forms",
+        description: "Browse capital expenditure authorization forms and download their PDFs.",
+      },
+      {
+        key: PERMISSIONS.CEA_CREATE,
+        label: "Create CEA form",
+        description: "Start a new capital expenditure authorization form.",
+      },
+      {
+        key: PERMISSIONS.CEA_UPDATE,
+        label: "Edit CEA form",
+        description: "Modify a CEA form that hasn't been signed yet.",
+      },
+      {
+        key: PERMISSIONS.CEA_DELETE,
+        label: "Delete CEA form",
+        description: "Remove a CEA form permanently.",
+      },
+      {
+        key: PERMISSIONS.CEA_EDIT_LOCKED,
+        label: "Edit locked CEA form",
+        description:
+          "Edit a signed CEA form, or reopen one someone else created. Requires \"Edit CEA form\" to edit.",
       },
     ],
   },

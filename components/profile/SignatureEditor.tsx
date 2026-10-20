@@ -106,7 +106,7 @@ export function SignatureEditor({
   }, [mode, resizeCanvas]);
 
   const validateFile = (file: File): boolean => {
-    if (!file.type.startsWith("image/")) {
+    if (file.type !== "image/png" && file.type !== "image/jpeg") {
       toast({ title: "Not an image", description: "Pick a PNG or JPG." });
       return false;
     }
@@ -207,7 +207,7 @@ export function SignatureEditor({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/png,image/jpeg"
         className="hidden"
         onChange={handleFileChange}
       />

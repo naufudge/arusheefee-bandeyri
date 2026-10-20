@@ -11,6 +11,7 @@ import {
   Wallet,
   DatabaseZap,
   Hash,
+  PenLine,
 } from "lucide-react";
 import type { ApprovalEventKind } from "@prisma/client";
 
@@ -53,6 +54,8 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   AC_SAP_UPDATED: "SAP asset master updated",
   AC_CALLED_BACK: "Called back to draft",
   AC_REJECTED: "Rejected",
+  CEA_SIGNED: "Signed & submitted",
+  CEA_REOPENED: "Reopened to draft",
 };
 
 export const KIND_ICON: Record<
@@ -92,6 +95,8 @@ export const KIND_ICON: Record<
   AC_SAP_UPDATED: DatabaseZap,
   AC_CALLED_BACK: Undo2,
   AC_REJECTED: XCircle,
+  CEA_SIGNED: PenLine,
+  CEA_REOPENED: Undo2,
 };
 
 export const KIND_TONE: Record<
@@ -262,6 +267,16 @@ export const KIND_TONE: Record<
     bg: "bg-red-50 dark:bg-red-900/20",
     ring: "ring-red-200 dark:ring-red-800/60",
     icon: "text-red-600 dark:text-red-400",
+  },
+  CEA_SIGNED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  CEA_REOPENED: {
+    bg: "bg-muted",
+    ring: "ring-border",
+    icon: "text-muted-foreground",
   },
 };
 

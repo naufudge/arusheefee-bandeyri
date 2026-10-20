@@ -34,6 +34,42 @@ const DEFAULT_ASSET_CODING: AssetCoding = {
   functionalArea: "S067005001001001",
 };
 
+/** Financial Executive printed on CEA forms (Settings → General). */
+export interface CeaFe {
+  nameEn: string;
+  nameDv: string;
+  designationEn: string;
+  designationDv: string;
+}
+
+export const CEA_FE_KEYS: Record<keyof CeaFe, string> = {
+  nameEn: "cea_fe_name_en",
+  nameDv: "cea_fe_name_dv",
+  designationEn: "cea_fe_designation_en",
+  designationDv: "cea_fe_designation_dv",
+};
+
+export async function getCeaFe(db: Db): Promise<CeaFe> {
+  const rows = await db.appSetting.findMany({
+    where: { key: { in: Object.values(CEA_FE_KEYS) } },
+  });
+  const byKey = new Map(rows.map((r) => [r.key, r.value]));
+  return {
+    nameEn: byKey.get(CEA_FE_KEYS.nameEn) ?? "",
+    nameDv: byKey.get(CEA_FE_KEYS.nameDv) ?? "",
+    designationEn: byKey.get(CEA_FE_KEYS.designationEn) ?? "",
+    designationDv: byKey.get(CEA_FE_KEYS.designationDv) ?? "",
+  };
+}
+
+/** The office stamp printed on signed CEA forms, as an image data URL. */
+export const OFFICE_STAMP_KEY = "office_stamp";
+
+export async function getOfficeStamp(db: Db): Promise<string | null> {
+  const row = await db.appSetting.findUnique({ where: { key: OFFICE_STAMP_KEY } });
+  return row?.value || null;
+}
+
 /** The SAP coding new asset creation forms start with. */
 export async function getAssetCoding(db: Db): Promise<AssetCoding> {
   const rows = await db.appSetting.findMany({

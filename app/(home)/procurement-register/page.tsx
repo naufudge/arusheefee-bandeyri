@@ -74,6 +74,7 @@ const ProcurementRegisterPage = () => {
         ...p.pvs.flatMap((pv) => [pv.pvNum, pv.vendor]),
         ...p.assets.flatMap((a) => [a.assetNum, a.assetName]),
         ...p.assetCreations.flatMap((ac) => [...ac.formNums, ac.description]),
+        p.capitalExpenditure?.ceaNum ?? "",
       ];
       return haystack.some((text) => text.toLowerCase().includes(q));
     });
@@ -238,6 +239,7 @@ const ProcurementRegisterPage = () => {
               p.gsrForm && `GSR ${p.gsrForm.gsrFormNum}`,
               p.priceEvaluation && `PE ${p.priceEvaluation.evalNum}`,
               ...p.assetCreations.map((ac) => `ACF ${ac.formRange}`),
+              p.capitalExpenditure && `CEA ${p.capitalExpenditure.ceaNum}`,
               p.assets.length ? `${p.assets.length} asset${p.assets.length === 1 ? "" : "s"}` : null,
               ...p.pvs.map((pv) => `PV ${pv.pvNum}`),
             ].filter((c): c is string => Boolean(c));
