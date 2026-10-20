@@ -297,11 +297,12 @@ export const procurementRouter = router({
     .mutation(async ({ ctx, input }) => {
       const p = await findOr404(ctx.prisma, input.id);
       // The asset stages hold documents: they can't just disappear.
-      if (p.isAsset && !input.isAsset && (p.assetCreations.length > 0 || p.assets.length > 0)) {
+      const assetDocs = p.assetCreations.length > 0 || p.assets.length > 0 || p.capitalExpenditure !== null;
+      if (p.isAsset && !input.isAsset && assetDocs) {
         throw new TRPCError({
           code: "CONFLICT",
           message:
-            "This procurement has asset creation forms or assets. Unlink them before marking it as not an asset purchase.",
+            "This procurement has asset creation forms, a CEA form or assets. Unlink them before marking it as not an asset purchase.",
         });
       }
       await ctx.prisma.procurement.update({
