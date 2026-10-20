@@ -147,6 +147,7 @@ const GROUPS: GlClassGroup[] = [
       ["Z654", "Household Furniture"],
       ["Z655", "Other Fittings"],
       ["Z699", "Other Furniture"],
+      ["Z850", "LVA - Furniture & Fittings"],
     ],
   },
   {
@@ -157,6 +158,7 @@ const GROUPS: GlClassGroup[] = [
       ["Z700", "Hospital Equipment and Machinery"],
       ["Z701", "Laboratory Equipment and Machinery"],
       ["Z702", "Office Equipment and Machinery"],
+      ["Z851", "LVA - Machinery and Equipment"],
     ],
   },
   {
@@ -181,6 +183,7 @@ const GROUPS: GlClassGroup[] = [
       ["Z775", "Apparatus"],
       ["Z776", "Instruments"],
       ["Z777", "Tools"],
+      ["Z852", "LVA - Tools, Instruments, Apparatus"],
     ],
   },
   {
@@ -190,6 +193,7 @@ const GROUPS: GlClassGroup[] = [
     classes: [
       ["Z800", "Books"],
       ["Z801", "Exhibition Goods"],
+      ["Z853", "LVA - Reference Books & Exhibition Goods"],
     ],
   },
   {
@@ -198,6 +202,7 @@ const GROUPS: GlClassGroup[] = [
     defaultLife: 5,
     classes: [
       ["Z625", "Network"],
+      ["Z854", "LVA - Communication Infrastructure"],
     ],
   },
   {
@@ -206,6 +211,7 @@ const GROUPS: GlClassGroup[] = [
     defaultLife: 5,
     classes: [
       ["Z600", "Software"],
+      ["Z855", "LVA - Computer Software"],
     ],
   },
   {
@@ -221,6 +227,7 @@ const GROUPS: GlClassGroup[] = [
       ["Z555", "Servers"],
       ["Z556", "Switches"],
       ["Z599", "Other IT Equipment"],
+      ["Z856", "LVA - IT-Related Hardware"],
     ],
   },
   {
@@ -280,7 +287,12 @@ export interface AssetClass {
   glCode: number;
   glName: string;
   defaultLife: number;
+  /** Low value asset class (Z850–Z856): only for assets under LVA_LIMIT. */
+  lowValue: boolean;
 }
+
+/** LVA classes are only for assets whose original value (MVR, per form) is under this. */
+export const LVA_LIMIT = 3000;
 
 export const ASSET_CLASSES: AssetClass[] = GROUPS.flatMap((g) =>
   g.classes.map(([code, name]) => ({
@@ -289,6 +301,7 @@ export const ASSET_CLASSES: AssetClass[] = GROUPS.flatMap((g) =>
     glCode: g.glCode,
     glName: g.glName,
     defaultLife: g.defaultLife,
+    lowValue: name.startsWith("LVA - "),
   })),
 );
 
@@ -302,5 +315,16 @@ export const assetClassOptions = () =>
   ASSET_CLASSES.map((c) => ({
     value: c.code,
     label: `${c.code} · ${c.name}`,
-    hint: `${c.glCode} ${c.glName}`,
+    hint: `${c.glCode} ${c.glName}${c.lowValue ? ` · under MVR ${LVA_LIMIT.toLocaleString("en-US")}` : ""}`,
   }));
+
+/** Why this class can't take this value (an LVA class at or over the limit), or null. */
+export function lvaProblem(classCode: string | null | undefined, originalValue: number | null | undefined) {
+  const c = assetClassByCode(classCode);
+  if (!c?.lowValue) return null;
+  if (originalValue == null) return `Enter the original value: ${c.code} is only for assets under MVR ${LVA_LIMIT.toLocaleString("en-US")}.`;
+  if (originalValue >= LVA_LIMIT) {
+    return `${c.code} (${c.name}) is only for assets under MVR ${LVA_LIMIT.toLocaleString("en-US")}. Choose a regular class.`;
+  }
+  return null;
+}

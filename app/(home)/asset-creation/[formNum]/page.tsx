@@ -261,6 +261,7 @@ const AssetCreationDetailPage = ({ params }: { params: Promise<{ formNum: string
                         forms: ac.forms.map((f) => ({ id: f.id, formNum: f.formNum, sapAssetNum: f.sapAssetNum })),
                         assetClass: ac.assetClass ?? ac.requestedAssetClass,
                         registerEntries: ac.requestType === "CREATE" ? ac.forms.length * ac.quantity : 0,
+                        originalValue: ac.originalValue,
                       }}
                     />
                   </div>

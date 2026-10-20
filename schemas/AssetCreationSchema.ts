@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FORM_NUM_FORMAT, MAX_FORMS } from "@/lib/asset-creation";
-import { assetClassByCode } from "@/lib/asset-classes";
+import { assetClassByCode, lvaProblem } from "@/lib/asset-classes";
 import { toNumber } from "@/schemas/PriceEvalSchema";
 
 // Client-side form shape for a set of asset creation forms. Numbers are kept
@@ -93,6 +93,12 @@ export const AssetCreationFormSchema = z
       return life === null || def === undefined || life === def || v.usefulLifeReason.trim() !== "";
     },
     { message: "Give the reason for changing the default life", path: ["usefulLifeReason"] },
-  );
+  )
+  // A blank value can be saved in a draft; sending needs it.
+  .superRefine((v, ctx) => {
+    const value = toNumber(v.originalValue);
+    const problem = value == null ? null : lvaProblem(v.requestedAssetClass, value);
+    if (problem) ctx.addIssue({ code: "custom", message: problem, path: ["requestedAssetClass"] });
+  });
 
 export type AssetCreationFormValues = z.infer<typeof AssetCreationFormSchema>;

@@ -8,7 +8,7 @@ import { useTRPC } from "@/lib/trpc";
 import { useToast } from "@/hooks/use-toast";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
-import { assetClassOptions } from "@/lib/asset-classes";
+import { assetClassOptions, lvaProblem } from "@/lib/asset-classes";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,8 @@ interface SapUpdateInfo {
   assetClass: string;
   /** Register entries completing will add (0 unless it's a Create set). */
   registerEntries: number;
+  /** MVR, per form — LVA classes only fit under the limit. */
+  originalValue: number | null;
 }
 
 interface AssetCreationActionBarProps {
@@ -258,6 +260,7 @@ function SapUpdateDialog({
   const [assetClass, setAssetClass] = useState(sap.assetClass);
   const [nums, setNums] = useState<string[]>(sap.forms.map((f) => f.sapAssetNum ?? ""));
   const filled = nums.every((n) => n.trim() !== "");
+  const classProblem = lvaProblem(assetClass, sap.originalValue);
   const canSequence = sap.forms.length > 1 && nextInSequence(nums[0] ?? "", 1) !== null;
 
   return (
@@ -287,6 +290,7 @@ function SapUpdateDialog({
               modal
               contentClassName="w-[min(30rem,85vw)]"
             />
+            {classProblem && <p className="text-xs text-red-600 dark:text-red-400">{classProblem}</p>}
           </div>
 
           <div className="grid gap-1.5">
@@ -334,7 +338,7 @@ function SapUpdateDialog({
           </button>
           <button
             type="button"
-            disabled={isPending || !filled || !assetClass}
+            disabled={isPending || !filled || !assetClass || classProblem != null}
             onClick={() =>
               onConfirm(
                 assetClass,

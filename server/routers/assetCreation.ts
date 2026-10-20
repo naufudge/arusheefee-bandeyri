@@ -26,7 +26,7 @@ import {
   perPiecePrice,
   type AcRole,
 } from "@/lib/asset-creation";
-import { assetClassByCode } from "@/lib/asset-classes";
+import { assetClassByCode, lvaProblem } from "@/lib/asset-classes";
 import { buildPrefix } from "@/lib/assetNumber";
 
 const staffSelect = {
@@ -317,6 +317,10 @@ export const assetCreationRouter = router({
         });
       }
 
+      // The confirmed class may differ from the requested one.
+      const lva = lvaProblem(input.assetClass, ac.originalValue);
+      if (lva) throw new TRPCError({ code: "BAD_REQUEST", message: lva });
+
       const register = ac.requestType === "CREATE" ? registerPrefix(ac) : null;
       if (ac.requestType === "CREATE" && !register) {
         throw new TRPCError({
@@ -572,6 +576,9 @@ function sendProblem(ac: AssetCreationRow): string | null {
   ) {
     return `Give the reason for changing the useful life from ${assetClass.defaultLife} years before sending.`;
   }
+
+  const lva = lvaProblem(ac.requestedAssetClass, ac.originalValue);
+  if (lva) return lva;
 
   if (ac.requestType === "CREATE" && !registerPrefix(ac)) {
     return "Choose where the asset goes in the asset register (category, subcategory and type) before sending.";
