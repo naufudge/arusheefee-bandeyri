@@ -4,6 +4,14 @@
 /** The form always compares exactly three vendors. */
 export const VENDOR_COUNT = 3;
 
+/**
+ * Below this (MVR, the chosen vendor's total with GST) one quotation is
+ * enough; from it up, all three vendors must quote.
+ */
+export const SINGLE_QUOTE_LIMIT = 2000;
+
+export const singleQuoteAllowed = (chosenTotal: number) => chosenTotal < SINGLE_QUOTE_LIMIT;
+
 /** Evaluation numbers are "YYYY-N", e.g. "2026-35". */
 export const EVAL_NUM_FORMAT = /^(\d{4})-(\d+)$/;
 

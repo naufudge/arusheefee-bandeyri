@@ -35,8 +35,8 @@ const CreatePriceEvaluation = ({
           </div>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">New Price Evaluation</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Compare three vendors&apos; quotes, choose one, and send it for budget check and
-            approval.
+            Compare three vendors&apos; quotes (one is enough under MVR 2,000), choose one, and
+            send it for budget check and approval.
           </p>
         </div>
 

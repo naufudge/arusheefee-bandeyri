@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
-import { Check, Plus, Trash2, TriangleAlert, Trophy } from "lucide-react";
+import { Check, Info, Plus, Trash2, TriangleAlert, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Currencies, CurrencyFullNames } from "@/lib/constants/currencies";
@@ -10,6 +10,8 @@ import { formatNumberWithCommas } from "@/utils/helpers";
 import {
   computeComparison,
   isDhivehi,
+  SINGLE_QUOTE_LIMIT,
+  singleQuoteAllowed,
   unitMvr,
   VENDOR_COUNT,
 } from "@/lib/price-eval";
@@ -117,6 +119,10 @@ export function QuoteMatrix({
     chosen !== null && lowest !== null && chosen !== lowest
       ? comparison.vendors[chosen].total - comparison.vendors[lowest].total
       : 0;
+  // Fewer than three quotes are only enough under the single-quote limit.
+  const quoting = comparison.vendors.filter((t) => t.quotedAny).length;
+  const chosenTotal =
+    chosen !== null && comparison.vendors[chosen]?.quotedAll ? comparison.vendors[chosen].total : null;
 
   return (
     <div className="rounded-md border bg-card">
@@ -477,6 +483,19 @@ export function QuoteMatrix({
               </span>
             </>
           )}
+        </div>
+      )}
+      {chosenTotal !== null && quoting < VENDOR_COUNT && (
+        <div
+          className={cn(
+            "flex items-center gap-2 border-t px-4 py-2 text-xs",
+            singleQuoteAllowed(chosenTotal) ? "text-muted-foreground" : "text-amber-800 dark:text-amber-300",
+          )}
+        >
+          <Info className="size-3.5 shrink-0" />
+          {singleQuoteAllowed(chosenTotal)
+            ? `Under MVR ${SINGLE_QUOTE_LIMIT.toLocaleString("en-US")}, one quotation is enough — the other vendors can stay blank.`
+            : `From MVR ${SINGLE_QUOTE_LIMIT.toLocaleString("en-US")}, all three vendors must quote before this can be sent.`}
         </div>
       )}
     </div>

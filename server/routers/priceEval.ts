@@ -20,10 +20,12 @@ import { resolveGlAccountIds } from "../lib/glAccounts";
 import { getGstRate } from "../lib/settings";
 import { assertProcurementSlot, procurementBackLink } from "../lib/procurement";
 import {
+  SINGLE_QUOTE_LIMIT,
   STAGE_ROLE,
   computeComparison,
   isPendingStatus,
   nextEvalNum,
+  singleQuoteAllowed,
   type PeRole,
 } from "@/lib/price-eval";
 
@@ -523,17 +525,25 @@ function sendProblem(pe: Shaped, gstRate: number): string | null {
   ).find(([field]) => !pe[field]);
   if (missingSigner) return `Choose the ${missingSigner[1]} before sending.`;
 
-  const unnamed = pe.vendors.filter((v) => !v.name.trim()).length;
-  if (unnamed > 0) return "Name all three vendors before sending.";
   if (pe.items.length === 0) return "Add at least one item before sending.";
 
   const comparison = computeComparison(pe.items, pe.vendors, gstRate);
-  const silent = pe.vendors.find((_, v) => !comparison.vendors[v].quotedAny);
-  if (silent) return `${silent.name} has no prices — enter their quote before sending.`;
+  // A vendor is either used (named, with prices) or left blank.
+  for (const [v, vendor] of pe.vendors.entries()) {
+    const named = vendor.name.trim() !== "";
+    const quoted = comparison.vendors[v].quotedAny;
+    if (named && !quoted) return `${vendor.name} has no prices — enter their quote before sending.`;
+    if (!named && quoted) return `Name vendor ${String.fromCharCode(65 + v)} or clear their prices before sending.`;
+  }
 
   if (pe.selectedVendor == null) return "Choose the vendor to buy from before sending.";
-  if (!comparison.vendors[pe.selectedVendor]?.quotedAll) {
-    return `${pe.vendors[pe.selectedVendor]?.name ?? "The chosen vendor"} hasn't quoted every item.`;
+  const chosen = pe.vendors[pe.selectedVendor];
+  const chosenTotals = comparison.vendors[pe.selectedVendor];
+  if (!chosen?.name.trim()) return "Choose a vendor that has quoted before sending.";
+  if (!chosenTotals?.quotedAll) return `${chosen.name} hasn't quoted every item.`;
+
+  if (!singleQuoteAllowed(chosenTotals.total) && pe.vendors.some((v) => !v.name.trim())) {
+    return `Purchases of MVR ${SINGLE_QUOTE_LIMIT.toLocaleString("en-US")} or more need quotes from all three vendors.`;
   }
   if (!pe.selectionReason?.trim()) return "Give the reason for choosing this vendor before sending.";
   return null;

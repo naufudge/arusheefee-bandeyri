@@ -286,17 +286,21 @@ export function PriceEvalForm({ evaluation, procurementId }: PriceEvalFormProps)
   const vendorsNow = useWatch({ control, name: "vendors" });
   const reasonNow = useWatch({ control, name: "selectionReason" });
   const chosenName = selected != null ? vendorsNow[selected]?.name?.trim() : "";
-  const suggestion = chosenName ? suggestReason(VENDOR_COUNT, chosenName) : null;
+  // "Lowest of N quotes" only makes sense with two or more; a single
+  // quotation (allowed under the limit) needs the user's own reason.
+  const quoteCount = vendorsNow.filter((v) => v.name.trim()).length;
+  const suggestion = chosenName && quoteCount >= 2 ? suggestReason(quoteCount, chosenName) : null;
   // The last sentence filled in automatically, to tell it apart from edits.
   const autoReasonRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!suggestion) return;
     const current = getValues("selectionReason").trim();
     const untouched = current === "" || current === autoReasonRef.current || current === suggestion;
     if (!untouched) return;
+    // With no suggestion, an earlier automatic sentence no longer fits.
+    const next = suggestion ?? "";
     autoReasonRef.current = suggestion;
-    if (current !== suggestion) {
-      setValue("selectionReason", suggestion, { shouldDirty: true });
+    if (current !== next) {
+      setValue("selectionReason", next, { shouldDirty: true });
     }
   }, [suggestion, getValues, setValue]);
 
@@ -491,8 +495,9 @@ export function PriceEvalForm({ evaluation, procurementId }: PriceEvalFormProps)
                     />
                   </FormControl>
                   <FormDescription className="text-xs">
-                    Filled in with the standard wording for the vendor chosen above — edit it if
-                    there&apos;s a different reason.
+                    {quoteCount >= 2
+                      ? "Filled in with the standard wording for the vendor chosen above — edit it if there's a different reason."
+                      : "With a single quotation, write why this vendor was chosen."}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
