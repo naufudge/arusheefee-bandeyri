@@ -442,7 +442,10 @@ const PvRegisterPage = () => {
                       {pv.notes}
                     </span>
                     <span className="mt-1 flex items-center gap-2">
-                      <StatusPill status={pv.status} />
+                      <StatusPill
+                        status={pv.status}
+                        parked={pv.parkedDate != null}
+                      />
                       <span className="truncate text-[11px] text-muted-foreground">
                         {pv.vendor}
                       </span>

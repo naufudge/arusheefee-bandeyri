@@ -49,13 +49,23 @@ const PV_STATUS_STYLE: Record<
   },
 };
 
+const PV_PARKED_STYLE = {
+  label: "Parked",
+  classes: "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300",
+  dot: "bg-sky-500",
+};
+
 interface StatusPillProps {
   status: PVStatus;
+  /** PV has a parked date; display-only, not a workflow status. */
+  parked?: boolean;
   className?: string;
 }
 
-export function StatusPill({ status, className }: StatusPillProps) {
-  const style = PV_STATUS_STYLE[status];
+export function StatusPill({ status, parked, className }: StatusPillProps) {
+  // Posted takes precedence over Parked.
+  const style =
+    parked && status !== "POSTED" ? PV_PARKED_STYLE : PV_STATUS_STYLE[status];
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.06em] ${style.classes} ${className ?? ""}`}
