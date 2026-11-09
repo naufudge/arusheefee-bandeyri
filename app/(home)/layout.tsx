@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Poppins } from "next/font/google";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/AppSidebar"
+import { TopNav } from "@/components/layout/TopNav"
 import { Toaster } from "@/components/ui/toaster";
 import { TRPCReactProvider } from "@/providers/trpc-provider";
 import AuthSessionProvider from "@/providers/session-provider";
@@ -71,7 +72,7 @@ export default async function RootLayout({
             <SidebarProvider className="font-poppins">
               <AppSidebar />
               <main className="flex-1 min-w-0">
-                <SidebarTrigger className="mx-5 mt-5" />
+                <TopNav />
                 <div className="py-5 px-4 sm:px-6 lg:px-10 h-full">
                   {children}
                 </div>

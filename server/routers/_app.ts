@@ -15,6 +15,7 @@ import { settingsRouter } from "./settings";
 import { procurementRouter } from "./procurement";
 import { assetCreationRouter } from "./assetCreation";
 import { ceaRouter } from "./cea";
+import { searchRouter } from "./search";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -33,6 +34,7 @@ export const appRouter = router({
   procurement: procurementRouter,
   assetCreation: assetCreationRouter,
   cea: ceaRouter,
+  search: searchRouter,
 });
 
 // Export type router type signature,

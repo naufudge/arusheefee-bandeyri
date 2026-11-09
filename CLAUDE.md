@@ -11,7 +11,11 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
 - **Stay consistent.** New features, functions and modules must be consistent with the system's existing logic, architecture and features. Before building, look at how comparable modules already do it and follow them: reuse shared helpers and components, and mirror their behaviour. For example, signatories are staff selects that default to the logged-in user.
 - **Short comments.** One or two lines on *why*. No essays, and don't restate the code.
 - **Security first.** This is a government budget portal:
-  - Every tRPC procedure is `permissionProcedure("module:action")`, or a `protectedProcedure` with an explicit assignee check. Never use `publicProcedure` for data.
+  - Every tRPC procedure is `permissionProcedure("module:action")`, or a `protectedProcedure` with an explicit check. That check is either:
+    - an assignee check; or
+    - for reads that span modules (global search), each module's read permission, checked before that module is queried.
+
+    Never use `publicProcedure` for data.
   - API routes (`app/api/**`) check `auth()` and `hasPermission` before doing anything.
   - Validate all input with zod on the server. Client-side validation is only a convenience.
   - Workflow actions check the status, the assigned signatory and a signature on file (`server/lib/approval.ts`).
@@ -19,6 +23,7 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
   - Don't send user or record data to third-party services.
   - Record workflow steps and identity changes (renumbering, signatory changes) as `ApprovalEvent` rows.
   - Use Prisma queries. Raw SQL only as tagged templates.
+  - Filter on user-typed text with `containsCi` / `exactly` from `server/lib/search.ts`. Prisma passes `%` and `_` to ILIKE unescaped, both in `contains` and in `equals` with `mode: "insensitive"`.
 
 ## Stack
 
@@ -43,6 +48,8 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
 | `lib/permissions.ts` | Permission catalogue |
 | `components/<module>/` | Module components |
 | `components/approval/` | Action bars, `StatusPill`, `event-display.ts` |
+| `components/layout/` | `AppSidebar`, `TopNav` (sticky bar with the global search), `nav.ts` (pages shared by the sidebar and search) |
+| `components/search/`, `server/routers/search.ts`, `lib/search.ts` | Global search: UI, per-module searchers, module list and permissions |
 | `proxy.ts` | Gates every page behind sign-in |
 
 ## Adding a module
@@ -56,8 +63,12 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
    - a `StatusPill` and an action bar;
    - its pending items to `server/routers/approvals.ts` (`pendingCount`, `pending`, `history`) and to the Pending Approvals page.
 5. If it belongs to a purchase, add a `procurementId` FK and a stage in `lib/procurement.ts`, and cover it in the switches in `server/routers/procurement.ts`.
-6. Add a sidebar entry in `components/layout/AppSidebar.tsx`, for the register only. Create buttons live in the register.
-7. Render PDFs with `renderPdfBlob` from `lib/pdf-render.ts`.
+6. Add a sidebar entry in `components/layout/nav.ts`, for the register only. Create buttons live in the register. The global search's "Go to" list picks it up automatically.
+7. Make the records searchable:
+   - add the module to `SEARCH_MODULES`, `SEARCH_MODULE_PERMISSION` and `SEARCH_MODULE_LABEL` in `lib/search.ts`;
+   - add a searcher to `SEARCHERS` in `server/routers/search.ts`: one exact-number lookup plus a newest-first substring query, with a narrow `select` and an encoded `href`;
+   - add its icon to `MODULE_ICON`, and its status pill to `HitPill`, in `components/search/result-row.tsx`.
+8. Render PDFs with `renderPdfBlob` from `lib/pdf-render.ts`.
 
 ## Conventions
 
@@ -71,7 +82,11 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
 
 ## Database and migrations
 
-The dev database is remote.
+The dev database is either remote or local, whichever `DATABASE_URL` in `.env` points to. Check which before running migrations or tests.
+
+To set up an empty local database:
+1. Run `npx prisma migrate deploy`, `npx prisma generate` and `npx prisma db seed`.
+2. Add a staff row with the `SEED_ADMIN` email and connect the Administrator role to it. The seed can't do this on a fresh database, because its sample staff have no emails.
 
 To add a migration:
 1. Generate the SQL:
