@@ -40,33 +40,41 @@ export function matchedOn(
   return null;
 }
 
+/** How recent a row is, compared item by item: e.g. its date, then createdAt. */
+export type Recency = (Date | number | null | undefined)[];
+
+const recencyValue = (v: Date | number | null | undefined) =>
+  v instanceof Date ? v.getTime() : typeof v === "number" ? v : -Infinity;
+
+/** Newest first; a missing value sorts last. */
+function compareRecency(a: Recency, b: Recency): number {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const x = recencyValue(a[i]);
+    const y = recencyValue(b[i]);
+    if (x !== y) return y - x;
+  }
+  return 0;
+}
+
 /**
- * Exact-identifier rows first (fetched separately so an old record with
- * that exact number is never cut off by the newest-first `take`), then the
- * rest by tier: number starts with q, number contains q, any other field.
- * Array.sort is stable, so newest-first order holds within a tier.
+ * Hits newest first, as the searchers query them. Exact-identifier rows are
+ * fetched separately so an old record with that exact number is never cut
+ * off by the newest-first `take`; they take their place by date, and stay
+ * even when older than every other hit shown.
  */
 export function rankHits<T extends { id: string }>(
   exact: T[],
   rows: T[],
-  q: string,
   limit: number,
-  keysOf: (row: T) => (string | null | undefined)[],
+  recency: (row: T) => Recency,
 ) {
-  const needle = q.toLowerCase();
-  const tier = (row: T) => {
-    const keys = keysOf(row).map(lower);
-    if (keys.some((k) => k === needle)) return 0;
-    if (keys.some((k) => k.startsWith(needle))) return 1;
-    if (keys.some((k) => k.includes(needle))) return 2;
-    return 3;
-  };
+  const byNewest = (a: T, b: T) => compareRecency(recency(a), recency(b));
   const seen = new Set(exact.map((r) => r.id));
-  const ranked = [
-    ...exact,
-    ...rows.filter((r) => !seen.has(r.id)).sort((a, b) => tier(a) - tier(b)),
-  ];
-  return { items: ranked.slice(0, limit), hasMore: ranked.length > limit };
+  const all = [...exact, ...rows.filter((r) => !seen.has(r.id))].sort(byNewest);
+  let items = all.slice(0, limit);
+  const dropped = exact.filter((r) => !items.includes(r));
+  if (dropped.length) items = [...items.slice(0, limit - dropped.length), ...dropped].sort(byNewest);
+  return { items, hasMore: all.length > limit };
 }
 
 export const isoDate = (d: Date | null | undefined) =>

@@ -37,6 +37,7 @@ async function searchPv({ db, q, take, limit }: Args) {
     vendor: true,
     notes: true,
     date: true,
+    createdAt: true,
     status: true,
     parkedDate: true,
     poNum: true,
@@ -58,11 +59,11 @@ async function searchPv({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { date: "desc" },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.pvNum]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.date, r.createdAt]);
   return {
     module: "pv" as const,
     hasMore,
@@ -92,6 +93,7 @@ async function searchPettyCash({ db, q, take, limit }: Args) {
     pettyCashNum: true,
     previousNums: true,
     date: true,
+    createdAt: true,
     formNum: true,
     sectionUnit: true,
     systemApproved: true,
@@ -122,14 +124,11 @@ async function searchPettyCash({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { date: "desc" },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [
-    r.pettyCashNum,
-    ...r.previousNums,
-  ]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.date, r.createdAt]);
   const needle = q.toLowerCase();
   return {
     module: "pettycash" as const,
@@ -172,6 +171,7 @@ async function searchGsr({ db, q, take, limit }: Args) {
     gsrFormNum: true,
     section: true,
     date: true,
+    createdAt: true,
     status: true,
     items: { select: { particulars: true } },
   } as const;
@@ -187,11 +187,11 @@ async function searchGsr({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { date: "desc" },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.gsrFormNum]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.date, r.createdAt]);
   return {
     module: "gsr" as const,
     hasMore,
@@ -221,6 +221,7 @@ async function searchPcRecon({ db, q, take, limit }: Args) {
     reportNum: true,
     periodText: true,
     weekStart: true,
+    createdAt: true,
     status: true,
     // Only the first matching line, to say why the report matched.
     items: {
@@ -240,11 +241,11 @@ async function searchPcRecon({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { weekStart: "desc" },
+      orderBy: [{ weekStart: "desc" }, { createdAt: "desc" }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.reportNum]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.weekStart, r.createdAt]);
   return {
     module: "pcrecon" as const,
     hasMore,
@@ -270,6 +271,7 @@ async function searchPriceEval({ db, q, take, limit }: Args) {
     evalNum: true,
     section: true,
     date: true,
+    createdAt: true,
     status: true,
     vendors: { select: { name: true }, orderBy: { position: "asc" } },
     items: { select: { name: true }, orderBy: { position: "asc" } },
@@ -286,11 +288,11 @@ async function searchPriceEval({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { date: "desc" },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.evalNum]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.date, r.createdAt]);
   const needle = q.toLowerCase();
   return {
     module: "priceeval" as const,
@@ -351,9 +353,7 @@ async function searchAssetCreation({ db, q, take, limit }: Args) {
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) =>
-    r.forms.flatMap((f) => [f.formNum, f.sapAssetNum]),
-  );
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.createdAt]);
   return {
     module: "assetcreation" as const,
     hasMore,
@@ -392,6 +392,7 @@ async function searchAsset({ db, q, take, limit }: Args) {
     assetName: true,
     modelNum: true,
     presentLocation: true,
+    createdAt: true,
   } as const;
   const [exact, rows] = await Promise.all([
     db.asset.findMany({
@@ -414,10 +415,7 @@ async function searchAsset({ db, q, take, limit }: Args) {
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [
-    r.assetNum,
-    r.SAPassetNum,
-  ]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.createdAt]);
   return {
     module: "asset" as const,
     hasMore,
@@ -445,7 +443,7 @@ async function searchProcurement({ db, q, take, limit }: Args) {
     orderBy: { createdAt: "desc" },
     take,
   });
-  const { items, hasMore } = rankHits([], rows, q, limit, () => []);
+  const { items, hasMore } = rankHits([], rows, limit, (r) => [r.createdAt]);
   return {
     module: "procurement" as const,
     hasMore,
@@ -467,6 +465,7 @@ async function searchCea({ db, q, take, limit }: Args) {
     ceaNum: true,
     section: true,
     date: true,
+    createdAt: true,
     status: true,
     items: { select: { description: true }, orderBy: { position: "asc" } },
     procurement: { select: { title: true } },
@@ -483,11 +482,11 @@ async function searchCea({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { date: "desc" },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.ceaNum]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.date, r.createdAt]);
   return {
     module: "cea" as const,
     hasMore,
@@ -538,11 +537,12 @@ async function searchFiyes({ db, q, take, limit }: Args) {
         ],
       },
       select,
-      orderBy: { period: "desc" },
+      // Latest period first; a year-end return sits just above that year's December.
+      orderBy: [{ year: "desc" }, { month: { sort: "desc", nulls: "first" } }],
       take,
     }),
   ]);
-  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.period]);
+  const { items, hasMore } = rankHits(exact, rows, limit, (r) => [r.year * 100 + (r.month ?? 13)]);
   return {
     module: "fiyes" as const,
     hasMore,
