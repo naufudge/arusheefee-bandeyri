@@ -461,6 +461,9 @@ const PvForm: React.FC<PvFormProps> = ({ pv, procurementId }) => {
     if (values.parkedDate != null) setValue("parkedDate", new Date(values.parkedDate), { shouldDirty: true });
     if (values.postingDate != null) setValue("postingDate", new Date(values.postingDate), { shouldDirty: true });
     if (values.transferNum != null) setValue("transferNum", values.transferNum, { shouldDirty: true });
+    if (values.isPettyCashReimbursement != null) {
+      setValue("isPettyCashReimbursement", values.isPettyCashReimbursement, { shouldDirty: true });
+    }
 
     // Form nests clearingDoc; template stores it flat — translate.
     if (values.clearingDocNum != null) setValue("clearingDoc.num", values.clearingDocNum, { shouldDirty: true });
@@ -525,6 +528,9 @@ const PvForm: React.FC<PvFormProps> = ({ pv, procurementId }) => {
     if (v.parkedDate instanceof Date) result.parkedDate = v.parkedDate;
     if (v.postingDate instanceof Date) result.postingDate = v.postingDate;
     if (isNonEmptyStr(v.transferNum)) result.transferNum = v.transferNum;
+    // Saved ticked or not, so applying a template also clears a tick left
+    // by another one (a stray tick would count the PV as a petty cash top-up).
+    result.isPettyCashReimbursement = !!v.isPettyCashReimbursement;
     if (isNonEmptyStr(v.clearingDoc?.num)) result.clearingDocNum = v.clearingDoc.num;
     if (v.clearingDoc?.date instanceof Date) result.clearingDocDate = v.clearingDoc.date;
 
