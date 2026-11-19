@@ -46,6 +46,8 @@ export const templateValuesSchema = z.object({
   clearingDocNum: z.string().optional().nullable(),
   clearingDocDate: z.coerce.date().optional().nullable(),
   transferNum: z.string().optional().nullable(),
+  // Plain boolean, not coerced: z.coerce.boolean() would read "false" as true.
+  isPettyCashReimbursement: z.boolean().optional(),
 
   preparedById: z.string().cuid().optional().nullable(),
   verifiedById: z.string().cuid().optional().nullable(),

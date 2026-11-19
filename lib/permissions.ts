@@ -121,6 +121,17 @@ export const PERMISSIONS = {
   // Override: edit a signed CEA, or reopen one someone else created.
   CEA_EDIT_LOCKED: "cea:edit_locked",
 
+  // ----- Fiyes returns (Ministry of Finance) -----
+  // Send is Entered-by-gated and approve/reject Approved-by-gated, not
+  // permission-gated. Downloads need read.
+  FIYES_READ: "fiyes:read",
+  FIYES_CREATE: "fiyes:create",
+  FIYES_UPDATE: "fiyes:update",
+  FIYES_DELETE: "fiyes:delete",
+  // Override: edit a return after it has left DRAFT. `fiyes:update` is
+  // still required as the base.
+  FIYES_EDIT_LOCKED: "fiyes:edit_locked",
+
   STAFF_READ: "staff:read",
   STAFF_CREATE: "staff:create",
   STAFF_UPDATE: "staff:update",
@@ -476,6 +487,37 @@ export const PERMISSION_GROUPS: {
         label: "Edit locked CEA form",
         description:
           "Edit a signed CEA form, or reopen one someone else created. Requires \"Edit CEA form\" to edit.",
+      },
+    ],
+  },
+  {
+    label: "Fiyes Returns",
+    permissions: [
+      {
+        key: PERMISSIONS.FIYES_READ,
+        label: "View Fiyes returns",
+        description: "Browse the Fiyes filing calendar and download the Excel forms and approval PDFs.",
+      },
+      {
+        key: PERMISSIONS.FIYES_CREATE,
+        label: "Create Fiyes return",
+        description: "Start a monthly or yearly return for the Ministry of Finance.",
+      },
+      {
+        key: PERMISSIONS.FIYES_UPDATE,
+        label: "Edit Fiyes return",
+        description: "Change a draft return's figures, payables and signatories, or call one back.",
+      },
+      {
+        key: PERMISSIONS.FIYES_DELETE,
+        label: "Delete Fiyes return",
+        description: "Remove a Fiyes return permanently.",
+      },
+      {
+        key: PERMISSIONS.FIYES_EDIT_LOCKED,
+        label: "Edit locked Fiyes return",
+        description:
+          "Override the workflow lock and edit a return that has been sent for approval or approved. Requires \"Edit Fiyes return\" as well.",
       },
     ],
   },

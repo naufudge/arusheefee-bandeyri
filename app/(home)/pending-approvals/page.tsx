@@ -25,10 +25,12 @@ import { KpiCard, KpiSkeleton } from "@/components/Dashboard/KpiCard";
 import {
   AssetCreationStatusPill,
   GSRStatusPill,
+  FiyesStatusPill,
   PcReconStatusPill,
   PriceEvalStatusPill,
   StatusPill,
 } from "@/components/approval/StatusPill";
+import { returnTitle } from "@/lib/fiyes";
 import { PVActionBar } from "@/components/approval/PVActionBar";
 import { PCActionBar } from "@/components/approval/PCActionBar";
 import {
@@ -58,6 +60,7 @@ const PendingApprovalsPage = () => {
     PERMISSIONS.ASSETCREATION_READ,
     PERMISSIONS.GSR_READ,
     PERMISSIONS.PCRECON_READ,
+    PERMISSIONS.FIYES_READ,
   ]);
 
   const [tab, setTab] = useState<Tab>("pending");
@@ -81,6 +84,7 @@ const PendingApprovalsPage = () => {
       [pending?.pcRecons.length ?? 0, "reconciliation", "reconciliations"],
       [pending?.priceEvals.length ?? 0, "price evaluation", "price evaluations"],
       [pending?.assetCreations.length ?? 0, "asset form", "asset forms"],
+      [pending?.fiyesReturns.length ?? 0, "Fiyes return", "Fiyes returns"],
     ] as const;
     const other = others.reduce((sum, [n]) => sum + n, 0);
     const otherBreakdown = others
@@ -222,6 +226,7 @@ interface PendingTabProps {
         assetCreations: AcPendingRow[];
         gsrForms: GsrPendingRow[];
         pcRecons: ReconPendingRow[];
+        fiyesReturns: FiyesPendingRow[];
       }
     | undefined;
   isLoading: boolean;
@@ -248,6 +253,7 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
   const assetCreations = data?.assetCreations ?? [];
   const gsrForms = data?.gsrForms ?? [];
   const pcRecons = data?.pcRecons ?? [];
+  const fiyesReturns = data?.fiyesReturns ?? [];
 
   if (
     pvs.length === 0 &&
@@ -255,7 +261,8 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
     priceEvals.length === 0 &&
     assetCreations.length === 0 &&
     gsrForms.length === 0 &&
-    pcRecons.length === 0
+    pcRecons.length === 0 &&
+    fiyesReturns.length === 0
   ) {
     return (
       <div className="rounded-md border bg-card p-12 text-center">
@@ -370,6 +377,73 @@ function PendingTab({ data, isLoading, currentUserId }: PendingTabProps) {
           </div>
         </section>
       )}
+
+      {fiyesReturns.length > 0 && (
+        <section>
+          <header className="mb-3 flex items-baseline justify-between px-1">
+            <h2 className="text-sm font-semibold">Fiyes returns</h2>
+            <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground tabular-nums">
+              {fiyesReturns.length}
+            </span>
+          </header>
+          <div className="flex flex-col gap-3">
+            {fiyesReturns.map((f) => (
+              <FiyesPendingCard key={f.period} ret={f} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// ----- Fiyes return pending row -----
+
+type FiyesPendingRow = {
+  period: string;
+  kind: "MONTHLY" | "YEARLY";
+  year: number;
+  month: number | null;
+  status: "DRAFT" | "PENDING_APPROVAL" | "APPROVED" | "REJECTED";
+  updatedAt: string | Date;
+  enteredBy: { name: string } | null;
+  pettyCashClosing: number | null;
+  payableCount: number;
+};
+
+// Approving happens on the return's page, beside its forms.
+function FiyesPendingCard({ ret }: { ret: FiyesPendingRow }) {
+  const href = `/fiyes/${ret.period}`;
+  const since = formatDistanceToNow(new Date(ret.updatedAt), { addSuffix: true });
+  return (
+    <div className="group flex min-w-0 flex-col gap-3 rounded-md border bg-card p-5 transition-shadow hover:shadow-sm md:flex-row md:items-center md:gap-6">
+      <Link href={href} className="flex min-w-0 flex-1 items-center gap-6">
+        <div className="w-[84px] shrink-0 truncate font-mono text-sm font-medium tracking-tight">{ret.period}</div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm">{returnTitle(ret)}</span>
+          <span className="mt-1 flex min-w-0 items-center gap-2">
+            <FiyesStatusPill status={ret.status} />
+            <span className="truncate text-[11px] text-muted-foreground">Waiting {since}</span>
+          </span>
+        </div>
+        <div className="hidden text-right md:block">
+          <div className="font-mono text-sm tabular-nums">
+            {ret.kind === "MONTHLY"
+              ? (formatMVR(ret.pettyCashClosing) ?? "—")
+              : `${ret.payableCount} ${ret.payableCount === 1 ? "payable" : "payables"}`}
+          </div>
+          <div className="max-w-[160px] truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+            {ret.enteredBy ? `by ${ret.enteredBy.name}` : "petty cash"}
+          </div>
+        </div>
+      </Link>
+      <Link
+        href={href}
+        className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-md bg-foreground px-3 text-xs font-medium text-background transition hover:bg-foreground/90 md:self-auto"
+      >
+        <Eye className="size-3.5" />
+        Review &amp; sign
+      </Link>
     </div>
   );
 }
@@ -781,6 +855,7 @@ type HistoryRow = {
   } | null;
   gsrForm?: { id: string; gsrFormNum: string; section: string } | null;
   pcReconciliation?: { id: string; reportNum: string; periodText: string } | null;
+  fiyesReturn?: { id: string; period: string; kind: "MONTHLY" | "YEARLY"; year: number; month: number | null } | null;
 };
 
 function HistoryTab({
@@ -866,7 +941,14 @@ function HistoryRow({ event }: { event: HistoryRow }) {
                   href: `/pc-reconciliation/${encodeURIComponent(event.pcReconciliation.reportNum)}`,
                   kindBadge: "REC" as const,
                 }
-              : null;
+              : event.fiyesReturn
+                ? {
+                    label: event.fiyesReturn.period,
+                    sub: returnTitle(event.fiyesReturn),
+                    href: `/fiyes/${event.fiyesReturn.period}`,
+                    kindBadge: "FIY" as const,
+                  }
+                : null;
 
   const roleSuffix = event.pettyCashRole
     ? ` · ${PC_ROLE_LABEL[event.pettyCashRole] ?? event.pettyCashRole}`

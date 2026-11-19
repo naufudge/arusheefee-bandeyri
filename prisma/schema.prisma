@@ -82,6 +82,11 @@ model Staff {
   // Capital expenditure authorizations this staff member requests (and signs)
   requestedCeas CapitalExpenditure[] @relation("CeaRequestedBy")
 
+  // Fiyes return signatories
+  enteredFiyesReturns  FiyesReturn[] @relation("FiyesEnteredBy")
+  approvedFiyesReturns FiyesReturn[] @relation("FiyesApprovedBy")
+  rejectedFiyesReturns FiyesReturn[] @relation("FiyesRejectedBy")
+
   // Procurements this staff member started
   createdProcurements Procurement[] @relation("ProcurementCreatedBy")
 
@@ -927,6 +932,81 @@ model Procurement {
   @@map("procurements")
 }
 
+// ----- Fiyes returns -----
+// Ministry of Finance returns filed on the Fiyes portal: a monthly set (F01,
+// F03, F04, F05, F12) and a yearly set (the two F06 forms and F19). One row
+// per period; one approval signs every form in the set. The forms are filled
+// from templates/fiyes (catalogue in lib/fiyes.ts).
+model FiyesReturn {
+  id     String          @id @default(cuid())
+  kind   FiyesReturnKind
+  year   Int
+  // 1–12 for a monthly return, null for a yearly one (a CHECK enforces it).
+  month  Int?
+  // "2026-10" or "2026"; always derived from kind/year/month on the server.
+  period String          @unique
+
+  // Printed under both signatures, like the templates' "04.11.2026".
+  documentDate DateTime
+
+  // F01 Cash on Hand: petty cash as at the 1st and the last day of the
+  // month. Suggested from the petty cash register, editable, and frozen once
+  // the return is approved.
+  pettyCashOpening Float?
+  pettyCashClosing Float?
+
+  // Everything else entered on the forms (F01's other cash lines, F03's
+  // amounts, the F04/F05/F12/F06 rows), keyed by form code. Shape in
+  // lib/fiyes.ts; validated by server/schemas/fiyes.schema.ts. A form with
+  // nothing entered is filed as its template's nil return.
+  entries Json @default("{}")
+
+  enteredById  String?
+  approvedById String?
+  enteredBy    Staff?  @relation("FiyesEnteredBy", fields: [enteredById], references: [id])
+  approvedBy   Staff?  @relation("FiyesApprovedBy", fields: [approvedById], references: [id])
+
+  // DRAFT → PENDING_APPROVAL → APPROVED; a rejection goes back to DRAFT.
+  status           FiyesStatus @default(DRAFT)
+  sentAt           DateTime?
+  approvedAt       DateTime?
+  rejectedAt       DateTime?
+  rejectedById     String?
+  rejectionComment String?
+  rejectedBy       Staff?      @relation("FiyesRejectedBy", fields: [rejectedById], references: [id])
+
+  payables       FiyesPayable[]
+  approvalEvents ApprovalEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([year])
+  @@map("fiyes_returns")
+}
+
+// F19 Payables: invoices unpaid at the end of the year (yearly returns only).
+model FiyesPayable {
+  id            String   @id @default(cuid())
+  position      Int
+  invoiceNumber String
+  invoiceDate   DateTime
+  vendorName    String
+  vendorAccount String // SAP vendor account
+  details       String
+  currency      String   @default("MVR")
+  exchangeRate  Float    @default(1)
+  amount        Float
+  amountMvr     Float
+
+  fiyesReturnId String
+  fiyesReturn   FiyesReturn @relation(fields: [fiyesReturnId], references: [id], onDelete: Cascade)
+
+  @@unique([fiyesReturnId, position])
+  @@map("fiyes_payables")
+}
+
 // Whether an Asset's `date` was recorded as a bare year or a full date.
 // Drives how the date column is rendered on export so it round-trips.
 enum AssetDatePrecision {
@@ -996,6 +1076,20 @@ enum CeaStatus {
   SIGNED
 }
 
+// DRAFT → PENDING_APPROVAL → APPROVED. REJECTED is a transient label (the
+// row reverts to DRAFT in the same write).
+enum FiyesStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+enum FiyesReturnKind {
+  MONTHLY
+  YEARLY
+}
+
 // "Request for" on the asset creation form.
 enum AssetRequestType {
   CREATE
@@ -1042,6 +1136,10 @@ enum ApprovalEventKind {
   AC_REJECTED
   CEA_SIGNED
   CEA_REOPENED
+  FIYES_SENT
+  FIYES_CALLED_BACK
+  FIYES_APPROVED
+  FIYES_REJECTED
 }
 
 // Polymorphic timeline table. Exactly one of `pvId` / `pettyCashId` is
@@ -1058,6 +1156,7 @@ model ApprovalEvent {
   priceEvaluationId    String?
   assetCreationId      String?
   capitalExpenditureId String?
+  fiyesReturnId        String?
   pettyCashRole        String?
   actorId              String
   comment              String?
@@ -1070,6 +1169,7 @@ model ApprovalEvent {
   priceEvaluation    PriceEvaluation?    @relation(fields: [priceEvaluationId], references: [id], onDelete: Cascade)
   assetCreation      AssetCreation?      @relation(fields: [assetCreationId], references: [id], onDelete: Cascade)
   capitalExpenditure CapitalExpenditure? @relation(fields: [capitalExpenditureId], references: [id], onDelete: Cascade)
+  fiyesReturn        FiyesReturn?        @relation(fields: [fiyesReturnId], references: [id], onDelete: Cascade)
   actor              Staff               @relation("ApprovalActor", fields: [actorId], references: [id])
 
   @@index([pvId, createdAt])
@@ -1079,5 +1179,6 @@ model ApprovalEvent {
   @@index([priceEvaluationId, createdAt])
   @@index([assetCreationId, createdAt])
   @@index([capitalExpenditureId, createdAt])
+  @@index([fiyesReturnId, createdAt])
   @@map("approval_events")
 }

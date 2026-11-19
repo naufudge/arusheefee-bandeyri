@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { formatExcelDate } from "@/lib/excel";
-import { toMvrRounded } from "@/utils/currency";
+import { pvReceivedMvr } from "@/utils/currency";
 import ExcelJS from "exceljs";
 
 // Petty cash register columns. Only A–I carry data; matches Sheet1 of the
@@ -135,10 +135,7 @@ export async function GET(
       } else {
         const pv = entry.record;
         // The ledger is in MVR, so convert from the PV's document currency.
-        const received = toMvrRounded(
-          pv.invoices.reduce((sum, inv) => sum + inv.invoiceTotal, 0),
-          pv.exchangeRate,
-        );
+        const received = pvReceivedMvr(pv);
         balance += received;
         worksheet.addRow({
           no: "",

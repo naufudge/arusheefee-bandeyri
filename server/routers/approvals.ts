@@ -28,6 +28,8 @@ const HISTORY_KINDS = [
   "PCRECON_CHECKED",
   "PCRECON_AUTHORIZED",
   "PCRECON_REJECTED",
+  "FIYES_APPROVED",
+  "FIYES_REJECTED",
 ] as const;
 
 // "Currently waiting on this user at the current stage" — strict reading
@@ -96,6 +98,11 @@ function pendingPcReconWhere(userId: string) {
   };
 }
 
+// Fiyes returns awaiting this user's approval.
+function pendingFiyesWhere(userId: string) {
+  return { status: "PENDING_APPROVAL" as const, approvedById: userId };
+}
+
 // Which of the five back-relations on PettyCashStaff is set tells us the
 // role name. Exactly one is non-null per row (enforced by the unique FKs
 // on the PettyCash side).
@@ -126,6 +133,7 @@ export const approvalsRouter = router({
       ctx.prisma.assetCreation.count({ where: pendingAssetCreationWhere(userId) }),
       ctx.prisma.gSRForm.count({ where: pendingGsrWhere(userId) }),
       ctx.prisma.pcReconciliation.count({ where: pendingPcReconWhere(userId) }),
+      ctx.prisma.fiyesReturn.count({ where: pendingFiyesWhere(userId) }),
     ]);
     return counts.reduce((sum, n) => sum + n, 0);
   }),
@@ -134,7 +142,7 @@ export const approvalsRouter = router({
   pending: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [pvs, pcRows, peRows, acRows, gsrRows, reconRows] = await Promise.all([
+    const [pvs, pcRows, peRows, acRows, gsrRows, reconRows, fiyesRows] = await Promise.all([
       ctx.prisma.pV.findMany({
         where: pendingPvWhere(userId),
         include: {
@@ -189,7 +197,27 @@ export const approvalsRouter = router({
         },
         orderBy: { updatedAt: "asc" },
       }),
+      ctx.prisma.fiyesReturn.findMany({
+        where: pendingFiyesWhere(userId),
+        include: {
+          enteredBy: { select: { id: true, name: true, designation: true } },
+          payables: { select: { amountMvr: true } },
+        },
+        orderBy: { updatedAt: "asc" },
+      }),
     ]);
+
+    const fiyesReturns = fiyesRows.map((f) => ({
+      period: f.period,
+      kind: f.kind,
+      year: f.year,
+      month: f.month,
+      status: f.status,
+      updatedAt: f.updatedAt,
+      enteredBy: f.enteredBy,
+      pettyCashClosing: f.pettyCashClosing,
+      payableCount: f.payables.length,
+    }));
 
     const gsrForms = gsrRows.map((g) => ({
       gsrFormNum: g.gsrFormNum,
@@ -288,7 +316,7 @@ export const approvalsRouter = router({
           new Date(b.pettyCash.date).getTime(),
       );
 
-    return { pvs, pcRoles, priceEvals, assetCreations, gsrForms, pcRecons };
+    return { pvs, pcRoles, priceEvals, assetCreations, gsrForms, pcRecons, fiyesReturns };
   }),
 
   // Reverse-chronological list of approve/reject events authored by
@@ -344,6 +372,9 @@ export const approvalsRouter = router({
           },
           pcReconciliation: {
             select: { id: true, reportNum: true, periodText: true, status: true },
+          },
+          fiyesReturn: {
+            select: { id: true, period: true, kind: true, year: true, month: true, status: true },
           },
         },
         orderBy: { createdAt: "desc" },

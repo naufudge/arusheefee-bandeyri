@@ -50,6 +50,7 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
 | `components/approval/` | Action bars, `StatusPill`, `event-display.ts` |
 | `components/layout/` | `AppSidebar`, `TopNav` (sticky bar with the global search), `nav.ts` (pages shared by the sidebar and search) |
 | `components/search/`, `server/routers/search.ts`, `lib/search.ts` | Global search: UI, per-module searchers, module list and permissions |
+| `templates/fiyes/` | Official Ministry of Finance (Fiyes) Excel templates, filled per return; `lib/fiyes.ts` catalogues each form's lines or columns and their cells |
 | `proxy.ts` | Gates every page behind sign-in |
 
 ## Adding a module
@@ -79,6 +80,11 @@ Budget and corporate portal for the National Archives of Maldives: payment vouch
 - **Dhivehi text:** Faruma font with `dir="rtl"`.
 - **Page styling:** Poppins, `rounded-md border bg-card` sections, uppercase eyebrow labels.
 - **Money:** MVR with 2 decimals. Foreign currency converts at the MMA rate.
+- **Official templates** (files uploaded as-is, such as Fiyes returns):
+  - fill them with `server/lib/xlsx-template.ts`, which edits only the given cells' XML;
+  - never re-save them through exceljs, which drops logos, printer settings and sensitivity labels;
+  - their PDFs come from the filled sheet's own layout (`server/lib/xlsx-layout.ts`);
+  - when one is re-issued, replace the file and update its catalogue entry; filling checks the template's labels and headers and fails loudly if they moved.
 
 ## Database and migrations
 

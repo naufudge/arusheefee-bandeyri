@@ -56,6 +56,10 @@ export const KIND_LABEL: Record<ApprovalEventKind, string> = {
   AC_REJECTED: "Rejected",
   CEA_SIGNED: "Signed & submitted",
   CEA_REOPENED: "Reopened to draft",
+  FIYES_SENT: "Entered & sent for approval",
+  FIYES_CALLED_BACK: "Called back to draft",
+  FIYES_APPROVED: "Approved",
+  FIYES_REJECTED: "Rejected",
 };
 
 export const KIND_ICON: Record<
@@ -97,6 +101,10 @@ export const KIND_ICON: Record<
   AC_REJECTED: XCircle,
   CEA_SIGNED: PenLine,
   CEA_REOPENED: Undo2,
+  FIYES_SENT: Send,
+  FIYES_CALLED_BACK: Undo2,
+  FIYES_APPROVED: ShieldCheck,
+  FIYES_REJECTED: XCircle,
 };
 
 export const KIND_TONE: Record<
@@ -277,6 +285,26 @@ export const KIND_TONE: Record<
     bg: "bg-muted",
     ring: "ring-border",
     icon: "text-muted-foreground",
+  },
+  FIYES_SENT: {
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    ring: "ring-blue-200 dark:ring-blue-800/60",
+    icon: "text-blue-600 dark:text-blue-400",
+  },
+  FIYES_CALLED_BACK: {
+    bg: "bg-muted",
+    ring: "ring-border",
+    icon: "text-muted-foreground",
+  },
+  FIYES_APPROVED: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    ring: "ring-emerald-200 dark:ring-emerald-800/60",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  FIYES_REJECTED: {
+    bg: "bg-red-50 dark:bg-red-900/20",
+    ring: "ring-red-200 dark:ring-red-800/60",
+    icon: "text-red-600 dark:text-red-400",
   },
 };
 

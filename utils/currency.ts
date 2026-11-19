@@ -27,3 +27,14 @@ export function pvTotal(pv: {
   const doc = pv.invoices.reduce((sum, inv) => sum + inv.invoiceTotal, 0);
   return { doc, mvr: toMvr(doc, pv.exchangeRate) };
 }
+
+/**
+ * What a petty cash top-up PV adds to the float, in MVR rounded to cents.
+ * Shared by the register export and the Fiyes F01 balance so they agree.
+ */
+export function pvReceivedMvr(pv: {
+  exchangeRate: number;
+  invoices: { invoiceTotal: number }[];
+}) {
+  return toMvrRounded(pvTotal(pv).doc, pv.exchangeRate);
+}

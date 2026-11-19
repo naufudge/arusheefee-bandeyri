@@ -16,6 +16,7 @@ import { procurementRouter } from "./procurement";
 import { assetCreationRouter } from "./assetCreation";
 import { ceaRouter } from "./cea";
 import { searchRouter } from "./search";
+import { fiyesRouter } from "./fiyes";
 
 export const appRouter = router({
   staff: staffRouter,
@@ -35,6 +36,7 @@ export const appRouter = router({
   assetCreation: assetCreationRouter,
   cea: ceaRouter,
   search: searchRouter,
+  fiyes: fiyesRouter,
 });
 
 // Export type router type signature,
