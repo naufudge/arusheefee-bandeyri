@@ -3,6 +3,8 @@
 .claude
 .vscode
 *.xlsx
+# Official templates the app fills (Fiyes returns).
+!templates/fiyes/*.xlsx
 *.docx
 
 # dependencies

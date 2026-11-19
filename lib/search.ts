@@ -11,6 +11,7 @@ export const SEARCH_MODULES = [
   "asset",
   "procurement",
   "cea",
+  "fiyes",
 ] as const;
 
 export type SearchModule = (typeof SEARCH_MODULES)[number];
@@ -26,6 +27,7 @@ export const SEARCH_MODULE_PERMISSION: Record<SearchModule, Permission> = {
   asset: PERMISSIONS.ASSET_READ,
   procurement: PERMISSIONS.PROCUREMENT_READ,
   cea: PERMISSIONS.CEA_READ,
+  fiyes: PERMISSIONS.FIYES_READ,
 };
 
 export const SEARCH_MODULE_LABEL: Record<SearchModule, string> = {
@@ -38,6 +40,7 @@ export const SEARCH_MODULE_LABEL: Record<SearchModule, string> = {
   asset: "Asset register",
   procurement: "Procurements",
   cea: "CEA forms",
+  fiyes: "Fiyes returns",
 };
 
 /** Results per group in the mixed view, and when scoped to one module. */

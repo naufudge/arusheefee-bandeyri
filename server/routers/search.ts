@@ -19,6 +19,7 @@ import {
   type SearchModule,
 } from "@/lib/search";
 import { pvTotal } from "@/utils/currency";
+import { MONTH_NAMES, returnTitle } from "@/lib/fiyes";
 
 type Args = { db: PrismaClient; q: string; take: number; limit: number };
 
@@ -509,6 +510,67 @@ async function searchCea({ db, q, take, limit }: Args) {
   };
 }
 
+async function searchFiyes({ db, q, take, limit }: Args) {
+  const payableMatch = { OR: [{ invoiceNumber: containsCi(q) }, { vendorName: containsCi(q) }] };
+  // "oct" or "October" finds that month's returns.
+  const month = q.length >= 3 ? MONTH_NAMES.findIndex((m) => m.toLowerCase().startsWith(q.toLowerCase())) + 1 : 0;
+  const select = {
+    id: true,
+    period: true,
+    kind: true,
+    year: true,
+    month: true,
+    status: true,
+    documentDate: true,
+    pettyCashClosing: true,
+    _count: { select: { payables: true } },
+    // Only the first matching payable, to say why the return matched.
+    payables: { where: payableMatch, select: { invoiceNumber: true, vendorName: true }, take: 1 },
+  } as const;
+  const [exact, rows] = await Promise.all([
+    db.fiyesReturn.findMany({ where: { period: exactly(q) }, select, take: 1 }),
+    db.fiyesReturn.findMany({
+      where: {
+        OR: [
+          { period: containsCi(q) },
+          ...(month ? [{ month }] : []),
+          { payables: { some: payableMatch } },
+        ],
+      },
+      select,
+      orderBy: { period: "desc" },
+      take,
+    }),
+  ]);
+  const { items, hasMore } = rankHits(exact, rows, q, limit, (r) => [r.period]);
+  return {
+    module: "fiyes" as const,
+    hasMore,
+    items: items.map((r) => {
+      const title = returnTitle(r);
+      const subtitle =
+        r.kind === "MONTHLY"
+          ? r.pettyCashClosing === null
+            ? "Petty cash not entered"
+            : `Petty cash ${r.pettyCashClosing.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} at month end`
+          : `${r._count.payables} ${r._count.payables === 1 ? "payable" : "payables"}`;
+      return {
+        id: r.id,
+        href: `/fiyes/${enc(r.period)}`,
+        num: r.period,
+        title,
+        subtitle,
+        note: matchedOn(q, [r.period, title, subtitle], [
+          ["Invoice", r.payables[0]?.invoiceNumber],
+          ["Vendor", r.payables[0]?.vendorName],
+        ]),
+        date: isoDate(r.documentDate),
+        status: r.status,
+      };
+    }),
+  };
+}
+
 const SEARCHERS = {
   pv: searchPv,
   pettycash: searchPettyCash,
@@ -519,6 +581,7 @@ const SEARCHERS = {
   asset: searchAsset,
   procurement: searchProcurement,
   cea: searchCea,
+  fiyes: searchFiyes,
 } satisfies Record<SearchModule, (args: Args) => Promise<unknown>>;
 
 export const searchRouter = router({

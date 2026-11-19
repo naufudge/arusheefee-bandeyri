@@ -12,6 +12,12 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // The Fiyes templates are read from disk at request time, so standalone
+  // builds must carry them.
+  outputFileTracingIncludes: {
+    "/api/fiyes/**": ["./templates/fiyes/**"],
+    "/api/trpc/**": ["./templates/fiyes/**"],
+  },
 };
 
 export default nextConfig;

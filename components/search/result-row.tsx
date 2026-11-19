@@ -3,6 +3,7 @@ import {
   BookText,
   ClipboardCheck,
   ClipboardList,
+  FileSpreadsheet,
   FileStack,
   Landmark,
   Package,
@@ -13,6 +14,7 @@ import {
 import {
   AssetCreationStatusPill,
   CeaStatusPill,
+  FiyesStatusPill,
   GSRStatusPill,
   PcReconStatusPill,
   PettyCashStatusPill,
@@ -35,6 +37,7 @@ export const MODULE_ICON: Record<SearchModule, React.ComponentType<{ className?:
   asset: Package,
   procurement: ShoppingBag,
   cea: Landmark,
+  fiyes: FileSpreadsheet,
 };
 
 const THAANA = /[ހ-޿]/;
@@ -118,6 +121,8 @@ function HitPill({ group, index }: { group: SearchGroup; index: number }) {
       return <AssetCreationStatusPill status={group.items[index].status} />;
     case "cea":
       return <CeaStatusPill status={group.items[index].status} />;
+    case "fiyes":
+      return <FiyesStatusPill status={group.items[index].status} />;
     case "asset":
     case "procurement":
       return null;

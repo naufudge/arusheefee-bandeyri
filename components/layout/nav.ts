@@ -21,6 +21,7 @@ import {
   ShoppingBag,
   SlidersHorizontal,
   FileStack,
+  FileSpreadsheet,
   Landmark,
 } from "lucide-react";
 import { PERMISSIONS, type Permission } from "@/lib/permissions";
@@ -75,6 +76,7 @@ export const navGroups: NavGroup[] = [
           PERMISSIONS.ASSETCREATION_READ,
           PERMISSIONS.GSR_READ,
           PERMISSIONS.PCRECON_READ,
+          PERMISSIONS.FIYES_READ,
         ],
         badge: "pending-approvals",
       },
@@ -186,6 +188,17 @@ export const navGroups: NavGroup[] = [
         url: "/cea-register",
         icon: Landmark,
         requires: PERMISSIONS.CEA_READ,
+      },
+    ],
+  },
+  {
+    label: "Reporting",
+    items: [
+      {
+        title: "Fiyes",
+        url: "/fiyes-register",
+        icon: FileSpreadsheet,
+        requires: PERMISSIONS.FIYES_READ,
       },
     ],
   },
