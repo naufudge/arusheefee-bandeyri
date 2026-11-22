@@ -22,6 +22,7 @@ import {
   type PCRole,
 } from "../lib/approval";
 import { resolvePettyCashGlAccount } from "../lib/glAccounts";
+import { pettyCashBalance } from "../lib/petty-cash-balance";
 import { pvTotal } from "@/utils/currency";
 
 const pettyCashInclude = {
@@ -163,6 +164,15 @@ export const pettyCashRouter = router({
         where: { year },
       });
       return { year, amount: row?.amount ?? 0, isSet: !!row };
+    }),
+
+  // The float after every record of the year, as the register export's last
+  // running balance and Fiyes F01 count it: opening + top-up PVs − paid.
+  balance: permissionProcedure("pettycash:read")
+    .input(yearFilterSchema)
+    .query(({ ctx, input }) => {
+      const year = Number(input.year);
+      return pettyCashBalance(ctx.prisma, year, new Date(Date.UTC(year + 1, 0, 1)));
     }),
 
   // Closing balance of the *previous* year = its opening balance + received

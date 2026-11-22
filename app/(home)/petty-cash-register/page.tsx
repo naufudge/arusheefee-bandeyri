@@ -81,14 +81,21 @@ const PettyCashRegisterPage = () => {
     ...trpc.pettycash.byYear.queryOptions({ year: String(year) }),
     enabled: hasAccess,
   });
+  // The whole register's float, independent of the search and status filters.
+  const { data: balance } = useQuery({
+    ...trpc.pettycash.balance.queryOptions({ year: String(year) }),
+    enabled: hasAccess,
+  });
+  const refreshRegister = () => {
+    queryClient.invalidateQueries({ queryKey: trpc.pettycash.byYear.queryKey({ year: String(year) }) });
+    queryClient.invalidateQueries({ queryKey: trpc.pettycash.balance.pathKey() });
+  };
 
   const deleteMutation = useMutation(
     trpc.pettycash.delete.mutationOptions({
       onSuccess: () => {
         toast({ title: "Deleted", description: "Petty cash record removed." });
-        queryClient.invalidateQueries({
-          queryKey: trpc.pettycash.byYear.queryKey({ year: String(year) }),
-        });
+        refreshRegister();
       },
       onError: (error) => {
         toast({
@@ -134,11 +141,7 @@ const PettyCashRegisterPage = () => {
   const stats = useMemo(() => {
     const approved = filtered.filter(isApproved).length;
     const pending = filtered.length - approved;
-    const totalValue = filtered.reduce(
-      (sum, r) => sum + r.totalRequiredAmount,
-      0,
-    );
-    return { total: filtered.length, approved, pending, totalValue };
+    return { total: filtered.length, approved, pending };
   }, [filtered]);
 
   const formatDate = (d: Date | string) => new Date(d).toLocaleDateString("en-CA");
@@ -178,15 +181,7 @@ const PettyCashRegisterPage = () => {
             </Link>
           )}
           {canImport && (
-            <ImportPettyCash
-              onImported={() =>
-                queryClient.invalidateQueries({
-                  queryKey: trpc.pettycash.byYear.queryKey({
-                    year: String(year),
-                  }),
-                })
-              }
-            />
+            <ImportPettyCash onImported={refreshRegister} />
           )}
           {canExport && <ExportPettyCash year={year} />}
           <div className="flex items-center gap-2" suppressHydrationWarning>
@@ -244,17 +239,23 @@ const PettyCashRegisterPage = () => {
             />
             <OpeningBalanceControl year={year} canEdit={canUpdate} />
             <KpiCard
-              label="Total Value"
+              label={year < CURRENT_YEAR ? "Closing Balance" : "Current Balance"}
               icon={Banknote}
               value={
                 <>
                   <span className="mr-1.5 text-base font-medium text-muted-foreground">
                     MVR
                   </span>
-                  {formatNumberWithCommas(stats.totalValue) ?? "0.00"}
+                  <span className={balance && balance.balance < 0 ? "text-red-600 dark:text-red-400" : undefined}>
+                    {balance ? (formatNumberWithCommas(balance.balance) ?? "0.00") : "—"}
+                  </span>
                 </>
               }
-              sub="across visible records"
+              sub={
+                balance
+                  ? `+ ${formatNumberWithCommas(balance.received) ?? "0.00"} top-ups − ${formatNumberWithCommas(balance.paid) ?? "0.00"} paid`
+                  : `FY ${year}`
+              }
             />
           </>
         )}

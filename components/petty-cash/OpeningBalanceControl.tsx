@@ -57,6 +57,8 @@ const OpeningBalanceControl: React.FC<OpeningBalanceControlProps> = ({
             year: String(year),
           }),
         });
+        // The register's balance starts from this figure.
+        queryClient.invalidateQueries({ queryKey: trpc.pettycash.balance.pathKey() });
         setOpen(false);
       },
       onError: (err) =>
