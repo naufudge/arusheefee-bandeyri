@@ -567,6 +567,9 @@ export const pettyCashRouter = router({
           message: "Only the assigned staff can approve this role.",
         });
       }
+      if (pc.systemApproved) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Imported records need no signatures." });
+      }
       if (row.isApproved) {
         throw new TRPCError({
           code: "CONFLICT",
@@ -631,6 +634,9 @@ export const pettyCashRouter = router({
           code: "FORBIDDEN",
           message: "Only the assigned staff can reject this role.",
         });
+      }
+      if (pc.systemApproved) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Imported records need no signatures." });
       }
 
       return ctx.prisma.$transaction(async (tx) => {

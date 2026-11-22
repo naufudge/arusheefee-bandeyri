@@ -16,14 +16,39 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select";
 import { useToast } from "@/hooks/use-toast";
+import { useTRPC } from "@/lib/trpc";
+
+// Staff picked for sheet names, remembered in this browser for the next
+// import (a convenience only; the server checks every pick).
+const NAME_MAP_KEY = "pc-import-name-map";
+function rememberedNames(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(NAME_MAP_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+function rememberNames(map: Record<string, string>) {
+  try {
+    localStorage.setItem(NAME_MAP_KEY, JSON.stringify({ ...rememberedNames(), ...map }));
+  } catch {
+    // Storage unavailable: nothing to remember.
+  }
+}
 
 type PreviewSummary = {
   totalRows: number;
   valid: { num: string; details: string; total: number }[];
   invalid: { num: string; error: string; row: number }[];
   duplicates: { num: string }[];
+  /** In Charge of Thijoory / Received by names with no single staff match. */
+  unmatchedNames?: { key: string; name: string; columns: string[]; reason: string; rows: number[] }[];
 };
 
 type CommitResult = {
@@ -59,11 +84,22 @@ const ImportPettyCash: React.FC<ImportPettyCashProps> = ({ onImported }) => {
   const [error, setError] = useState<string | null>(null);
   const [sheets, setSheets] = useState<string[]>([]);
   const [selectedSheet, setSelectedSheet] = useState<string>("");
+  // Sheet name key → staff id, for names that matched no single staff member.
+  const [nameMap, setNameMap] = useState<Record<string, string>>({});
+
+  const trpc = useTRPC();
+  const { data: staff } = useQuery({
+    ...trpc.staff.list.queryOptions(),
+    enabled: open && (summary?.unmatchedNames?.length ?? 0) > 0,
+  });
+  const staffOptions: SearchableSelectOption[] = (staff ?? []).map((s) => ({ value: s.id, label: s.name }));
+  const staffIds = new Set(staffOptions.map((o) => o.value));
 
   const reset = () => {
     setStage("pick");
     setFile(null);
     setSummary(null);
+    setNameMap({});
     setResult(null);
     setError(null);
     setReplaceDuplicates(false);
@@ -121,7 +157,15 @@ const ImportPettyCash: React.FC<ImportPettyCashProps> = ({ onImported }) => {
         setStage("select-sheet");
         return;
       }
-      setSummary(json.summary as PreviewSummary);
+      const next = json.summary as PreviewSummary;
+      // Start from the picks made for these names last time.
+      const remembered = rememberedNames();
+      setNameMap(
+        Object.fromEntries(
+          (next.unmatchedNames ?? []).filter((n) => remembered[n.key]).map((n) => [n.key, remembered[n.key]]),
+        ),
+      );
+      setSummary(next);
       setStage("preview");
     } catch {
       setError("Network error while uploading the file.");
@@ -143,6 +187,9 @@ const ImportPettyCash: React.FC<ImportPettyCashProps> = ({ onImported }) => {
       fd.append("mode", "commit");
       fd.append("onConflict", replaceDuplicates ? "replace" : "skip");
       if (selectedSheet) fd.append("sheet", selectedSheet);
+      // Only picks of staff still in the list (a remembered pick may be stale).
+      const links = Object.fromEntries(Object.entries(nameMap).filter(([, id]) => staffIds.has(id)));
+      if (Object.keys(links).length) fd.append("nameMap", JSON.stringify(links));
       const res = await fetch("/api/petty-cash/import", {
         method: "POST",
         body: fd,
@@ -156,6 +203,7 @@ const ImportPettyCash: React.FC<ImportPettyCashProps> = ({ onImported }) => {
         setStage("preview");
         return;
       }
+      rememberNames(links);
       const r = json.result as CommitResult;
       setResult(r);
       setStage("result");
@@ -234,7 +282,21 @@ const ImportPettyCash: React.FC<ImportPettyCashProps> = ({ onImported }) => {
               />
             )}
 
-            {stage === "preview" && summary && <PreviewStage summary={summary} />}
+            {stage === "preview" && summary && (
+              <PreviewStage
+                summary={summary}
+                staffOptions={staffOptions}
+                nameMap={nameMap}
+                onLink={(key, staffId) =>
+                  setNameMap((m) => {
+                    const next = { ...m };
+                    if (staffId) next[key] = staffId;
+                    else delete next[key];
+                    return next;
+                  })
+                }
+              />
+            )}
 
             {stage === "committing" && <CommittingStage />}
 
@@ -501,8 +563,21 @@ function SelectSheetStage({
   );
 }
 
-function PreviewStage({ summary }: { summary: PreviewSummary }) {
+function PreviewStage({
+  summary,
+  staffOptions,
+  nameMap,
+  onLink,
+}: {
+  summary: PreviewSummary;
+  staffOptions: SearchableSelectOption[];
+  nameMap: Record<string, string>;
+  onLink: (key: string, staffId: string | null) => void;
+}) {
   const willCreate = summary.valid.length - summary.duplicates.length;
+  const unmatched = summary.unmatchedNames ?? [];
+  const known = new Set(staffOptions.map((o) => o.value));
+  const linked = unmatched.filter((n) => known.has(nameMap[n.key] ?? "")).length;
 
   return (
     <div className="space-y-5">
@@ -542,6 +617,73 @@ function PreviewStage({ summary }: { summary: PreviewSummary }) {
                   <div className="mt-0.5 text-red-700">{i.error}</div>
                 </li>
               ))}
+            </ul>
+          </div>
+        </details>
+      )}
+
+      {unmatched.length > 0 && (
+        <details className="group rounded-md border bg-card" open>
+          <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-sm font-medium">
+            <span className="flex items-center gap-2">
+              <span className={`size-1.5 rounded-full ${linked === unmatched.length ? "bg-emerald-500" : "bg-amber-500"}`} />
+              Names not in the staff list ({unmatched.length})
+            </span>
+            <span className="text-xs font-normal text-muted-foreground">
+              {linked} of {unmatched.length} linked
+            </span>
+          </summary>
+          <p className="border-t px-4 py-2 text-xs text-muted-foreground">
+            Link each name to the staff member it means. A name left unlinked still imports, with that person left blank.
+          </p>
+          <div className="max-h-72 overflow-auto border-t">
+            <ul className="divide-y">
+              {unmatched.map((n) => {
+                const picked = known.has(nameMap[n.key] ?? "") ? nameMap[n.key] : "";
+                return (
+                  <li key={n.key} className="flex flex-col gap-2 px-4 py-2.5 text-xs sm:flex-row sm:items-center">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline gap-2">
+                        <span className="truncate font-medium">{n.name}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+                          {n.rows.length === 1 ? `row ${n.rows[0]}` : `${n.rows.length} rows`}
+                        </span>
+                      </div>
+                      <div className={`mt-0.5 ${picked ? "text-emerald-700 dark:text-emerald-400" : "text-amber-800 dark:text-amber-300"}`}>
+                        {n.columns.join(" · ")}: {picked ? "linked" : n.reason.toLowerCase()}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <SearchableSelect
+                        modal
+                        value={picked}
+                        onValueChange={(v) => onLink(n.key, v)}
+                        options={staffOptions}
+                        placeholder={staffOptions.length ? "Link to staff…" : "Loading staff…"}
+                        searchPlaceholder="Search staff…"
+                        emptyMessage="No staff available"
+                        disabled={staffOptions.length === 0}
+                        aria-label={`Staff member for ${n.name}`}
+                        className="h-8 w-full text-xs sm:w-56"
+                        contentClassName="w-[min(18rem,85vw)]"
+                      />
+                      {/* Fixed slot, so the pickers line up whether or not a row is linked. */}
+                      <span className="flex w-6 shrink-0 justify-center">
+                        {picked && (
+                          <button
+                            type="button"
+                            onClick={() => onLink(n.key, null)}
+                            aria-label={`Unlink ${n.name}`}
+                            className="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                          >
+                            <X className="size-3.5" />
+                          </button>
+                        )}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </details>

@@ -294,6 +294,24 @@ const PettyCashDetailPage = ({
                       Approved by the system on import — no individual
                       signatories.
                     </p>
+                    {/* The registry's two names, linked to staff on import. */}
+                    {(pc.handledBy || pc.balanceCollectedBy) && (
+                      <dl className="mt-3 grid gap-x-8 gap-y-2 text-xs sm:grid-cols-2">
+                        {(
+                          [
+                            ["Received by", pc.handledBy],
+                            ["In charge of thijoori", pc.balanceCollectedBy],
+                          ] as const
+                        ).map(([label, role]) =>
+                          role ? (
+                            <div key={label}>
+                              <dt className="text-emerald-700/80 dark:text-emerald-300/70">{label}</dt>
+                              <dd className="font-medium text-emerald-900 dark:text-emerald-200">{role.staff.name}</dd>
+                            </div>
+                          ) : null,
+                        )}
+                      </dl>
+                    )}
                   </div>
                 </div>
               ) : (

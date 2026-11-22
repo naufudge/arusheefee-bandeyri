@@ -48,11 +48,21 @@ function pendingPvWhere(userId: string) {
 // `rejectedAt: null` so a row the user has already rejected isn't shown
 // back to them as still pending — it'll re-appear if anyone re-approves
 // it (which resets `rejectedAt` in the approveRole resolver).
+// Imported (system-approved) records name people without needing them to
+// sign, so their roles never wait on anyone.
 function pendingPcRoleWhere(userId: string) {
+  const imported = { is: { systemApproved: true } };
   return {
     staffId: userId,
     isApproved: false,
     rejectedAt: null,
+    NOT: [
+      { handledFor: imported },
+      { procurementApprovedFor: imported },
+      { budgetCheckedFor: imported },
+      { balanceHandedOverFor: imported },
+      { balanceCollectedFor: imported },
+    ],
   };
 }
 

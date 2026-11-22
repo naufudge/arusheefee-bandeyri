@@ -2,24 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
-import { formatExcelDate } from "@/lib/excel";
-import { pvReceivedMvr } from "@/utils/currency";
-import ExcelJS from "exceljs";
+import { buildRegister } from "@/server/lib/petty-cash-registry";
 
-// Petty cash register columns. Only A–I carry data; matches Sheet1 of the
-// org's "Petty cash registry" workbook.
-const COLUMN_CONFIG: Partial<ExcelJS.Column>[] = [
-  { key: "no", header: "No.", width: 6 },
-  { key: "code", header: "Code", width: 12 },
-  { key: "date", header: "Date", width: 12 },
-  { key: "formNo", header: "Form No", width: 16 },
-  { key: "name", header: "Name", width: 26 },
-  { key: "details", header: "Details", width: 44 },
-  { key: "received", header: "Received", width: 12 },
-  { key: "paid", header: "Paid", width: 12 },
-  { key: "balance", header: "Balance", width: 14 },
-];
-
+// GET /api/petty-cash/export/2026 — the year's register in the layout of the
+// org's petty cash registry workbook (server/lib/petty-cash-registry.ts).
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ year: string }> },
@@ -39,118 +25,7 @@ export async function GET(
   }
 
   try {
-    const yearNum = Number(year);
-    const start = new Date(Date.UTC(yearNum, 0, 1));
-    const end = new Date(Date.UTC(yearNum + 1, 0, 1));
-
-    // Petty cash (Paid rows) + reimbursement PVs (Received rows) + the
-    // stored opening balance for the year.
-    const [pcs, reimbursements, openingRow] = await Promise.all([
-      prisma.pettyCash.findMany({
-        where: { date: { gte: start, lt: end } },
-        include: {
-          items: true,
-          handledBy: { include: { staff: true } },
-          glAccount: { select: { code: true } },
-        },
-      }),
-      prisma.pV.findMany({
-        where: {
-          isPettyCashReimbursement: true,
-          date: { gte: start, lt: end },
-        },
-        include: { invoices: { select: { invoiceTotal: true, comments: true } } },
-      }),
-      prisma.pettyCashOpeningBalance.findUnique({ where: { year: yearNum } }),
-    ]);
-
-    const opening = openingRow?.amount ?? 0;
-
-    // A "paid" entry per petty cash record, a "received" entry per
-    // reimbursement PV. Sorted by date ascending to build the running ledger.
-    type Entry =
-      | { kind: "paid"; date: Date; record: (typeof pcs)[number] }
-      | {
-          kind: "received";
-          date: Date;
-          record: (typeof reimbursements)[number];
-        };
-
-    const entries: Entry[] = [
-      ...pcs.map((pc): Entry => ({ kind: "paid", date: pc.date, record: pc })),
-      ...reimbursements.map(
-        (pv): Entry => ({ kind: "received", date: pv.date, record: pv }),
-      ),
-    ].sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = "Archiva";
-    workbook.created = new Date();
-
-    const worksheet = workbook.addWorksheet("Petty Cash Register");
-    worksheet.columns = COLUMN_CONFIG;
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FFE0E0E0" },
-    };
-
-    // Opening balance row.
-    let balance = opening;
-    worksheet.addRow({
-      no: "",
-      code: "",
-      date: formatExcelDate(start),
-      formNo: "",
-      name: "",
-      details: `Opening balance as at 01.01.${year}`,
-      received: opening,
-      paid: "",
-      balance,
-    });
-
-    let counter = 0;
-    for (const entry of entries) {
-      if (entry.kind === "paid") {
-        const pc = entry.record;
-        const paid = pc.totalRequiredAmount;
-        balance -= paid;
-        counter += 1;
-        const details = pc.items
-          .map((it) => it.name || it.nameDhivehi || "")
-          .filter(Boolean)
-          .join(", ");
-        worksheet.addRow({
-          no: counter,
-          code: pc.glAccount.code,
-          date: formatExcelDate(pc.date),
-          formNo: pc.pettyCashNum.replace(/-/g, "/"),
-          name: pc.handledBy?.staff?.name ?? "",
-          details,
-          received: "",
-          paid,
-          balance,
-        });
-      } else {
-        const pv = entry.record;
-        // The ledger is in MVR, so convert from the PV's document currency.
-        const received = pvReceivedMvr(pv);
-        balance += received;
-        worksheet.addRow({
-          no: "",
-          code: "",
-          date: formatExcelDate(pv.date),
-          formNo: "",
-          name: "",
-          details: pv.notes || "Petty Cash Reimbursement",
-          received,
-          paid: "",
-          balance,
-        });
-      }
-    }
-
+    const workbook = await buildRegister(prisma, Number(year));
     const buffer = await workbook.xlsx.writeBuffer();
     return new NextResponse(buffer, {
       headers: {

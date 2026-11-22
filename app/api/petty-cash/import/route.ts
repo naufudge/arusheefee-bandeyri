@@ -2,99 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
-import { cellToString, cellToNumber, parseDate } from "@/lib/excel";
-import {
-  glAccountIdsByCode,
-  unknownGlCodesMessage,
-} from "@/server/lib/glAccounts";
+import { commitRegistryImport, prepareRegistryImport } from "@/server/lib/petty-cash-registry";
 import ExcelJS from "exceljs";
+import { z } from "zod";
 
-// Sheet1 column positions (A–I). Everything from J onward is scratch and is
-// never read.
-const COL = {
-  no: 1, // A
-  code: 2, // B
-  date: 3, // C
-  formNo: 4, // D
-  name: 5, // E (a person — no home in the model, ignored)
-  details: 6, // F
-  received: 7, // G
-  paid: 8, // H
-  balance: 9, // I
-} as const;
+const nameMapSchema = z.record(z.string().min(1).max(200), z.string().cuid()).refine(
+  (m) => Object.keys(m).length <= 500,
+  "Too many names",
+);
 
-const PC_NUM_RE = /^PC\/(\d+)\/\d{4}$/;
-
-type ParsedRow = {
-  rowNumber: number;
-  pettyCashNum: string;
-  glCode: number;
-  date: Date;
-  totalRequiredAmount: number;
-  details: string;
-};
-
-type InvalidRow = { num: string; error: string; row: number };
-
-// Read one worksheet row into a petty-cash record candidate, or null if the
-// row isn't a petty-cash expense line (header, opening balance, reimbursement,
-// or blank). Reimbursements (PC/00 or a Received value) and opening balances
-// (no PC number) are skipped here by design.
-function readRow(
-  row: ExcelJS.Row,
-  rowNumber: number,
-): { ok: true; data: ParsedRow } | { ok: false; invalid?: InvalidRow } {
-  // Normalise to slashes for the PC-number check (the sheet may use either).
-  const slashed = cellToString(row.getCell(COL.formNo).value)
-    .trim()
-    .replace(/-/g, "/");
-  // Stored form uses dashes, e.g. PC/20/2026 → PC-20-2026.
-  const storedNum = slashed.replace(/\//g, "-");
-  const paid = cellToNumber(row.getCell(COL.paid).value);
-
-  const m = slashed.match(PC_NUM_RE);
-  // Not a petty-cash expense row → silently skip (header / opening / reimbursement).
-  if (!m || Number(m[1]) <= 0 || paid === null) {
-    return { ok: false };
-  }
-
-  if (paid <= 0) {
-    return {
-      ok: false,
-      invalid: { num: storedNum, error: "Paid amount must be positive", row: rowNumber },
-    };
-  }
-
-  const date = parseDate(row.getCell(COL.date).value);
-  if (!date) {
-    return {
-      ok: false,
-      invalid: { num: storedNum, error: "Missing or invalid date", row: rowNumber },
-    };
-  }
-
-  const glCode = cellToNumber(row.getCell(COL.code).value);
-  if (glCode === null || glCode <= 0) {
-    return {
-      ok: false,
-      invalid: { num: storedNum, error: "Missing GL code (column B)", row: rowNumber },
-    };
-  }
-  const details = cellToString(row.getCell(COL.details).value).trim();
-
-  return {
-    ok: true,
-    data: {
-      rowNumber,
-      pettyCashNum: storedNum,
-      glCode,
-      date,
-      totalRequiredAmount: paid,
-      details,
-    },
-  };
-}
-
+// Imports the petty cash registry (Sheet1 of the org's workbook): a preview
+// first, then a commit. Reading, checks and staff matching live in
+// server/lib/petty-cash-registry.ts.
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
@@ -126,6 +45,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
   }
 
+  // Sheet names (by nameKey) the user linked to staff in the preview.
+  let nameMap: Record<string, string> = {};
+  const rawMap = formData.get("nameMap");
+  if (typeof rawMap === "string" && rawMap) {
+    let json: unknown;
+    try {
+      json = JSON.parse(rawMap);
+    } catch {
+      json = null;
+    }
+    const parsed = nameMapSchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid staff links for names" }, { status: 400 });
+    }
+    nameMap = parsed.data;
+  }
+
   const workbook = new ExcelJS.Workbook();
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -137,7 +73,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const sheetNames = workbook.worksheets.map((w) => w.name);
+  // Hidden helper sheets (e.g. SAP's) aren't offered.
+  const visible = workbook.worksheets.filter((w) => w.state === "visible");
+  const sheetNames = visible.map((w) => w.name);
   if (sheetNames.length === 0) {
     return NextResponse.json(
       { error: "Workbook has no worksheets" },
@@ -147,7 +85,7 @@ export async function POST(request: NextRequest) {
 
   let worksheet: ExcelJS.Worksheet | undefined;
   if (requestedSheet) {
-    worksheet = workbook.getWorksheet(requestedSheet);
+    worksheet = visible.find((w) => w.name === requestedSheet);
     if (!worksheet) {
       return NextResponse.json(
         { error: `Sheet "${requestedSheet}" not found in the workbook.` },
@@ -155,163 +93,36 @@ export async function POST(request: NextRequest) {
       );
     }
   } else if (sheetNames.length === 1) {
-    worksheet = workbook.worksheets[0];
+    worksheet = visible[0];
   } else {
     // Multiple sheets and none chosen yet — ask the client to pick one.
     return NextResponse.json({ needsSheet: true, sheets: sheetNames });
   }
 
-  // Walk every row; the row filter naturally skips the 2-row header, the
-  // opening-balance row, and reimbursement rows.
-  const parsed: ParsedRow[] = [];
-  const invalid: InvalidRow[] = [];
-  worksheet.eachRow((row, rowNumber) => {
-    const res = readRow(row, rowNumber);
-    if (res.ok) parsed.push(res.data);
-    else if (res.invalid) invalid.push(res.invalid);
-  });
-
-  // Last-one-wins on duplicate pettyCashNum within the file itself.
-  const byNum = new Map<string, ParsedRow>();
-  for (const p of parsed) byNum.set(p.pettyCashNum, p);
-
-  // GL account ids for the sheet's codes. Rows whose code isn't in the chart
-  // of accounts are reported as invalid and never committed, so every
-  // committed row has an id here. (Existence only — imported records are
-  // historical, so the petty-cash-allowed flag isn't enforced here.)
-  const glIds = await glAccountIdsByCode(
-    prisma,
-    Array.from(byNum.values()).map((r) => r.glCode),
-  );
-  const rows: ParsedRow[] = [];
-  for (const r of byNum.values()) {
-    if (!glIds.has(r.glCode)) {
-      invalid.push({
-        num: r.pettyCashNum,
-        error: unknownGlCodesMessage([r.glCode]),
-        row: r.rowNumber,
-      });
-    } else {
-      rows.push(r);
-    }
+  const found = await prepareRegistryImport(prisma, worksheet, nameMap);
+  if (!found.ok) {
+    return NextResponse.json({ error: found.error }, { status: 400 });
   }
-
-  const existing = await prisma.pettyCash.findMany({
-    where: { pettyCashNum: { in: rows.map((r) => r.pettyCashNum) } },
-    select: { pettyCashNum: true },
-  });
-  const existingSet = new Set(existing.map((e) => e.pettyCashNum));
-
-  // A row carrying a number that a record has since been renumbered from is
-  // that record, not a new one: never import it again.
-  const unmatched = rows.map((r) => r.pettyCashNum).filter((n) => !existingSet.has(n));
-  const renumbered = unmatched.length
-    ? await prisma.pettyCash.findMany({
-        where: { previousNums: { hasSome: unmatched } },
-        select: { pettyCashNum: true, previousNums: true },
-      })
-    : [];
-  const renumberedTo = new Map<string, string>();
-  for (const pc of renumbered) {
-    for (const old of pc.previousNums) renumberedTo.set(old, pc.pettyCashNum);
-  }
-  for (let i = rows.length - 1; i >= 0; i--) {
-    const now = !existingSet.has(rows[i].pettyCashNum) && renumberedTo.get(rows[i].pettyCashNum);
-    if (now) {
-      invalid.push({
-        num: rows[i].pettyCashNum,
-        error: `Renumbered to ${now} — already in the register, not imported again`,
-        row: rows[i].rowNumber,
-      });
-      rows.splice(i, 1);
-    }
-  }
+  const { prepared } = found;
 
   if (mode === "preview") {
     return NextResponse.json({
       summary: {
-        totalRows: parsed.length,
-        valid: rows.map((r) => ({
+        totalRows: prepared.totalRows,
+        valid: prepared.rows.map((r) => ({
           num: r.pettyCashNum,
           details: r.details,
           total: r.totalRequiredAmount,
         })),
-        invalid,
-        duplicates: rows
-          .filter((r) => existingSet.has(r.pettyCashNum))
+        invalid: prepared.invalid,
+        duplicates: prepared.rows
+          .filter((r) => prepared.existing.has(r.pettyCashNum))
           .map((r) => ({ num: r.pettyCashNum })),
+        unmatchedNames: prepared.unmatchedNames,
       },
     });
   }
 
-  // ----- Commit -----
-  let inserted = 0;
-  let replaced = 0;
-  let skipped = 0;
-  const failed: { num: string; error: string }[] = [];
-
-  for (const r of rows) {
-    const isDuplicate = existingSet.has(r.pettyCashNum);
-    if (isDuplicate && onConflict === "skip") {
-      skipped += 1;
-      continue;
-    }
-
-    const data = {
-      pettyCashNum: r.pettyCashNum,
-      date: r.date,
-      // Fields the registry sheet doesn't carry are left blank.
-      formNum: "",
-      sectionUnit: "",
-      totalRequiredAmount: r.totalRequiredAmount,
-      glAccountId: glIds.get(r.glCode)!,
-      items: r.details
-        ? { create: [{ qty: 1, name: r.details }] }
-        : undefined,
-      // Imported records are approved by the system — no individual
-      // signatories. Treated as fully approved everywhere.
-      systemApproved: true,
-    };
-
-    try {
-      if (isDuplicate) {
-        // Replace: clear the old record (cascades items + approvalEvents)
-        // plus any role rows, then recreate.
-        const old = await prisma.pettyCash.findUnique({
-          where: { pettyCashNum: r.pettyCashNum },
-        });
-        const roleIds = old
-          ? [
-              old.handledById,
-              old.procurementApprovedById,
-              old.budgetCheckedById,
-              old.balanceHandedOverById,
-              old.balanceCollectedById,
-            ].filter((id): id is string => Boolean(id))
-          : [];
-        await prisma.$transaction(async (tx) => {
-          await tx.pettyCash.delete({
-            where: { pettyCashNum: r.pettyCashNum },
-          });
-          if (roleIds.length > 0) {
-            await tx.pettyCashStaff.deleteMany({ where: { id: { in: roleIds } } });
-          }
-          await tx.pettyCash.create({ data });
-        });
-        replaced += 1;
-      } else {
-        await prisma.pettyCash.create({ data });
-        inserted += 1;
-      }
-    } catch (err) {
-      failed.push({
-        num: r.pettyCashNum,
-        error: err instanceof Error ? err.message : "Unknown error",
-      });
-    }
-  }
-
-  return NextResponse.json({
-    result: { inserted, replaced, skipped, failed },
-  });
+  const result = await commitRegistryImport(prisma, prepared, onConflict);
+  return NextResponse.json({ result });
 }
