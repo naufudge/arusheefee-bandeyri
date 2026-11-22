@@ -29,6 +29,8 @@ export async function POST() {
   try {
     tenantUsers = await listTenantUsers();
   } catch (err) {
+    // 424, not 502: Cloudflare replaces a 502 from the app with its own
+    // "Bad gateway" page, which would hide this message.
     return NextResponse.json(
       {
         error:
@@ -36,7 +38,7 @@ export async function POST() {
             ? err.message
             : "Failed to fetch users from Microsoft Graph.",
       },
-      { status: 502 },
+      { status: 424 },
     );
   }
 

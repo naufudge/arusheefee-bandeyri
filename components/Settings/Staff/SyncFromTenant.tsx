@@ -45,7 +45,7 @@ const SyncFromTenant: React.FC<SyncFromTenantProps> = ({ onSynced }) => {
           title: "Sync failed",
           description:
             (json && "error" in json && json.error) ||
-            `Microsoft Graph returned ${res.status}.`,
+            `The server didn't respond properly (HTTP ${res.status}). Try again in a few minutes.`,
         });
         return;
       }

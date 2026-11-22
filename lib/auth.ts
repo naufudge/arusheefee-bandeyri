@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import { fetchUserProfile } from "@/lib/graph";
+import { graphTokenNeedsRefresh, refreshGraphToken } from "@/lib/graph-token";
 import { resolveStaff } from "@/lib/staff-resolve";
 import { prisma } from "@/lib/prisma";
 
@@ -20,8 +21,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // openid/profile/email          → standard OIDC identity claims
           // User.Read                     → /me (per-login enrichment)
           // User.Read.All                 → /users (admin-consented; needed for tenant sync)
-          // offline_access                → issues a refresh_token so we *can* refresh
-          //                                 later if we add refresh handling
+          // offline_access                → issues a refresh_token, used to renew
+          //                                 the Graph token (lib/graph-token.ts)
           scope:
             "openid profile email User.Read User.Read.All offline_access",
         },
@@ -58,13 +59,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // Persist Microsoft Graph access token onto the JWT so subsequent
         // server actions (e.g. tenant sync) can call Graph on the user's
-        // behalf. Tokens are short-lived (~1 hour) — see note in graph.ts
-        // about handling expiry.
+        // behalf. It lasts about an hour; the refresh token renews it.
         if (account?.access_token) {
           token.accessToken = account.access_token;
         }
         if (typeof account?.expires_at === "number") {
           token.accessTokenExpiresAt = account.expires_at;
+        }
+        if (account?.refresh_token) {
+          token.refreshToken = account.refresh_token;
         }
 
         // Best-effort Graph enrichment. fetchUserProfile returns null on
@@ -99,7 +102,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           new Set((withRoles?.roles ?? []).flatMap((r) => r.permissions)),
         );
         token.permissions = permissions;
+        return token;
       }
+      // Later requests: renew the Graph token shortly before it expires.
+      if (graphTokenNeedsRefresh(token)) return refreshGraphToken(token);
       return token;
     },
 

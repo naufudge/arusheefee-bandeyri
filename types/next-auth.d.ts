@@ -37,5 +37,10 @@ declare module "next-auth/jwt" {
     permissions?: string[];
     accessToken?: string;
     accessTokenExpiresAt?: number;
+    /**
+     * Microsoft refresh token, used to renew `accessToken` before it expires.
+     * Lives only in the encrypted session cookie; never copied to the Session.
+     */
+    refreshToken?: string;
   }
 }

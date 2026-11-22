@@ -50,9 +50,10 @@ export async function GET(
     return new Response(stream.body, { headers });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Download failed";
+    // 424, not 502: Cloudflare swaps a 502 for its own page, hiding the reason.
     return NextResponse.json(
       { error: "Failed to fetch file", detail: message },
-      { status: 502 },
+      { status: 424 },
     );
   }
 }
